@@ -1,10 +1,15 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const morgan = require("morgan");
-const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 require("dotenv").config();
+
+const { errorHandler, errorNotFound } = require("./middlewares/dbErrorHandler");
+
+//import routes
+const blogRoutes = require("./routes/blog");
+const authRoutes = require("./routes/auth");
 
 //app
 const app = express();
@@ -22,19 +27,30 @@ mongoose
 
 //middlewares
 app.use(morgan("dev"));
-app.use(bodyParser.json());
+app.use(express.json());
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
 app.use(cookieParser());
+
 //cors
 if (process.env.NODE_ENV === "development")
   app.use(cors({ origin: `${process.env.CLIENT_URL}` }));
 
 //routes
-app.get("/", (req, res) => {
-  console.log("object");
-});
+app.use("/api/v1", blogRoutes);
+app.use("/api/v1", authRoutes);
 
+//eror
+app.use(errorNotFound);
+app.use(errorHandler);
+
+//port
 const port = process.env.PORT || 8000;
 
+//server
 app.listen(port, () => {
   console.log(`Server is running on port: ${port}`);
 });
