@@ -11,6 +11,7 @@ const { errorHandler, errorNotFound } = require("./middlewares/dbErrorHandler");
 const blogRoutes = require("./routes/blog");
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/user");
+const categoryRoutes = require("./routes/category");
 
 //app
 const app = express();
@@ -44,6 +45,7 @@ if (process.env.NODE_ENV === "development")
 app.use("/api/v1", blogRoutes);
 app.use("/api/v1", authRoutes);
 app.use("/api/v1", userRoutes);
+app.use("/api/v1", categoryRoutes);
 
 //eror
 app.use(errorNotFound);
