@@ -202,7 +202,7 @@ exports.updateBlog = (req, res) => {
   });
 };
 
-//delete bblog
+//delete blog
 exports.deleteBlog = async (req, res) => {
   try {
     const slug = req.params.slug.toLowerCase();
@@ -215,6 +215,21 @@ exports.deleteBlog = async (req, res) => {
         .json({ message: "Blog not found or already been deleted" });
 
     res.status(200).json({ message: "Blog deleted successful" });
+  } catch (err) {
+    res.status(400).json({ error: errorHandler(err) });
+  }
+};
+
+//get blog photo
+exports.getPhoto = async (req, res) => {
+  try {
+    const slug = req.params.slug.toLowerCase();
+
+    const blog = await Blog.findOne({ slug }).select("photo").exec();
+
+    res.set("Content-Type", blog.photo.contentType);
+
+    return res.send(blog.photo.data);
   } catch (err) {
     res.status(400).json({ error: errorHandler(err) });
   }
