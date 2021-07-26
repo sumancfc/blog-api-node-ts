@@ -76,3 +76,55 @@ exports.createBlog = (req, res) => {
     });
   });
 };
+
+//get all blogs
+exports.getAllBlogs = async (req, res) => {
+  try {
+    const blogs = await Blog.find({})
+      .populate("categories", "_id name slug")
+      .populate("tags", "_id name slug")
+      .populate("postedBy", "_id name username")
+      .select(
+        "_id title body excerpt categories tags postedBy createdAt updatedAt"
+      )
+      .sort({ createdAt: -1 })
+      .exec();
+
+    res.status(200).json(blogs);
+  } catch (err) {
+    res.status(400).json({ error: errorHandler(err) });
+  }
+};
+
+//get all blogs, categories, tags
+exports.getAllBlogsCatsTags = async (req, res) => {
+  try {
+    let limit = req.body.limit ? parseInt(req.body.limit) : 10;
+    let skip = req.body.skip ? parseInt(req.body.skip) : 0;
+
+    let blogs, categories, tags;
+
+    const allBlogs = await Blog.find({})
+      .populate("categories", "_id name slug")
+      .populate("tags", "_id name slug")
+      .populate("postedBy", "_id name username profile")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .select(
+        "_id title slug excerpt categories tags postedBy createdAt updatedAt"
+      )
+      .exec();
+
+    const allCategories = await Category.find({}).exec();
+    const allTags = await Tag.find({}).exec();
+
+    blogs = allBlogs;
+    categories = allCategories;
+    tags = allTags;
+
+    return res.json({ blogs, categories, tags, size: blogs.length });
+  } catch (err) {
+    res.json({ error: errorHandler(err) });
+  }
+};
