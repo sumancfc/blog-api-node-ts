@@ -227,9 +227,35 @@ exports.getPhoto = async (req, res) => {
 
     const blog = await Blog.findOne({ slug }).select("photo").exec();
 
+    if (!blog) res.status(400).json({ message: "Blog image not found" });
+
     res.set("Content-Type", blog.photo.contentType);
 
     return res.send(blog.photo.data);
+  } catch (err) {
+    res.status(400).json({ error: errorHandler(err) });
+  }
+};
+
+//get related blogs
+exports.getRelatedBlogs = async (req, res) => {
+  try {
+    let limit = req.body.limit ? parseInt(req.body.limit) : 4;
+
+    const { _id, categories } = req.body.blog;
+
+    const related = await Blog.find({
+      _id: { $ne: _id },
+      categories: { $in: categories },
+    })
+      .limit(limit)
+      .populate("postedBy", "_id anme profile")
+      .select("title slug excerpt postedBy createdAt updatedAt")
+      .exec();
+
+    if (!related) res.status(400).json({ message: "Blogs not found" });
+
+    res.status(200).json(related);
   } catch (err) {
     res.status(400).json({ error: errorHandler(err) });
   }

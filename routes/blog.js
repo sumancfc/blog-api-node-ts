@@ -9,6 +9,7 @@ const {
   updateBlog,
   deleteBlog,
   getPhoto,
+  getRelatedBlogs,
 } = require("../controllers/blog");
 
 const { requireSignin, adminMiddleware } = require("../controllers/auth");
@@ -20,5 +21,6 @@ router.get("/blog/:slug", getSingleBlog);
 router.put("/blog/:slug", requireSignin, adminMiddleware, updateBlog);
 router.delete("/blog/:slug", requireSignin, adminMiddleware, deleteBlog);
 router.get("/blog/photo/:slug", getPhoto);
+router.post("/blog/related", getRelatedBlogs);
 
 module.exports = router;
