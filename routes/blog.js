@@ -6,6 +6,7 @@ const {
   getAllBlogs,
   getAllBlogsCatsTags,
   getSingleBlog,
+  updateBlog,
   deleteBlog,
 } = require("../controllers/blog");
 
@@ -15,6 +16,7 @@ router.post("/create-blog", requireSignin, adminMiddleware, createBlog);
 router.get("/blogs", getAllBlogs);
 router.post("/blogs-categories-tags", getAllBlogsCatsTags);
 router.get("/blog/:slug", getSingleBlog);
+router.put("/blog/:slug", requireSignin, adminMiddleware, updateBlog);
 router.delete("/blog/:slug", requireSignin, adminMiddleware, deleteBlog);
 
 module.exports = router;

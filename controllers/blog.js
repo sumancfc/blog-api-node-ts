@@ -151,6 +151,57 @@ exports.getSingleBlog = async (req, res) => {
   }
 };
 
+//update blog
+exports.updateBlog = (req, res) => {
+  const slug = req.params.slug.toLowerCase();
+
+  Blog.findOne({ slug }).exec((err, old) => {
+    if (err) res.status(400).json({ error: errorHandler(err) });
+
+    let form = new formidable.IncomingForm();
+    form.keepExtensions = true;
+    form.parse(req, (err, fields, files) => {
+      if (err) res.status(400).json({ error: "Image could not upload" });
+
+      let oldSlug = old.slug;
+      old = _.merge(old, fields);
+      old.slug = oldSlug;
+
+      const { body, metaDescription, categories, tags } = fields;
+
+      if (body) {
+        old.excerpt = smartTrim(body, 120, " ", "...");
+        old.metaDescription = stripHtml(body.substring(0, 100));
+      }
+
+      if (categories) {
+        old.categories = categories.split(",");
+      }
+
+      if (tags) {
+        old.tags = tags.split(",");
+      }
+
+      if (files.photo) {
+        if (files.photo.size > 20000000)
+          res
+            .status(400)
+            .json({ error: "Image should be less then 2mb in size" });
+
+        old.photo.data = fs.readFileSync(files.photo.path);
+        old.photo.contentType = files.photo.type;
+      }
+
+      old.save((err, result) => {
+        // console.log(result);
+        if (err) res.status(400).json({ error: errorHandler(err) });
+
+        res.status(200).json(result);
+      });
+    });
+  });
+};
+
 //delete bblog
 exports.deleteBlog = async (req, res) => {
   try {
