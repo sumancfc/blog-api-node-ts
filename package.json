@@ -38,7 +38,7 @@
     "mongoose": "^5.13.3",
     "morgan": "^1.10.0",
     "slugify": "^1.6.0",
-    "string-strip-html": "^8.3.0"
+    "string-strip-html": "^4.1.1"
   },
   "devDependencies": {
     "nodemon": "^2.0.12"

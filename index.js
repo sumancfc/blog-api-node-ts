@@ -50,8 +50,8 @@ app.use("/api/v1", categoryRoutes);
 app.use("/api/v1", tagRoutes);
 
 //eror
-app.use(errorNotFound);
-app.use(errorHandler);
+// app.use(errorNotFound);
+// app.use(errorHandler);
 
 //port
 const port = process.env.PORT || 8000;

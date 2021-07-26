@@ -15,7 +15,7 @@ const blogSchema = new mongoose.Schema(
       unique: true,
       index: true,
     },
-    description: {
+    body: {
       type: {},
       required: true,
       min: 100,
