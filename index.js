@@ -12,6 +12,7 @@ const blogRoutes = require("./routes/blog");
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/user");
 const categoryRoutes = require("./routes/category");
+const tagRoutes = require("./routes/tag");
 
 //app
 const app = express();
@@ -46,6 +47,7 @@ app.use("/api/v1", blogRoutes);
 app.use("/api/v1", authRoutes);
 app.use("/api/v1", userRoutes);
 app.use("/api/v1", categoryRoutes);
+app.use("/api/v1", tagRoutes);
 
 //eror
 app.use(errorNotFound);
