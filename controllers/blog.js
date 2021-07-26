@@ -8,6 +8,7 @@ const Category = require("../models/categoryModel");
 const Tag = require("../models/tagModel");
 const { errorHandler } = require("../middlewares/dbErrorHandler");
 const { smartTrim } = require("../helpers/blog");
+const { buildCheckFunction } = require("express-validator");
 
 //create blog
 exports.createBlog = (req, res) => {
@@ -256,6 +257,31 @@ exports.getRelatedBlogs = async (req, res) => {
     if (!related) res.status(400).json({ message: "Blogs not found" });
 
     res.status(200).json(related);
+  } catch (err) {
+    res.status(400).json({ error: errorHandler(err) });
+  }
+};
+
+//search blog
+exports.searchBlogs = async (req, res) => {
+  try {
+    const { search } = req.query;
+
+    if (search) {
+      const blogs = await buildCheckFunction
+        .find({
+          $or: [
+            { title: { $regex: search, $options: "i" } },
+            {
+              body: { $regex: search, $options: "i" },
+            },
+          ],
+        })
+        .select("-photo -body")
+        .exec();
+
+      res.status(200).json(blogs);
+    }
   } catch (err) {
     res.status(400).json({ error: errorHandler(err) });
   }
