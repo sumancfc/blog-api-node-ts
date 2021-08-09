@@ -7,7 +7,7 @@ const asyncHandler = require("express-async-handler");
 exports.signup = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
   //check user already exist
-  const userExists = await User.findOne({ email });
+  const userExists = await User.findOne({ email }).exec();
 
   if (userExists) res.status(400).json({ error: "User already present" });
 
@@ -30,7 +30,7 @@ exports.signup = asyncHandler(async (req, res) => {
 exports.signin = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
-  let user = await User.findOne({ email });
+  let user = await User.findOne({ email }).exec();
 
   if (!user)
     res.status(400).json({ error: "User with that email does not exist." });
