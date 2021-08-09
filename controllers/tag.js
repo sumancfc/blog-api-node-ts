@@ -1,4 +1,5 @@
 const Tag = require("../models/tagModel");
+const Blog = require("../models/blogModel");
 const slugify = require("slugify");
 const asyncHandler = require("express-async-handler");
 const { errorHandler } = require("../middlewares/dbErrorHandler");
@@ -37,7 +38,19 @@ exports.getSingleTag = asyncHandler(async (req, res) => {
       .status(400)
       .json({ message: "Tag not found or already have been deleted!" });
 
-  res.status(200).json(tag);
+  // res.status(200).json(tag);
+  const data = await Blog.find({ tags: tag })
+    .populate("tags", "_id name slug")
+    .populate("categories", "_id name slug")
+    .populate("postedBy", "_id name")
+    .select(
+      "_id title slug excerpt categories tags postedBy createdAt updatedAt"
+    )
+    .exec();
+
+  if (!data) res.status(400).json({ message: "Data not found" });
+
+  res.status(200).json({ tag, blogs: data });
 });
 
 //update tag
