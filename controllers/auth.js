@@ -9,7 +9,8 @@ exports.signup = asyncHandler(async (req, res) => {
   //check user already exist
   const userExists = await User.findOne({ email }).exec();
 
-  if (userExists) res.status(400).json({ error: "User already present" });
+  if (userExists)
+    return res.status(400).json({ error: "User already present" });
 
   const username = email.split("@")[0];
   const profile = `${process.env.CLIENT_URL}/profile/${username}`;
@@ -22,8 +23,8 @@ exports.signup = asyncHandler(async (req, res) => {
     profile,
   }).save();
 
-  if (user) res.status(201).json({ message: "User signup successful." });
-  else res.status(400).json({ error: "Invalid user" });
+  if (user) return res.status(201).json({ message: "User signup successful." });
+  else return res.status(400).json({ error: "Invalid user" });
 });
 
 //signin controller
@@ -33,11 +34,13 @@ exports.signin = asyncHandler(async (req, res) => {
   let user = await User.findOne({ email }).exec();
 
   if (!user)
-    res.status(400).json({ error: "User with that email does not exist." });
+    return res
+      .status(400)
+      .json({ error: "User with that email does not exist." });
 
   //check authenticate
   if (!user.authenticate(password))
-    res.status(400).json({ error: "Email and Password do not match." });
+    return res.status(400).json({ error: "Email and Password do not match." });
 
   //generate token
   const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
@@ -48,7 +51,7 @@ exports.signin = asyncHandler(async (req, res) => {
   res.cookie("token", token, { expiresIn: "2d" });
 
   if (user) {
-    res.status(200).json({
+    return res.status(200).json({
       token,
       user: {
         _id: user._id,
@@ -58,13 +61,13 @@ exports.signin = asyncHandler(async (req, res) => {
         role: user.role,
       },
     });
-  } else res.status(401).json({ error: "Invalid email or password" });
+  } else return res.status(401).json({ error: "Invalid email or password" });
 });
 
 //signout controller
 exports.signout = (req, res) => {
   res.clearCookie("token");
-  res.status(200).json({ message: "Signout Success." });
+  return res.status(200).json({ message: "Signout Success." });
 };
 
 //user require signin
@@ -79,7 +82,7 @@ exports.authMiddleware = asyncHandler(async (req, res, next) => {
 
   const user = await User.findById({ _id: authUserId });
 
-  if (!user) res.status(400).json({ error: "User not found" });
+  if (!user) return res.status(400).json({ error: "User not found" });
 
   req.profile = user;
 
@@ -95,7 +98,7 @@ exports.adminMiddleware = asyncHandler(async (req, res, next) => {
   if (!user) res.status(400).json({ error: "User not found" });
 
   if (user.role !== 1)
-    res.status(400).json({ error: "Admin resource. Access denied." });
+    return res.status(400).json({ error: "Admin resource. Access denied." });
 
   req.profile = user;
 
