@@ -44,34 +44,36 @@ exports.signin = asyncHandler(async (req, res) => {
 
   //generate token
   const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
-    expiresIn: "2d",
+    expiresIn: "1d",
   });
 
   //cookies
-  res.cookie("token", token, { expiresIn: "2d" });
+  res.cookie("token", token, { expiresIn: "1d" });
+
+  user.hashed_password = undefined;
+  user.salt = undefined;
 
   if (user) {
-    return res.status(200).json({
+    return res.json({
       token,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        username: user.username,
-        role: user.role,
-      },
+      user,
     });
   } else return res.status(401).json({ error: "Invalid email or password" });
 });
 
 //signout controller
-exports.signout = (req, res) => {
-  res.clearCookie("token");
-  return res.status(200).json({ message: "Signout Success." });
+exports.signout = async (req, res) => {
+  try {
+    res.clearCookie("token");
+    return res.status(200).json({ message: "Signout Success." });
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 //user require signin
 exports.requireSignin = expressJWT({
+  getToken: (req, res) => req.cookies.token,
   secret: process.env.JWT_SECRET,
   algorithms: ["HS256"],
 });

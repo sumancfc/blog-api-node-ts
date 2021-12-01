@@ -19,5 +19,5 @@ exports.userSigninValidation = [
     .isLength({ min: 6 })
     .withMessage("Password must be at least 6 characters long")
     .matches(/\d/)
-    .withMessage("must contain a number"),
+    .withMessage("Password must contain a number"),
 ];

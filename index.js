@@ -1,18 +1,13 @@
 const express = require("express");
+const fs = require("fs");
 const mongoose = require("mongoose");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
+const csrf = require("csurf");
 require("dotenv").config();
 
-const { errorHandler, errorNotFound } = require("./middlewares/dbErrorHandler");
-
-//import routes
-const blogRoutes = require("./routes/blog");
-const authRoutes = require("./routes/auth");
-const userRoutes = require("./routes/user");
-const categoryRoutes = require("./routes/category");
-const tagRoutes = require("./routes/tag");
+const csrfProtection = csrf({ cookie: true });
 
 //app
 const app = express();
@@ -43,15 +38,17 @@ if (process.env.NODE_ENV === "development")
   app.use(cors({ origin: `${process.env.CLIENT_URL}` }));
 
 //routes
-app.use("/api/v1", blogRoutes);
-app.use("/api/v1", authRoutes);
-app.use("/api/v1", userRoutes);
-app.use("/api/v1", categoryRoutes);
-app.use("/api/v1", tagRoutes);
+fs.readdirSync("./routes").map((r) =>
+  app.use("/api/v1", require(`./routes/${r}`))
+);
 
-//eror
-// app.use(errorNotFound);
-// app.use(errorHandler);
+//csrf
+app.use(csrfProtection);
+
+app.get("/api/v1/csrf-token", (req, res, next) => {
+  res.json({ csrfToken: req.csrfToken() });
+  next();
+});
 
 //port
 const port = process.env.PORT || 8000;
