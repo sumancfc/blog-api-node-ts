@@ -45,6 +45,7 @@ exports.signin = asyncHandler(async (req, res) => {
   //generate token
   const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
     expiresIn: "1d",
+    httpOnly: true,
   });
 
   //cookies
@@ -73,7 +74,7 @@ exports.signout = async (req, res) => {
 
 //user require signin
 exports.requireSignin = expressJWT({
-  getToken: (req, res) => req.cookies.token,
+  // getToken: (req, res) => req.cookies.token,
   secret: process.env.JWT_SECRET,
   algorithms: ["HS256"],
 });

@@ -5,19 +5,19 @@ const asyncHandler = require("express-async-handler");
 
 //create category
 exports.createCategory = asyncHandler(async (req, res) => {
-  const { name } = req.body;
+  const { name, slug } = req.body;
 
   const categoryExists = await Category.findOne({ name });
 
   if (categoryExists)
-    res.status(400).json({ message: "Category already exist." });
+    res.status(400).json({ error: "Category already exist." });
 
-  const slug = slugify(name).toLowerCase();
+  // const slug = slugify(name).toLowerCase();
 
   const category = await new Category({ name, slug }).save();
 
   if (category) res.status(200).json(category);
-  else res.status(400).json({ message: "Failed to create category!" });
+  else res.status(400).json({ error: "Failed to create category!" });
 });
 
 //get all categories
@@ -36,7 +36,7 @@ exports.getSingleCategory = asyncHandler(async (req, res) => {
   if (!category)
     res
       .status(400)
-      .json({ message: "Category not found or already have been deleted!" });
+      .json({ error: "Category not found or already have been deleted!" });
 
   // res.status(200).json(category);
   const data = await Blog.find({ categories: category })
@@ -48,7 +48,7 @@ exports.getSingleCategory = asyncHandler(async (req, res) => {
     )
     .exec();
 
-  if (!data) res.status(400).json({ message: "Data not found" });
+  if (!data) res.status(400).json({ error: "Data not found" });
 
   res.status(200).json({ category, blogs: data });
 });
@@ -76,7 +76,7 @@ exports.deleteCategory = asyncHandler(async (req, res) => {
   if (!category)
     res
       .status(400)
-      .json({ message: "Category not found or already have been deleted!" });
+      .json({ error: "Category not found or already have been deleted!" });
 
   res.status(200).json({ message: "Category deleted successfully" });
 });

@@ -12,12 +12,12 @@ exports.createTag = asyncHandler(async (req, res) => {
 
   const tagExists = await Tag.findOne({ name });
 
-  if (tagExists) res.status(400).json({ message: "Tag already exist" });
+  if (tagExists) res.status(400).json({ error: "Tag already exist" });
 
   const tag = await new Tag({ name, slug }).save();
 
   if (tag) res.status(200).json(tag);
-  else res.status(400).json({ message: "Failed to create tag" });
+  else res.status(400).json({ error: "Failed to create tag" });
 });
 
 //get all tags
@@ -36,7 +36,7 @@ exports.getSingleTag = asyncHandler(async (req, res) => {
   if (!tag)
     res
       .status(400)
-      .json({ message: "Tag not found or already have been deleted!" });
+      .json({ error: "Tag not found or already have been deleted!" });
 
   // res.status(200).json(tag);
   const data = await Blog.find({ tags: tag })
@@ -48,7 +48,7 @@ exports.getSingleTag = asyncHandler(async (req, res) => {
     )
     .exec();
 
-  if (!data) res.status(400).json({ message: "Data not found" });
+  if (!data) res.status(400).json({ error: "Data not found" });
 
   res.status(200).json({ tag, blogs: data });
 });
@@ -78,5 +78,5 @@ exports.deleteTag = asyncHandler(async (req, res) => {
       .status(400)
       .json({ message: "Tag not found or already have been deleted!" });
 
-  res.status(200).json({ message: "Tag deleted successful" });
+  res.status(200).json({ error: "Tag deleted successful" });
 });
