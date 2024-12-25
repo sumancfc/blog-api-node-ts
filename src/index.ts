@@ -1,20 +1,19 @@
-import express, { Request, Response, NextFunction } from "express";
-import fs from "fs";
+import express, { Express, Request, Response, NextFunction } from "express";
 import mongoose from "mongoose";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import csrf from "csurf";
 import dotenv from "dotenv";
-
 import authRoutes from "./routes/auth";
 
 dotenv.config();
 
 const csrfProtection = csrf({cookie: true})
+const app: Express = express();
+const port = process.env.PORT || 8000;
 
-const app = express();
-
+// Database Connection
 mongoose.connect(process.env.DATABASE_URL as string, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -36,7 +35,7 @@ if (process.env.NODE_ENV === "development") {
     );
 }
 
-app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1", authRoutes);
 
 // Dynamically load routes
 // fs.readdirSync("./routes").forEach((routeFile) => {
@@ -56,9 +55,6 @@ app.get(
         next();
     }
 );
-
-// Port
-const port = process.env.PORT || 8000;
 
 // Start server
 app.listen(port, () => {

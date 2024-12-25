@@ -10,79 +10,39 @@ interface IUser extends Document {
     salt: string;
     about?: string;
     role: number;
-    photo?: {
-        data: Buffer;
-        contentType: String;
-    };
-    resetPasswordLink?: string;
-    password?: string;
-    authenticate: (plaintext: string) => boolean;
+    photo?: { data: Buffer; contentType: String; };
+    resetPasswordLink: string;
+    _password?: string;
+    authenticate: (plainText: string) => boolean;
     encryptPassword: (password: string) => string;
     makeSalt: () => string;
 }
 
-const userSchema: Schema<IUser> = new Schema(
-  {
-    username: {
-      type: String,
-      trim: true,
-      required: true,
-      unique: true,
-      max: 30,
-      index: true,
-      lowercase: true,
-    },
-    name: {
-      type: String,
-      required: true,
-      max: 30,
-    },
-    email: {
-      type: String,
-      trim: true,
-      required: true,
-      unique: true,
-    },
-    hashed_password: {
-      type: String,
-      required: true,
-    },
-    profile: {
-      type: String,
-      required: true,
-    },
-    salt: String,
-    about: {
-      type: String,
-    },
-    role: {
-      type: Number,
-      default: 0,
-    },
-    photo: {
-      data: Buffer,
-      contentType: String,
-    },
-    resetPasswordLink: {
-      data: String,
-      default: "",
-    },
-  },
-  { timestamps: true }
-);
+const userSchema: Schema<IUser> = new Schema({
+    username: { type: String, trim: true, required: true, unique: true, max: 30, index: true, lowercase: true },
+    name: { type: String, required: true, max: 30 },
+    email: { type: String, trim: true, required: true, unique: true },
+    hashed_password: { type: String, required: true, select: false },
+    profile: { type: String, required: true },
+    salt: { type: String, required: true, select: false },
+    about: {type: String},
+    role: { type: Number, default: 0 },
+    photo: { data: Buffer, contentType: String },
+    resetPasswordLink: { data: String, default: "" },
+  }, { timestamps: true });
 
 userSchema
   .virtual("password")
   .set(function (this: IUser, password: string) {
     //create a temporary variable called password
-    this.password = password;
+    this._password = password;
     //generate salt
     this.salt = this.makeSalt();
     //encrypt password
     this.hashed_password = this.encryptPassword(password);
   })
   .get(function (this: IUser) {
-    return this.password;
+    return this._password;
   });
 
 userSchema.methods = {
