@@ -1,7 +1,27 @@
-const mongoose = require("mongoose");
-const crypto = require("crypto");
+import mongoose, {Schema, Document} from "mongoose";
+import crypto from "crypto";
 
-const userSchema = new mongoose.Schema(
+interface IUser extends Document {
+    username: string;
+    name: string;
+    email: string;
+    hashed_password: string;
+    profile: string;
+    salt: string;
+    about?: string;
+    role: number;
+    photo?: {
+        data: Buffer;
+        contentType: String;
+    };
+    resetPasswordLink?: string;
+    password?: string;
+    authenticate: (plaintext: string) => boolean;
+    encryptPassword: (password: string) => string;
+    makeSalt: () => string;
+}
+
+const userSchema: Schema<IUser> = new Schema(
   {
     username: {
       type: String,
@@ -53,24 +73,24 @@ const userSchema = new mongoose.Schema(
 
 userSchema
   .virtual("password")
-  .set(function (password) {
+  .set(function (this: IUser, password: string) {
     //create a temporary variable called password
-    this._password = password;
+    this.password = password;
     //generate salt
     this.salt = this.makeSalt();
     //encrypt password
     this.hashed_password = this.encryptPassword(password);
   })
-  .get(function () {
-    return this._password;
+  .get(function (this: IUser) {
+    return this.password;
   });
 
 userSchema.methods = {
-  authenticate: function (plainText) {
+  authenticate: function (this: IUser, plainText: string) {
     return this.encryptPassword(plainText) === this.hashed_password;
   },
 
-  encryptPassword: function (password) {
+  encryptPassword: function (this: IUser, password: string) {
     if (!password) return "";
 
     try {
@@ -83,9 +103,11 @@ userSchema.methods = {
     }
   },
 
-  makeSalt: function () {
-    return Math.random(new Date().valueOf() * Math.random() + "");
-  },
+    makeSalt: function (): string {
+        return Math.random().toString(36).substring(2, 15) +
+            Math.random().toString(36).substring(2, 15);
+    },
+
 };
 
-module.exports = mongoose.model("User", userSchema);
+export default  mongoose.model<IUser>("User", userSchema);
