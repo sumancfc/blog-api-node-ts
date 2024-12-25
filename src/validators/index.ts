@@ -1,9 +1,12 @@
-const { validationResult } = require("express-validator");
+import { Request, Response, NextFunction } from "express";
+import { validationResult } from "express-validator";
 
-exports.runValidation = (req, res, next) => {
+export const runValidation = (req: Request, res: Response, next: NextFunction): void => {
   const errors = validationResult(req);
-  if (!errors.isEmpty())
+
+  if (!errors.isEmpty()) {
     return res.status(422).json({ error: errors.array()[0].msg });
+  }
 
   next();
 };

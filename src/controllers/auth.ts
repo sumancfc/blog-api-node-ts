@@ -1,16 +1,19 @@
-const User = require("../models/userModel");
-const jwt = require("jsonwebtoken");
-const expressJWT = require("express-jwt");
-const asyncHandler = require("express-async-handler");
+import { Request, Response, NextFunction } from "express";
+import User from "../models/userModel";
+import jwt from "jsonwebtoken";
+import expressJWT from "express-jwt";
+import asyncHandler from "express-async-handler";
 
-//signup controller
-exports.signup = asyncHandler(async (req, res) => {
+// Signup controller
+export const signup = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const { name, email, password } = req.body;
-  //check user already exist
-  const userExists = await User.findOne({ email }).exec();
 
-  if (userExists)
-    return res.status(400).json({ error: "User already present" });
+  // Check if user already exists
+  const userExists = await User.findOne({ email }).exec();
+  if (userExists) {
+    res.status(400).json({ error: "User already present" });
+    return;
+  }
 
   const username = email.split("@")[0];
   const profile = `${process.env.CLIENT_URL}/profile/${username}`;
@@ -23,87 +26,93 @@ exports.signup = asyncHandler(async (req, res) => {
     profile,
   }).save();
 
-  if (user) return res.status(201).json({ message: "User signup successful." });
-  else return res.status(400).json({ error: "Invalid user" });
+  if (user) {
+    res.status(201).json({ message: "User signup successful." });
+  } else {
+    res.status(400).json({ error: "Invalid user" });
+  }
 });
 
-//signin controller
-exports.signin = asyncHandler(async (req, res) => {
+// Signin controller
+export const signin = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const { email, password } = req.body;
 
-  let user = await User.findOne({ email }).exec();
+  const user = await User.findOne({ email }).exec();
 
-  if (!user)
-    return res
-      .status(400)
-      .json({ error: "User with that email does not exist." });
+  if (!user) {
+    res.status(400).json({ error: "User with that email does not exist." });
+    return;
+  }
 
-  //check authenticate
-  if (!user.authenticate(password))
-    return res.status(400).json({ error: "Email and Password do not match." });
+  // Check authentication
+  if (!user.authenticate(password)) {
+    res.status(400).json({ error: "Email and Password do not match." });
+    return;
+  }
 
-  //generate token
-  const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET, {
+  // Generate token
+  const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET as string, {
     expiresIn: "1d",
-    httpOnly: true,
   });
 
-  //cookies
-  res.cookie("token", token, { expiresIn: "1d" });
+  // Set cookies
+  res.cookie("token", token, { httpOnly: true, expires: new Date(Date.now() + 86400000) }); // 1 day in ms
 
   user.hashed_password = undefined;
   user.salt = undefined;
 
-  if (user) {
-    return res.json({
-      token,
-      user,
-    });
-  } else return res.status(401).json({ error: "Invalid email or password" });
+  res.json({
+    token,
+    user,
+  });
 });
 
-//signout controller
-exports.signout = async (req, res) => {
+// Signout controller
+export const signout = async (req: Request, res: Response): Promise<void> => {
   try {
     res.clearCookie("token");
-    return res.status(200).json({ message: "Signout Success." });
+    res.status(200).json({ message: "Signout Success." });
   } catch (err) {
-    console.log(err);
+    console.error(err);
   }
 };
 
-//user require signin
-exports.requireSignin = expressJWT({
-  // getToken: (req, res) => req.cookies.token,
-  secret: process.env.JWT_SECRET,
+// Require signin middleware
+export const requireSignin = expressJWT({
+  secret: process.env.JWT_SECRET as string,
   algorithms: ["HS256"],
+  getToken: (req: Request) => req.cookies.token,
 });
 
-//auth middleware
-exports.authMiddleware = asyncHandler(async (req, res, next) => {
-  const authUserId = req.user._id;
+// Auth middleware
+export const authMiddleware = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const authUserId = req.user?._id;
 
-  const user = await User.findById({ _id: authUserId });
-
-  if (!user) return res.status(400).json({ error: "User not found" });
+  const user = await User.findById(authUserId);
+  if (!user) {
+    res.status(400).json({ error: "User not found" });
+    return;
+  }
 
   req.profile = user;
-
   next();
 });
 
-//admin middleware
-exports.adminMiddleware = asyncHandler(async (req, res, next) => {
-  const adminUserId = req.user._id;
+// Admin middleware
+export const adminMiddleware = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const adminUserId = req.user?._id;
 
-  const user = await User.findById({ _id: adminUserId });
+  const user = await User.findById(adminUserId);
+  if (!user) {
+    res.status(400).json({ error: "User not found" });
+    return;
+  }
 
-  if (!user) res.status(400).json({ error: "User not found" });
-
-  if (user.role !== 1)
-    return res.status(400).json({ error: "Admin resource. Access denied." });
+  if (user.role !== 1) {
+    res.status(400).json({ error: "Admin resource. Access denied." });
+    return;
+  }
 
   req.profile = user;
-
   next();
 });

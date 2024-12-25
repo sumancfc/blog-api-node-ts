@@ -7,6 +7,8 @@ import cors from "cors";
 import csrf from "csurf";
 import dotenv from "dotenv";
 
+import authRoutes from "./routes/auth";
+
 dotenv.config();
 
 const csrfProtection = csrf({cookie: true})
@@ -33,6 +35,8 @@ if (process.env.NODE_ENV === "development") {
         })
     );
 }
+
+app.use("/api/v1/auth", authRoutes);
 
 // Dynamically load routes
 // fs.readdirSync("./routes").forEach((routeFile) => {
