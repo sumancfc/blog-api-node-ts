@@ -1,19 +1,19 @@
-const express = require("express");
-const router = express.Router();
-
-const {
+import express, { Router } from "express";
+import {
   createCategory,
-  getAllCategories,
-  getSingleCategory,
-  updateCategory,
-  deleteCategory,
-} = require("../controllers/category");
+  // getAllCategories,
+  // getSingleCategory,
+  // updateCategory,
+  // deleteCategory,
+} from "../controllers/category";
+import { runValidation } from "../validators";
+import { categoryValidation } from "../validators/category";
+import { requireSignin, adminMiddleware } from "../controllers/auth";
 
-const { runValidation } = require("../../validators");
-const { categoryValidation } = require("../validators/category");
 
-const { requireSignin, adminMiddleware } = require("../controllers/auth");
+const router: Router = express.Router();
 
+// Category routes
 router.post(
   "/category",
   categoryValidation,
@@ -22,14 +22,14 @@ router.post(
   adminMiddleware,
   createCategory
 );
-router.get("/categories", getAllCategories);
-router.get("/category/:slug", getSingleCategory);
-router.put("/category/:slug", requireSignin, adminMiddleware, updateCategory);
-router.delete(
-  "/category/:slug",
-  requireSignin,
-  adminMiddleware,
-  deleteCategory
-);
+// router.get("/categories", getAllCategories);
+// router.get("/category/:slug", getSingleCategory);
+// router.put("/category/:slug", requireSignin, adminMiddleware, updateCategory);
+// router.delete(
+//   "/category/:slug",
+//   requireSignin,
+//   adminMiddleware,
+//   deleteCategory
+// );
 
-module.exports = router;
+export default router;

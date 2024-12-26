@@ -59,6 +59,7 @@ export const signin = asyncHandler(async (req: Request, res: Response): Promise<
   res.cookie("token", token, { httpOnly: true, expires: new Date(Date.now() + 86400000) }); // 1 day in ms
 
   res.json({
+    token,
     message: "User signin successful!!!"
   });
 });
@@ -74,41 +75,41 @@ export const signout = async (req: Request, res: Response): Promise<void> => {
 };
 
 // Require signin middleware
-// export const requireSignin = expressJWT({
-//   secret: process.env.JWT_SECRET as string,
-//   algorithms: ["HS256"],
-//   getToken: (req: Request) => req.cookies.token,
-// });
-//
-// // Auth middleware
-// export const authMiddleware = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-//   const authUserId = req.user?._id;
-//
-//   const user = await User.findById(authUserId);
-//   if (!user) {
-//     res.status(400).json({ error: "User not found" });
-//     return;
-//   }
-//
-//   req.profile = user;
-//   next();
-// });
-//
-// // Admin middleware
-// export const adminMiddleware = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-//   const adminUserId = req.user?._id;
-//
-//   const user = await User.findById(adminUserId);
-//   if (!user) {
-//     res.status(400).json({ error: "User not found" });
-//     return;
-//   }
-//
-//   if (user.role !== 1) {
-//     res.status(400).json({ error: "Admin resource. Access denied." });
-//     return;
-//   }
-//
-//   req.profile = user;
-//   next();
-// });
+export const requireSignin = expressJWT({
+  secret: process.env.JWT_SECRET as string,
+  algorithms: ["HS256"],
+  getToken: (req: Request) => req.cookies.token,
+});
+
+// Auth middleware
+export const authMiddleware = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const authUserId = req.user?._id;
+
+  const user = await User.findById(authUserId);
+  if (!user) {
+    res.status(400).json({ error: "User not found" });
+    return;
+  }
+
+  req.profile = user;
+  next();
+});
+
+// Admin middleware
+export const adminMiddleware = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  const adminUserId = req.user?._id;
+
+  const user = await User.findById(adminUserId);
+  if (!user) {
+    res.status(400).json({ error: "User not found" });
+    return;
+  }
+
+  if (user.role !== 1) {
+    res.status(400).json({ error: "Admin resource. Access denied." });
+    return;
+  }
+
+  req.profile = user;
+  next();
+});

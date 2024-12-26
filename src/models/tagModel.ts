@@ -3,7 +3,7 @@ import mongoose, { Schema, Document } from "mongoose";
 interface ITag extends Document {
     name: string;
     slug: string;
-    tag_photo: { data: Buffer; contentType: string };
+    tag_photo?: { data: Buffer; contentType: string };
 }
 
 const tagSchema: Schema<ITag> = new Schema({
