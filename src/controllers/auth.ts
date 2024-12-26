@@ -1,18 +1,40 @@
 import { Request, Response, NextFunction } from "express";
+import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import expressJWT from "express-jwt";
 import asyncHandler from "express-async-handler";
-import User from "../models/userModel";
+import User, { IUser } from "../models/userModel";
+
+const HTTP_STATUS = {
+  OK: 200,
+  CREATED: 201,
+  BAD_REQUEST: 400,
+  UNAUTHORIZED: 401,
+  FORBIDDEN: 403,
+  NOT_FOUND: 404,
+};
+
+const MESSAGES = {
+  USER_EXISTS: "User already present",
+  SIGNUP_SUCCESS: "User signup successful!!!",
+  INVALID_USER: "Invalid User",
+  USER_NOT_EXIST: "User with that email does not exist.",
+  INCORRECT_CREDENTIALS: "Email and Password do not match.",
+  SIGNIN_SUCCESS: "User signin successful!!!",
+  SIGNOUT_SUCCESS: "User signout Successful!!!",
+  UNAUTHORIZED: "Unauthorized. No user ID found in the request.",
+  USER_NOT_FOUND: "User not found",
+  ADMIN_ONLY: "Access denied. Admin resource only.",
+};
 
 // Signup controller
 export const signup = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
     const { name, email, password } = req.body;
 
-    // Check if user already exists
     const userExists = await User.findOne({ email }).exec();
     if (userExists) {
-      res.status(400).json({ error: "User already present" });
+      res.status(HTTP_STATUS.BAD_REQUEST).json({ error: MESSAGES.USER_EXISTS });
       return;
     }
 
@@ -28,9 +50,13 @@ export const signup = asyncHandler(
     }).save();
 
     if (user) {
-      res.status(201).json({ message: "User signup successful!!!" });
+      res
+        .status(HTTP_STATUS.CREATED)
+        .json({ message: MESSAGES.SIGNUP_SUCCESS });
     } else {
-      res.status(400).json({ error: "Invalid User" });
+      res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ error: MESSAGES.INVALID_USER });
     }
   }
 );
@@ -45,47 +71,41 @@ export const signin = asyncHandler(
       .exec();
 
     if (!user) {
-      res.status(400).json({ error: "User with that email does not exist." });
+      res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ error: MESSAGES.USER_NOT_EXIST });
       return;
     }
 
-    // Check authentication
     if (!user.authenticate(password)) {
-      res.status(400).json({ error: "Email and Password do not match." });
+      res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ error: MESSAGES.INCORRECT_CREDENTIALS });
       return;
     }
 
-    // Generate token
     const token = jwt.sign(
       { _id: user._id },
       process.env.JWT_SECRET as string,
-      {
-        expiresIn: "1d",
-      }
+      { expiresIn: "1d" }
     );
 
-    // Set cookies
     res.cookie("token", token, {
       httpOnly: true,
       expires: new Date(Date.now() + 86400000),
-    }); // 1 day in ms
-
-    res.json({
-      token,
-      message: "User signin successful!!!",
     });
+
+    res.json({ token, message: MESSAGES.SIGNIN_SUCCESS });
   }
 );
 
 // Signout controller
-export const signout = async (req: Request, res: Response): Promise<void> => {
-  try {
+export const signout = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
     res.clearCookie("token");
-    res.status(200).json({ message: "User signout Successful!!!" });
-  } catch (err) {
-    console.error(err);
+    res.status(HTTP_STATUS.OK).json({ message: MESSAGES.SIGNOUT_SUCCESS });
   }
-};
+);
 
 // Require signin middleware
 export const requireSignin = expressJWT({
@@ -101,14 +121,16 @@ export const authMiddleware = asyncHandler(
 
     if (!authUserId) {
       res
-        .status(401)
-        .json({ error: "Unauthorized. No user ID found in the request." });
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .json({ error: MESSAGES.UNAUTHORIZED });
       return;
     }
 
     const user = await User.findById(authUserId);
     if (!user) {
-      res.status(400).json({ error: "User not found" });
+      res
+        .status(HTTP_STATUS.BAD_REQUEST)
+        .json({ error: MESSAGES.USER_NOT_FOUND });
       return;
     }
 
@@ -124,19 +146,21 @@ export const adminMiddleware = asyncHandler(
 
     if (!adminUserId) {
       res
-        .status(401)
-        .json({ error: "Unauthorized. No user ID found in the request." });
+        .status(HTTP_STATUS.UNAUTHORIZED)
+        .json({ error: MESSAGES.UNAUTHORIZED });
       return;
     }
 
     const user = await User.findById(adminUserId);
     if (!user) {
-      res.status(404).json({ error: "User not found." });
+      res
+        .status(HTTP_STATUS.NOT_FOUND)
+        .json({ error: MESSAGES.USER_NOT_FOUND });
       return;
     }
 
     if (user.role !== "admin") {
-      res.status(403).json({ error: "Access denied. Admin resource only." });
+      res.status(HTTP_STATUS.FORBIDDEN).json({ error: MESSAGES.ADMIN_ONLY });
       return;
     }
 
@@ -153,19 +177,21 @@ export const authorizeRoles = (...roles: string[]) => {
 
       if (!userId) {
         res
-          .status(401)
-          .json({ error: "Unauthorized. No user ID found in the request." });
+          .status(HTTP_STATUS.UNAUTHORIZED)
+          .json({ error: MESSAGES.UNAUTHORIZED });
         return;
       }
 
       const user = await User.findById(userId);
       if (!user) {
-        res.status(404).json({ error: "User not found." });
+        res
+          .status(HTTP_STATUS.NOT_FOUND)
+          .json({ error: MESSAGES.USER_NOT_FOUND });
         return;
       }
 
       if (!roles.includes(user.role)) {
-        res.status(403).json({
+        res.status(HTTP_STATUS.FORBIDDEN).json({
           error: `Access denied. Allowed roles: ${roles.join(", ")}.`,
         });
         return;
