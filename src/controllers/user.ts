@@ -1,49 +1,53 @@
-import { Request, Response , NextFunction } from "express";
-import User, { UserRole } from "../models/userModel"
+import { Request, Response, NextFunction } from "express";
+import User, { UserRole } from "../models/userModel";
 // const Blog = require("../models/blogModel");
-import  _ from "lodash";
+import _ from "lodash";
 import formidable from "formidable";
 import fs from "fs";
-import { errorHandler} from "../middlewares/dbErrorHandler";
+import { errorHandler } from "../middlewares/dbErrorHandler";
 import asyncHandler from "express-async-handler";
 
-
 // Admin: Get all users
-export const getAllUsers = asyncHandler(async (req: Request, res: Response): Promise<void> =>{
-  try {
-    const users = await User.find();
-    res.status(200).json(users);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to fetch users" });
+export const getAllUsers = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const users = await User.find();
+      res.status(200).json(users);
+    } catch (err) {
+      res.status(500).json({ error: "Failed to fetch users" });
+    }
   }
-});
+);
 
 // Admin: Update user role
-export const updateUserRole = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const { _id, role } = req.body;
+export const updateUserRole = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    const { _id, role } = req.body;
 
-  if (!Object.values(UserRole).includes(role)) {
-    res.status(400).json({ error: "Invalid role" });
-    return;
-  }
-
-  try {
-    const user = await User.findByIdAndUpdate(_id, { role }, { new: true });
-    if (!user) {
-      res.status(404).json({ error: "User not found" });
+    if (!Object.values(UserRole).includes(role)) {
+      res.status(400).json({ error: "Invalid role" });
       return;
     }
-    res.status(200).json(user);
-  } catch (err) {
-    res.status(500).json({ error: "Failed to update role" });
-  }
-});
 
-// private user profile
-exports.read = (req, res) => {
-  req.profile.hashed_password = undefined;
-  return res.json(req.profile);
-};
+    try {
+      const user = await User.findByIdAndUpdate(_id, { role }, { new: true });
+      if (!user) {
+        res.status(404).json({ error: "User not found" });
+        return;
+      }
+      res.status(200).json(user);
+    } catch (err) {
+      res.status(500).json({ error: "Failed to update role" });
+    }
+  }
+);
+
+// Get User Profile
+export const getProfile = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    res.json(req.profile);
+  }
+);
 
 //get user profile
 exports.userProfile = async (req, res) => {

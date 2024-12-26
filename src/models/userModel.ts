@@ -1,43 +1,58 @@
-import mongoose, {Schema, Document} from "mongoose";
+import mongoose, { Schema, Document } from "mongoose";
 import crypto from "crypto";
 
 export enum UserRole {
-    ADMIN = "admin",
-    EDITOR = "editor",
-    CONTRIBUTOR = "contributor",
-    AUTHOR = "author",
-    USER = "user",
+  ADMIN = "admin",
+  EDITOR = "editor",
+  CONTRIBUTOR = "contributor",
+  AUTHOR = "author",
+  USER = "user",
 }
 
 interface IUser extends Document {
-    username: string;
-    name: string;
-    email: string;
-    hashed_password: string;
-    profile: string;
-    salt: string;
-    about?: string;
-    role: UserRole;
-    photo?: { data: Buffer; contentType: String; };
-    resetPasswordLink: string;
-    _password?: string;
-    authenticate: (plainText: string) => boolean;
-    encryptPassword: (password: string) => string;
-    makeSalt: () => string;
+  username: string;
+  name: string;
+  email: string;
+  hashed_password: string;
+  profile: string;
+  salt: string;
+  about?: string;
+  role: UserRole;
+  photo?: { data: Buffer; contentType: String };
+  resetPasswordLink: string;
+  _password?: string;
+  authenticate: (plainText: string) => boolean;
+  encryptPassword: (password: string) => string;
+  makeSalt: () => string;
 }
 
-const userSchema: Schema<IUser> = new Schema({
-    username: { type: String, trim: true, required: true, unique: true, max: 30, index: true, lowercase: true },
+const userSchema: Schema<IUser> = new Schema(
+  {
+    username: {
+      type: String,
+      trim: true,
+      required: true,
+      unique: true,
+      max: 30,
+      index: true,
+      lowercase: true,
+    },
     name: { type: String, required: true, max: 30 },
     email: { type: String, trim: true, required: true, unique: true },
     hashed_password: { type: String, required: true, select: false },
     profile: { type: String, required: true },
     salt: { type: String, required: true, select: false },
-    about: {type: String},
-    role: { type: String, enum: Object.values(UserRole), default: UserRole.USER },
+    about: { type: String },
+    role: {
+      type: String,
+      enum: Object.values(UserRole),
+      default: UserRole.USER,
+    },
     photo: { data: Buffer, contentType: String },
     resetPasswordLink: { data: String, default: "" },
-  }, { timestamps: true });
+  },
+  { timestamps: true }
+);
 
 userSchema
   .virtual("password")
@@ -71,11 +86,13 @@ userSchema.methods = {
     }
   },
 
-    makeSalt: function (): string {
-        return Math.random().toString(36).substring(2, 15) +
-            Math.random().toString(36).substring(2, 15);
-    },
-
+  makeSalt: function (): string {
+    return (
+      Math.random().toString(36).substring(2, 15) +
+      Math.random().toString(36).substring(2, 15)
+    );
+  },
 };
 
-export default  mongoose.model<IUser>("User", userSchema);
+const User = mongoose.model<IUser>("User", userSchema);
+export default User;

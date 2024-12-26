@@ -8,17 +8,20 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const csrfProtection = csrf({cookie: true})
+const csrfProtection = csrf({ cookie: true });
 const app: Express = express();
 const port = process.env.PORT || 8000;
 
 // Database Connection
-mongoose.connect(process.env.DATABASE_URL as string, {
+mongoose
+  .connect(process.env.DATABASE_URL as string, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useCreateIndex: true,
     useFindAndModify: false,
-}).then(() => console.log("Connected to DataBase!!!")).catch((err) => console.log("Database Connection Error:", err));
+  })
+  .then(() => console.log("Connected to DataBase!!!"))
+  .catch((err) => console.log("Database Connection Error:", err));
 
 // Middlewares
 app.use(morgan("dev"));
@@ -27,21 +30,23 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 if (process.env.NODE_ENV === "development") {
-    app.use(
-        cors({
-            origin: process.env.CLIENT_URL,
-        })
-    );
+  app.use(
+    cors({
+      origin: process.env.CLIENT_URL,
+    })
+  );
 }
 
 // Imported here otherwise it gives error for secret should be set for express jwt
 import authRoutes from "./routes/auth";
 import userRoutes from "./routes/user";
 import categoryRoutes from "./routes/category";
+import tagRoutes from "./routes/tag";
 
 app.use("/api/v1", authRoutes);
 app.use("/api/v1", userRoutes);
 app.use("/api/v1", categoryRoutes);
+app.use("/api/v1", tagRoutes);
 
 // Dynamically load routes
 // fs.readdirSync("./routes").forEach((routeFile) => {
@@ -55,15 +60,14 @@ app.use("/api/v1", categoryRoutes);
 app.use(csrfProtection);
 
 app.get(
-    "/api/v1/csrf-token",
-    (req: Request, res: Response, next: NextFunction) => {
-        res.json({ csrfToken: req.csrfToken() });
-        next();
-    }
+  "/api/v1/csrf-token",
+  (req: Request, res: Response, next: NextFunction) => {
+    res.json({ csrfToken: req.csrfToken() });
+    next();
+  }
 );
 
 // Start server
 app.listen(port, () => {
-    console.log(`Server is running on port: ${port}`);
+  console.log(`Server is running on port: ${port}`);
 });
-

@@ -1,82 +1,145 @@
-const Tag = require("../models/tagModel");
-const Blog = require("../models/blogModel");
-const slugify = require("slugify");
-const asyncHandler = require("express-async-handler");
-const { errorHandler } = require("../middlewares/dbErrorHandler");
+import { Request, Response } from "express";
+import slugify from "slugify";
+import asyncHandler from "express-async-handler";
+// const Blog = require("../models/blogModel");
+import Tag, { ITag } from "../models/tagModel";
+import { TagRequest, HTTP_STATUS, TAG_MESSAGES, handleError } from "../utils";
 
-//create tag
-exports.createTag = asyncHandler(async (req, res) => {
-  const { name } = req.body;
+// Create Tag
+export const createTag = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { name } = req.body as TagRequest;
 
-  const slug = slugify(name).toLowerCase();
+      if (!name || name.trim() === "") {
+        res
+          .status(HTTP_STATUS.BAD_REQUEST)
+          .json({ error: "Tag name is required" });
+        return;
+      }
 
-  const tagExists = await Tag.findOne({ name });
+      const tagExists = await Tag.findOne({ name });
+      if (tagExists) {
+        res
+          .status(HTTP_STATUS.BAD_REQUEST)
+          .json({ error: TAG_MESSAGES.TAG_EXISTS });
+        return;
+      }
 
-  if (tagExists) res.status(400).json({ error: "Tag already exist" });
+      const slug = slugify(name).toLowerCase();
+      const tag: ITag = await new Tag({ name, slug }).save();
 
-  const tag = await new Tag({ name, slug }).save();
+      if (tag) {
+        res.status(HTTP_STATUS.OK).json(tag);
+      } else {
+        res
+          .status(HTTP_STATUS.BAD_REQUEST)
+          .json({ error: TAG_MESSAGES.TAG_CREATE_FAILED });
+      }
+    } catch (error) {
+      handleError(res, error);
+    }
+  }
+);
 
-  if (tag) res.status(200).json(tag);
-  else res.status(400).json({ error: "Failed to create tag" });
-});
+// Get all tags
+export const getAllTags = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const tags: ITag[] = await Tag.find({}).sort({ createdAt: -1 }).exec();
 
-//get all tags
-exports.getAllTags = asyncHandler(async (req, res) => {
-  const tags = await Tag.find({}).sort({ createdAt: -1 }).exec();
+      res.status(HTTP_STATUS.OK).json(tags);
+    } catch (error) {
+      handleError(res, error);
+    }
+  }
+);
 
-  res.status(200).json(tags);
-});
+// Get single tags
+export const getSingleTag = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const slug = req.params.slug.toLowerCase();
+      const tag: ITag | null = await Tag.findOne({ slug }).exec();
 
-//get single tags
-exports.getSingleTag = asyncHandler(async (req, res) => {
-  const slug = req.params.slug.toLowerCase();
+      if (!tag) {
+        res
+          .status(HTTP_STATUS.NOT_FOUND)
+          .json({ error: TAG_MESSAGES.TAG_NOT_FOUND });
+        return;
+      }
 
-  const tag = await Tag.findOne({ slug }).exec();
+      res.status(HTTP_STATUS.OK).json(tag);
 
-  if (!tag)
-    res
-      .status(400)
-      .json({ error: "Tag not found or already have been deleted!" });
+      // const data = await Blog.find({ tags: tag })
+      //   .populate("tags", "_id name slug")
+      //   .populate("categories", "_id name slug")
+      //   .populate("postedBy", "_id name")
+      //   .select(
+      //     "_id title slug excerpt categories tags postedBy createdAt updatedAt"
+      //   )
+      //   .exec();
 
-  // res.status(200).json(tag);
-  const data = await Blog.find({ tags: tag })
-    .populate("tags", "_id name slug")
-    .populate("categories", "_id name slug")
-    .populate("postedBy", "_id name")
-    .select(
-      "_id title slug excerpt categories tags postedBy createdAt updatedAt"
-    )
-    .exec();
+      // if (!data) res.status(400).json({ error: "Data not found" });
 
-  if (!data) res.status(400).json({ error: "Data not found" });
+      // res.status(200).json({ tag, blogs: data });
+    } catch (error) {
+      handleError(res, error);
+    }
+  }
+);
 
-  res.status(200).json({ tag, blogs: data });
-});
+// Update tag
+export const updateTag = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { name } = req.body as TagRequest;
+      const slug = req.params.slug.toLowerCase();
 
-//update tag
-exports.updateTag = asyncHandler(async (req, res) => {
-  const { name } = req.body;
-  const slug = req.params.slug.toLowerCase();
+      if (!name || name.trim() === "") {
+        res
+          .status(HTTP_STATUS.BAD_REQUEST)
+          .json({ error: "Tag name is required" });
+        return;
+      }
 
-  const tag = await Tag.findOneAndUpdate(
-    { slug },
-    { name, slug: slugify(name).toLowerCase() },
-    { new: true }
-  );
+      const tag: ITag | null = await Tag.findOneAndUpdate(
+        { slug },
+        { name, slug: slugify(name).toLowerCase() },
+        { new: true }
+      );
 
-  res.json(tag);
-});
+      if (!tag) {
+        res
+          .status(HTTP_STATUS.NOT_FOUND)
+          .json({ error: TAG_MESSAGES.TAG_NOT_FOUND });
+        return;
+      }
 
-//delete tag
-exports.deleteTag = asyncHandler(async (req, res) => {
-  const slug = req.params.slug.toLowerCase();
+      res.status(HTTP_STATUS.OK).json(tag);
+    } catch (error) {
+      handleError(res, error);
+    }
+  }
+);
 
-  const tag = await Tag.findOneAndDelete({ slug });
+// Delete tag
+export const deleteTag = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const slug = req.params.slug.toLowerCase();
+      const tag: ITag | null = await Tag.findOneAndRemove({ slug });
 
-  if (!tag)
-    res
-      .status(400)
-      .json({ message: "Tag not found or already have been deleted!" });
+      if (!tag) {
+        res
+          .status(HTTP_STATUS.NOT_FOUND)
+          .json({ error: TAG_MESSAGES.TAG_NOT_FOUND });
+        return;
+      }
 
-  res.status(200).json({ error: "Tag deleted successful" });
-});
+      res.status(HTTP_STATUS.OK).json({ message: TAG_MESSAGES.TAG_DELETED });
+    } catch (error) {
+      handleError(res, error);
+    }
+  }
+);
