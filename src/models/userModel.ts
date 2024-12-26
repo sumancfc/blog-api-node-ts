@@ -9,7 +9,7 @@ interface IUser extends Document {
     profile: string;
     salt: string;
     about?: string;
-    role: number;
+    role: string;
     photo?: { data: Buffer; contentType: String; };
     resetPasswordLink: string;
     _password?: string;
@@ -26,7 +26,7 @@ const userSchema: Schema<IUser> = new Schema({
     profile: { type: String, required: true },
     salt: { type: String, required: true, select: false },
     about: {type: String},
-    role: { type: Number, default: 0 },
+    role: { type: String, enum: ['admin', 'user', 'editor', 'contributor', 'subscriber', 'author'], default: 'user' },
     photo: { data: Buffer, contentType: String },
     resetPasswordLink: { data: String, default: "" },
   }, { timestamps: true });
