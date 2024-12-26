@@ -1,5 +1,5 @@
-const { check } = require("express-validator");
+import { check, ValidationChain } from "express-validator";
 
-exports.categoryValidation = [
+export const categoryValidation: ValidationChain[] = [
   check("name").not().isEmpty().withMessage("Category name is required"),
 ];

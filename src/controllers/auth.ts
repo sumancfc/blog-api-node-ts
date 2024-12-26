@@ -33,7 +33,7 @@ export const signup = asyncHandler(async (req: Request, res: Response): Promise<
   }
 });
 
-// Sign in controller
+// Signin controller
 export const signin = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const { email, password } = req.body;
 
@@ -63,17 +63,17 @@ export const signin = asyncHandler(async (req: Request, res: Response): Promise<
   });
 });
 
-// // Signout controller
-// export const signout = async (req: Request, res: Response): Promise<void> => {
-//   try {
-//     res.clearCookie("token");
-//     res.status(200).json({ message: "Signout Success." });
-//   } catch (err) {
-//     console.error(err);
-//   }
-// };
-//
-// // Require signin middleware
+// Signout controller
+export const signout = async (req: Request, res: Response): Promise<void> => {
+  try {
+    res.clearCookie("token");
+    res.status(200).json({ message: "User signout Successful!!!" });
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+// Require signin middleware
 // export const requireSignin = expressJWT({
 //   secret: process.env.JWT_SECRET as string,
 //   algorithms: ["HS256"],

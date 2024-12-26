@@ -1,5 +1,5 @@
-const { check } = require("express-validator");
+import { check, ValidationChain } from "express-validator";
 
-exports.tagValidation = [
+export const tagValidation: ValidationChain[] = [
   check("name").not().isEmpty().withMessage("Tag name is required"),
 ];
