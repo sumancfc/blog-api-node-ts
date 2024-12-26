@@ -12,7 +12,7 @@ const {
 const { requireSignin, adminMiddleware } = require("../controllers/auth");
 
 const { tagValidation } = require("../validators/tag");
-const { runValidation } = require("../validators");
+const { runValidation } = require("../../validators");
 
 router.post(
   "/tag",

@@ -9,7 +9,7 @@ const {
   deleteCategory,
 } = require("../controllers/category");
 
-const { runValidation } = require("../validators");
+const { runValidation } = require("../../validators");
 const { categoryValidation } = require("../validators/category");
 
 const { requireSignin, adminMiddleware } = require("../controllers/auth");
