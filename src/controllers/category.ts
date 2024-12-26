@@ -29,68 +29,80 @@ export const createCategory = asyncHandler(async (req: Request, res: Response): 
     }
   } catch (error) {
     // Use the errorHandler to process the error
-    const errorMessage = errorHandler(error as Error); // Cast error to `Error`
+    const errorMessage = errorHandler(error as Error);
     res.status(500).json({ error: errorMessage });
   }
 });
 
-//get all categories
+// Get all categories
 export const getAllCategories = asyncHandler(async (req: Request, res: Response): Promise<void> => {
   const categories = await Category.find({}).sort({ createdAt: -1 }).exec();
 
   res.status(200).json(categories);
 });
 
-// //get single category
-// exports.getSingleCategory = asyncHandler(async (req, res) => {
-//   const slug = req.params.slug.toLowerCase();
-//
-//   const category = await Category.findOne({ slug }).exec();
-//
-//   if (!category)
-//     res
-//       .status(400)
-//       .json({ error: "Category not found or already have been deleted!" });
-//
-//   // res.status(200).json(category);
-//   const data = await Blog.find({ categories: category })
-//     .populate("categories", "_id name slug")
-//     .populate("tags", "_id name slug")
-//     .populate("postedBy", "_id name")
-//     .select(
-//       "_id title slug excerpt categories tags postedBy createdAt updatedAt"
-//     )
-//     .exec();
-//
-//   if (!data) res.status(400).json({ error: "Data not found" });
-//
-//   res.status(200).json({ category, blogs: data });
-// });
-//
-// //update category
-// exports.updateCategory = asyncHandler(async (req, res) => {
-//   const { name } = req.body;
-//   const slug = req.params.slug.toLowerCase();
-//
-//   const category = await Category.findOneAndUpdate(
-//     { slug },
-//     { name, slug: slugify(name).toLowerCase() },
-//     { new: true }
-//   );
-//
-//   res.json(category);
-// });
-//
-// //delete category
-// exports.deleteCategory = asyncHandler(async (req, res) => {
-//   const slug = req.params.slug.toLowerCase();
-//
-//   const category = await Category.findOneAndRemove({ slug });
-//
-//   if (!category)
-//     res
-//       .status(400)
-//       .json({ error: "Category not found or already have been deleted!" });
-//
-//   res.status(200).json({ message: "Category deleted successfully" });
-// });
+// Get single category
+export const getSingleCategory = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  try {
+    const slug = req.params.slug.toLowerCase();
+
+    // Find the category by slug
+    const category = await Category.findOne({ slug }).exec();
+    if (!category) {
+      res
+          .status(404)
+          .json({ error: "Category not found or already has been deleted!" });
+      return;
+    }
+
+    res.status(200).json(category);
+
+    // Find blogs associated with the category
+    // const blogs = await Blog.find({ categories: category._id })
+    //     .populate("categories", "_id name slug")
+    //     .populate("tags", "_id name slug")
+    //     .populate("postedBy", "_id name")
+    //     .select(
+    //         "_id title slug excerpt categories tags postedBy createdAt updatedAt"
+    //     )
+    //     .exec();
+    //
+    // if (!blogs || blogs.length === 0) {
+    //   res.status(404).json({ error: "No blogs found for this category." });
+    //   return;
+    // }
+
+    // res.status(200).json({ category, blogs });
+  } catch (error) {
+    const errorMessage = errorHandler(error as Error);
+    res.status(500).json({ error: errorMessage });
+  }
+});
+
+// Update category
+export const updateCategory = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const { name } = req.body;
+  const slug = req.params.slug.toLowerCase();
+
+  const category = await Category.findOneAndUpdate(
+    { slug },
+    { name, slug: slugify(name).toLowerCase() },
+    { new: true }
+  );
+
+  res.json(category);
+});
+
+// Delete category
+export const deleteCategory = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const slug = req.params.slug.toLowerCase();
+
+  const category = await Category.findOneAndRemove({ slug });
+
+  if (!category){
+    res.status(400).json({ error: "Category not found or already have been deleted!" });
+    return;
+  }
+
+  res.status(200).json({ message: "Category deleted successfully" });
+});
