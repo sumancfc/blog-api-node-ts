@@ -1,19 +1,25 @@
 "use strict";
 
+interface MongoError extends Error {
+  code?: number;
+  keyValue?: Record<string, unknown>;
+  errors?: Record<string, { message: string }>;
+}
+
 /**
  * Get unique error field name
  */
-const uniqueMessage = (error) => {
-  let output;
+const uniqueMessage = (error: MongoError): string => {
+  let output: string;
   try {
-    let fieldName = error.message.substring(
-      error.message.lastIndexOf(".$") + 2,
-      error.message.lastIndexOf("_1")
+    const fieldName = error.message.substring(
+        error.message.lastIndexOf(".$") + 2,
+        error.message.lastIndexOf("_1")
     );
     output =
-      fieldName.charAt(0).toUpperCase() +
-      fieldName.slice(1) +
-      " already exists";
+        fieldName.charAt(0).toUpperCase() +
+        fieldName.slice(1) +
+        " already exists";
   } catch (ex) {
     output = "Unique field already exists";
   }
@@ -24,7 +30,7 @@ const uniqueMessage = (error) => {
 /**
  * Get the error message from error object
  */
-exports.errorHandler = (error) => {
+export const errorHandler = (error: MongoError): string => {
   let message = "";
 
   if (error.code) {
@@ -36,10 +42,11 @@ exports.errorHandler = (error) => {
       default:
         message = "Something went wrong";
     }
-  } else {
-    for (let errorName in error.errorors) {
-      if (error.errorors[errorName].message)
-        message = error.errorors[errorName].message;
+  } else if (error.errors) {
+    for (const errorName in error.errors) {
+      if (error.errors[errorName].message) {
+        message = error.errors[errorName].message;
+      }
     }
   }
 

@@ -3,6 +3,15 @@ import User from "../models/userModel";
 import jwt from "jsonwebtoken";
 import expressJWT from "express-jwt";
 import asyncHandler from "express-async-handler";
+import { ObjectId } from "mongoose";
+
+// Extended Request interface
+interface AuthenticatedRequest extends Request {
+  user?: {
+    _id: ObjectId;
+  };
+}
+
 
 // Signup controller
 export const signup = asyncHandler(async (req: Request, res: Response): Promise<void> => {
@@ -105,7 +114,7 @@ export const adminMiddleware = asyncHandler(async (req: Request, res: Response, 
     return;
   }
 
-  if (user.role !== 1) {
+  if (user.role !== "admin") {
     res.status(400).json({ error: "Admin resource. Access denied." });
     return;
   }

@@ -1,7 +1,7 @@
 import express, { Router } from "express";
 import {
   createCategory,
-  // getAllCategories,
+  getAllCategories,
   // getSingleCategory,
   // updateCategory,
   // deleteCategory,
@@ -22,7 +22,7 @@ router.post(
   adminMiddleware,
   createCategory
 );
-// router.get("/categories", getAllCategories);
+router.get("/categories", getAllCategories);
 // router.get("/category/:slug", getSingleCategory);
 // router.put("/category/:slug", requireSignin, adminMiddleware, updateCategory);
 // router.delete(

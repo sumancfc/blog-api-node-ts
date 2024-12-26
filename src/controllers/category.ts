@@ -3,36 +3,44 @@ import { Request, Response } from 'express';
 import Category from "../models/categoryModel";
 import slugify from "slugify";
 import asyncHandler from "express-async-handler";
+import {errorHandler} from "../middlewares/dbErrorHandler";
 
 
 // Create category
 export const createCategory = asyncHandler(async (req: Request, res: Response): Promise<void> => {
-  const { name } = req.body;
+  try {
+    const { name } = req.body;
 
-  const categoryExists = await Category.findOne({ name });
+    // Check if the category already exists
+    const categoryExists = await Category.findOne({ name });
+    if (categoryExists) {
+      res.status(400).json({ error: "Category already exists." });
+      return;
+    }
 
-  if (categoryExists) {
-    res.status(400).json({ error: "Category already exist." });
-  }
+    // Create slug and save the category
+    const slug = slugify(name).toLowerCase();
+    const category = await new Category({ name, slug }).save();
 
-
-  const slug = slugify(name).toLowerCase();
-
-  const category = await new Category({ name, slug }).save();
-
-  if (category){ res.status(200).json(category)}
-  else {
-    res.status(400).json({error: "Failed to create category!"});
+    if (category) {
+      res.status(200).json(category);
+    } else {
+      res.status(400).json({ error: "Failed to create category!" });
+    }
+  } catch (error) {
+    // Use the errorHandler to process the error
+    const errorMessage = errorHandler(error as Error); // Cast error to `Error`
+    res.status(500).json({ error: errorMessage });
   }
 });
-//
-// //get all categories
-// exports.getAllCategories = asyncHandler(async (req, res) => {
-//   const categories = await Category.find({}).sort({ createdAt: -1 }).exec();
-//
-//   res.status(200).json(categories);
-// });
-//
+
+//get all categories
+export const getAllCategories = asyncHandler(async (req: Request, res: Response): Promise<void> => {
+  const categories = await Category.find({}).sort({ createdAt: -1 }).exec();
+
+  res.status(200).json(categories);
+});
+
 // //get single category
 // exports.getSingleCategory = asyncHandler(async (req, res) => {
 //   const slug = req.params.slug.toLowerCase();
