@@ -1,6 +1,14 @@
 import mongoose, {Schema, Document} from "mongoose";
 import crypto from "crypto";
 
+export enum UserRole {
+    ADMIN = "admin",
+    EDITOR = "editor",
+    CONTRIBUTOR = "contributor",
+    AUTHOR = "author",
+    USER = "user",
+}
+
 interface IUser extends Document {
     username: string;
     name: string;
@@ -9,7 +17,7 @@ interface IUser extends Document {
     profile: string;
     salt: string;
     about?: string;
-    role: string;
+    role: UserRole;
     photo?: { data: Buffer; contentType: String; };
     resetPasswordLink: string;
     _password?: string;
@@ -26,7 +34,7 @@ const userSchema: Schema<IUser> = new Schema({
     profile: { type: String, required: true },
     salt: { type: String, required: true, select: false },
     about: {type: String},
-    role: { type: String, enum: ['admin', 'user', 'editor', 'contributor', 'subscriber', 'author'], default: 'user' },
+    role: { type: String, enum: Object.values(UserRole), default: UserRole.USER },
     photo: { data: Buffer, contentType: String },
     resetPasswordLink: { data: String, default: "" },
   }, { timestamps: true });

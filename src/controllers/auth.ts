@@ -9,6 +9,7 @@ import { ObjectId } from "mongoose";
 interface AuthenticatedRequest extends Request {
   user?: {
     _id: ObjectId;
+    role?: string;
   };
 }
 
@@ -94,6 +95,11 @@ export const requireSignin = expressJWT({
 export const authMiddleware = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const authUserId = req.user?._id;
 
+  if (!authUserId) {
+    res.status(401).json({ error: "Unauthorized. No user ID found in the request." });
+    return;
+  }
+
   const user = await User.findById(authUserId);
   if (!user) {
     res.status(400).json({ error: "User not found" });
@@ -104,21 +110,52 @@ export const authMiddleware = asyncHandler(async (req: Request, res: Response, n
   next();
 });
 
-// Admin middleware
+// Admin Middleware
 export const adminMiddleware = asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   const adminUserId = req.user?._id;
 
+  if (!adminUserId) {
+    res.status(401).json({ error: "Unauthorized. No user ID found in the request." });
+    return;
+  }
+
   const user = await User.findById(adminUserId);
   if (!user) {
-    res.status(400).json({ error: "User not found" });
+    res.status(404).json({ error: "User not found." });
     return;
   }
 
   if (user.role !== "admin") {
-    res.status(400).json({ error: "Admin resource. Access denied." });
+    res.status(403).json({ error: "Access denied. Admin resource only." });
     return;
   }
 
   req.profile = user;
   next();
 });
+
+// Role-based authorization middleware
+export const authorizeRoles = (...roles: string[]) => {
+  return asyncHandler(async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const userId = req.user?._id;
+
+    if (!userId) {
+      res.status(401).json({error: "Unauthorized. No user ID found in the request."});
+      return;
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      res.status(404).json({error: "User not found."});
+      return;
+    }
+
+    if (!roles.includes(user.role)) {
+      res.status(403).json({error: `Access denied. Allowed roles: ${roles.join(", ")}.`});
+      return;
+    }
+
+    req.profile = user;
+    next();
+  })
+}

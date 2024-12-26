@@ -36,9 +36,11 @@ if (process.env.NODE_ENV === "development") {
 
 // Imported here otherwise it gives error for secret should be set for express jwt
 import authRoutes from "./routes/auth";
+import userRoutes from "./routes/user";
 import categoryRoutes from "./routes/category";
 
 app.use("/api/v1", authRoutes);
+app.use("/api/v1", userRoutes);
 app.use("/api/v1", categoryRoutes);
 
 // Dynamically load routes
