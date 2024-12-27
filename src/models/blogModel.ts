@@ -1,14 +1,31 @@
-const mongoose = require("mongoose");
-const { ObjectId } = mongoose.Schema;
+import mongoose, { Document, Schema, Model, Types } from "mongoose";
 
-const blogSchema = new mongoose.Schema(
+export interface IBlog extends Document {
+  title: string;
+  slug: string;
+  body: string | object;
+  excerpt?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  photo?: {
+    data: Buffer;
+    contentType: string;
+  };
+  categories: Types.ObjectId[];
+  tags: Types.ObjectId[];
+  postedBy?: Types.ObjectId;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+
+const blogSchema: Schema<IBlog> = new Schema(
   {
     title: {
       type: String,
       trim: true,
       required: true,
-      min: 10,
-      max: 360,
+      minlength: 10,
+      maxlength: 360,
     },
     slug: {
       type: String,
@@ -16,14 +33,14 @@ const blogSchema = new mongoose.Schema(
       index: true,
     },
     body: {
-      type: {},
+      type: Schema.Types.Mixed,
       required: true,
-      min: 100,
-      max: 3000000,
+      minlength: 30,
+      maxlength: 3000000,
     },
     excerpt: {
       type: String,
-      max: 120,
+      maxlength: 120,
     },
     metaTitle: {
       type: String,
@@ -35,11 +52,14 @@ const blogSchema = new mongoose.Schema(
       data: Buffer,
       contentType: String,
     },
-    categories: [{ type: ObjectId, ref: "Category", required: true }],
-    tags: [{ type: ObjectId, ref: "Tag", required: true }],
-    postedBy: { type: ObjectId, ref: "User" },
+    categories: [
+      { type: Schema.Types.ObjectId, ref: "Category", required: true },
+    ],
+    tags: [{ type: Schema.Types.ObjectId, ref: "Tag", required: true }],
+    postedBy: { type: Schema.Types.ObjectId, ref: "User" },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Blog", blogSchema);
+const Blog: Model<IBlog> = mongoose.model<IBlog>("Blog", blogSchema);
+export default Blog;

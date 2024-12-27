@@ -1,10 +1,15 @@
-exports.smartTrim = (str, length, delim, appendix) => {
+export const smartTrim = (
+  str: string,
+  length: number,
+  delim: string,
+  appendix: string
+): string => {
   if (str.length <= length) return str;
 
-  var trimmedStr = str.substr(0, length + delim.length);
+  let trimmedStr = str.slice(0, length + delim.length);
 
-  var lastDelimIndex = trimmedStr.lastIndexOf(delim);
-  if (lastDelimIndex >= 0) trimmedStr = trimmedStr.substr(0, lastDelimIndex);
+  const lastDelimIndex = trimmedStr.lastIndexOf(delim);
+  if (lastDelimIndex >= 0) trimmedStr = trimmedStr.slice(0, lastDelimIndex);
 
   if (trimmedStr) trimmedStr += appendix;
   return trimmedStr;
