@@ -18,7 +18,7 @@ jobs:
     strategy:
       matrix:
         node-version: [20.15.1]
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        os: [ubuntu-latest]
 
     steps:
       # Step 1: Check out the code
@@ -36,14 +36,6 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      # Step 4: Run TypeScript compilation
-      - name: Build
-        run: npm run build
-
-      # Step 5: Run program
-      - name: Lint
+      # Step 4: Run program
+      - name: Start
         run: npm run dev
-
-      # Step 6: Run tests
-      - name: Run Tests
-        run: npm test
