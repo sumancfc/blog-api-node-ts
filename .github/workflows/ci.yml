@@ -36,6 +36,6 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      # Step 4: Run program
+      # Step 4: Start project
       - name: Start
         run: npm run dev
