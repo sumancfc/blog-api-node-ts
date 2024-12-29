@@ -38,4 +38,4 @@ jobs:
 
       # Step 4: Start project
       - name: Start
-        run: npm run dev
+        run: npm start
