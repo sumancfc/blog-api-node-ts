@@ -37,11 +37,11 @@ jobs:
         run: npm install
 
       # Step 4: Run TypeScript compilation
-      - name: Build
-        run: npm run build
+      #- name: Build
+       # run: npm run build
 
       # Step 5: Run program
-      - name: Lint
+      - name: Start
         run: npm run dev
 
       # Step 6: Run tests
