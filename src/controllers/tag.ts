@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import slugify from "slugify";
 import asyncHandler from "express-async-handler";
-// const Blog = require("../models/blogModel");
 import Tag, { ITag } from "../models/tagModel";
 import { TagRequest, HTTP_STATUS, TAG_MESSAGES, handleError } from "../utils";
 

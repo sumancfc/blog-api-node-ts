@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import slugify from "slugify";
 import asyncHandler from "express-async-handler";
-// const Blog = require("../models/blogModel");
 import Category, { ICategory } from "../models/categoryModel";
 import {
   CategoryRequest,

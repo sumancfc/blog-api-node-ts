@@ -1,125 +1,125 @@
-import { Request, Response } from "express";
-import {
-  IncomingForm,
-  File as FormidableFile,
-  Fields,
-  Files,
-} from "formidable";
-import slugify from "slugify";
-// import { stripHtml } from "string-strip-html";
-import fs from "fs";
-import Blog, { IBlog } from "../models/blogModel";
-import { smartTrim } from "../helpers/blog";
-// const _ = require("lodash");
-import Category from "../models/categoryModel";
-import Tag from "../models/tagModel";
-import { handleError } from "../utils";
-// const { buildCheckFunction } = require("express-validator");
+// import { Request, Response } from "express";
+// import {
+//   IncomingForm,
+//   File as FormidableFile,
+//   Fields,
+//   Files,
+// } from "formidable";
+// import slugify from "slugify";
+// // import { stripHtml } from "string-strip-html";
+// import fs from "fs";
+// import Blog, { IBlog } from "../models/blogModel";
+// import { smartTrim } from "../helpers/blog";
+// // const _ = require("lodash");
+// import Category from "../models/categoryModel";
+// import Tag from "../models/tagModel";
+// import { handleError } from "../utils";
+// // const { buildCheckFunction } = require("express-validator");
 
-async function stripHtml(html: string): Promise<{ result: string }> {
-  const { stripHtml } = await import("string-strip-html");
-  return stripHtml(html);
-}
+// async function stripHtml(html: string): Promise<{ result: string }> {
+//   const { stripHtml } = await import("string-strip-html");
+//   return stripHtml(html);
+// }
 
-interface BlogFields {
-  title: string;
-  body: string;
-  categories: string;
-  tags: string;
-}
+// interface BlogFields {
+//   title: string;
+//   body: string;
+//   categories: string;
+//   tags: string;
+// }
 
-interface BlogFiles {
-  photo?: FormidableFile;
-}
+// interface BlogFiles {
+//   photo?: FormidableFile;
+// }
 
-// Create blog
-export const createBlog = (req: Request, res: Response): void => {
-  const form = new IncomingForm({ multiples: true, keepExtensions: true });
+// // Create blog
+// export const createBlog = (req: Request, res: Response): void => {
+//   const form = new IncomingForm({ multiples: true, keepExtensions: true });
 
-  form.parse(req, async (err: Error | null, fields: Fields, files: Files) => {
-    if (err) {
-      res.status(400).json({ error: "Image could not upload" });
-      return;
-    }
+//   form.parse(req, async (err: Error | null, fields: Fields, files: Files) => {
+//     if (err) {
+//       res.status(400).json({ error: "Image could not upload" });
+//       return;
+//     }
 
-    const { title, body, categories, tags } = fields as unknown as BlogFields;
+//     const { title, body, categories, tags } = fields as unknown as BlogFields;
 
-    // Validation
-    if (!title || title.length < 1) {
-      res.status(400).json({ error: "Title is required" });
-      return;
-    }
-    if (!body || body.length < 30) {
-      res.status(400).json({ error: "Content is too short" });
-      return;
-    }
-    if (!categories || categories.length === 0) {
-      res.status(400).json({ error: "At least one category is required" });
-      return;
-    }
-    if (!tags || tags.length === 0) {
-      res.status(400).json({ error: "At least one tag is required" });
-      return;
-    }
+//     // Validation
+//     if (!title || title.length < 1) {
+//       res.status(400).json({ error: "Title is required" });
+//       return;
+//     }
+//     if (!body || body.length < 30) {
+//       res.status(400).json({ error: "Content is too short" });
+//       return;
+//     }
+//     if (!categories || categories.length === 0) {
+//       res.status(400).json({ error: "At least one category is required" });
+//       return;
+//     }
+//     if (!tags || tags.length === 0) {
+//       res.status(400).json({ error: "At least one tag is required" });
+//       return;
+//     }
 
-    try {
-      const blog = new Blog();
-      blog.title = title;
-      blog.slug = slugify(title).toLowerCase();
-      blog.body = body;
-      blog.excerpt = smartTrim(body, 120, " ", "...");
-      blog.metaTitle = `${title} | React Next Blog`;
-      blog.metaDescription = (await stripHtml(body.substring(0, 160))).result;
-      blog.postedBy = req.user._id;
+//     try {
+//       const blog = new Blog();
+//       blog.title = title;
+//       blog.slug = slugify(title).toLowerCase();
+//       blog.body = body;
+//       blog.excerpt = smartTrim(body, 120, " ", "...");
+//       blog.metaTitle = `${title} | React Next Blog`;
+//       blog.metaDescription = (await stripHtml(body.substring(0, 160))).result;
+//       blog.postedBy = req.user._id;
 
-      const categoriesArray = categories.split(",");
-      const tagsArray = tags.split(",");
+//       const categoriesArray = categories.split(",");
+//       const tagsArray = tags.split(",");
 
-      // const blogFiles = files as unknown as BlogFiles;
-      // if (blogFiles.photo) {
-      //   if (blogFiles.photo.size > 2000000) {
-      //     res.status(400).json({ error: "Image should be less than 2MB" });
-      //     return;
-      //   }
-      //   // blog.photo.data = fs.readFileSync(blogFiles.photo.path);
-      //   blog.photo.data = await fs.promises.readFile(blogFiles.photo.filepath);
-      //   blog.photo.contentType = blogFiles.photo.type;
-      // }
+//       // const blogFiles = files as unknown as BlogFiles;
+//       // if (blogFiles.photo) {
+//       //   if (blogFiles.photo.size > 2000000) {
+//       //     res.status(400).json({ error: "Image should be less than 2MB" });
+//       //     return;
+//       //   }
+//       //   // blog.photo.data = fs.readFileSync(blogFiles.photo.path);
+//       //   blog.photo.data = await fs.promises.readFile(blogFiles.photo.filepath);
+//       //   blog.photo.contentType = blogFiles.photo.type;
+//       // }
 
-      const savedBlog: IBlog = await blog.save();
+//       const savedBlog: IBlog = await blog.save();
 
-      console.log(savedBlog);
+//       console.log(savedBlog);
 
-      res.status(200).json(savedBlog);
+//       res.status(200).json(savedBlog);
 
-      // const updatedBlogWithCategories = await Blog.findByIdAndUpdate(
-      //   savedBlog._id,
-      //   { $push: { categories: categoriesArray } },
-      //   { new: true }
-      // ).exec();
+//       // const updatedBlogWithCategories = await Blog.findByIdAndUpdate(
+//       //   savedBlog._id,
+//       //   { $push: { categories: categoriesArray } },
+//       //   { new: true }
+//       // ).exec();
 
-      // if (!updatedBlogWithCategories) {
-      //   res.status(400).json({ error: "Could not update categories" });
-      //   return;
-      // }
+//       // if (!updatedBlogWithCategories) {
+//       //   res.status(400).json({ error: "Could not update categories" });
+//       //   return;
+//       // }
 
-      // const updatedBlogWithTags = await Blog.findByIdAndUpdate(
-      //   updatedBlogWithCategories._id,
-      //   { $push: { tags: tagsArray } },
-      //   { new: true }
-      // ).exec();
+//       // const updatedBlogWithTags = await Blog.findByIdAndUpdate(
+//       //   updatedBlogWithCategories._id,
+//       //   { $push: { tags: tagsArray } },
+//       //   { new: true }
+//       // ).exec();
 
-      // if (!updatedBlogWithTags) {
-      //   res.status(400).json({ error: "Could not update tags" });
-      //   return;
-      // }
+//       // if (!updatedBlogWithTags) {
+//       //   res.status(400).json({ error: "Could not update tags" });
+//       //   return;
+//       // }
 
-      // res.json(updatedBlogWithTags);
-    } catch (err) {
-      handleError(res, err);
-    }
-  });
-};
+//       // res.json(updatedBlogWithTags);
+//     } catch (err) {
+//       handleError(res, err);
+//     }
+//   });
+// };
 
 // //get all blogs
 // exports.getAllBlogs = async (req, res) => {

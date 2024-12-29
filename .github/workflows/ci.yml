@@ -36,10 +36,14 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      # Step 4: Build Project
+      # Step 4: Compile check
+      - name: TypeScript Compile Check
+        run: npx tsc --noEmit
+
+      # Step 5: Build Project
       - name: Build Project
         run: npm run build
 
-      # Step 5: Start project
+      # Step 6: Start project
       - name: Start
-        run: npm run dev
+        run: npm start

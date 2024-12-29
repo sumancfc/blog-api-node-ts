@@ -1,9 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import mongoose from "mongoose";
 import jwt from "jsonwebtoken";
 import expressJWT from "express-jwt";
 import asyncHandler from "express-async-handler";
-import User, { IUser } from "../models/userModel";
+import User from "../models/userModel";
 
 const HTTP_STATUS = {
   OK: 200,
@@ -117,6 +116,11 @@ export const requireSignin = expressJWT({
 // Auth middleware
 export const authMiddleware = asyncHandler(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    if (!req.user) {
+      res.status(401).json({ error: "User not authenticated" });
+      return;
+    }
+
     const authUserId = req.user?._id;
 
     if (!authUserId) {
@@ -142,6 +146,11 @@ export const authMiddleware = asyncHandler(
 // Admin Middleware
 export const adminMiddleware = asyncHandler(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    if (!req.user) {
+      res.status(401).json({ error: "User not authenticated" });
+      return;
+    }
+
     const adminUserId = req.user?._id;
 
     if (!adminUserId) {
@@ -173,6 +182,11 @@ export const adminMiddleware = asyncHandler(
 export const authorizeRoles = (...roles: string[]) => {
   return asyncHandler(
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+      if (!req.user) {
+        res.status(401).json({ error: "User not authenticated" });
+        return;
+      }
+
       const userId = req.user?._id;
 
       if (!userId) {
