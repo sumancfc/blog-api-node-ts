@@ -51,3 +51,5 @@ jobs:
       # Step 7: Start project
       - name: Start
         run: npm start
+        env:
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
