@@ -54,3 +54,13 @@ jobs:
       #   env:
       #     DATABASE_URL: ${{ secrets.DATABASE_URL }}
       #     JWT_SECRET: ${{ secrets.JWT_SECRET}}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: blog-api-backend
+          path: |
+            dist/
+            .gitignore
+            package.json
+            README.md
