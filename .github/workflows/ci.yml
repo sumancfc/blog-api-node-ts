@@ -49,8 +49,8 @@ jobs:
         run: npm run build
 
       # Step 7: Start project
-      - name: Start
-        run: npm start
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET}}
+      # - name: Start
+      #   run: npm start
+      #   env:
+      #     DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      #     JWT_SECRET: ${{ secrets.JWT_SECRET}}
