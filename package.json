@@ -51,7 +51,6 @@
     "@types/express-jwt": "^6.0.4",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/lodash": "^4.17.13",
-    "@types/mongoose": "^5.11.97",
     "@types/morgan": "^1.9.9",
     "@types/node": "^22.10.2",
     "nodemon": "^2.0.12",

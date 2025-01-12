@@ -64,3 +64,5 @@ jobs:
             .gitignore
             package.json
             README.md
+            .env.example
+          include-hidden-files: true
