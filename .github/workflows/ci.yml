@@ -40,10 +40,14 @@ jobs:
       - name: TypeScript Compile Check
         run: npx tsc --noEmit
 
-      # Step 5: Build Project
+      # Step 5: Remove existing dist folder
+      - name: Remove Dist Folder
+        run: rm -rf dist
+
+      # Step 6: Build project
       - name: Build Project
         run: npm run build
 
-      # Step 6: Start project
+      # Step 7: Start project
       - name: Start
         run: npm start
