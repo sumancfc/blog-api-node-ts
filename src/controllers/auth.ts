@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import expressJWT from "express-jwt";
 import asyncHandler from "express-async-handler";
-import User from "../models/userModel";
+import User, { IUser } from "../models/userModel";
 
 const HTTP_STATUS = {
   OK: 200,
@@ -116,12 +116,14 @@ export const requireSignin = expressJWT({
 // Auth middleware
 export const authMiddleware = asyncHandler(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    if (!req.user) {
+    const user = req.user as IUser | undefined;
+
+    if (!user) {
       res.status(401).json({ error: "User not authenticated" });
       return;
     }
 
-    const authUserId = req.user?._id;
+    const authUserId = user._id;
 
     if (!authUserId) {
       res
@@ -130,15 +132,15 @@ export const authMiddleware = asyncHandler(
       return;
     }
 
-    const user = await User.findById(authUserId);
-    if (!user) {
+    const foundUser = await User.findById(authUserId);
+    if (!foundUser) {
       res
         .status(HTTP_STATUS.BAD_REQUEST)
         .json({ error: MESSAGES.USER_NOT_FOUND });
       return;
     }
 
-    req.profile = user;
+    req.profile = foundUser;
     next();
   }
 );
@@ -146,12 +148,14 @@ export const authMiddleware = asyncHandler(
 // Admin Middleware
 export const adminMiddleware = asyncHandler(
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-    if (!req.user) {
+    const user = req.user as IUser | undefined;
+
+    if (!user) {
       res.status(401).json({ error: "User not authenticated" });
       return;
     }
 
-    const adminUserId = req.user?._id;
+    const adminUserId = user._id;
 
     if (!adminUserId) {
       res
@@ -160,8 +164,8 @@ export const adminMiddleware = asyncHandler(
       return;
     }
 
-    const user = await User.findById(adminUserId);
-    if (!user) {
+    const foundUser = await User.findById(adminUserId);
+    if (!foundUser) {
       res
         .status(HTTP_STATUS.NOT_FOUND)
         .json({ error: MESSAGES.USER_NOT_FOUND });
@@ -173,7 +177,7 @@ export const adminMiddleware = asyncHandler(
       return;
     }
 
-    req.profile = user;
+    req.profile = foundUser;
     next();
   }
 );
@@ -182,12 +186,14 @@ export const adminMiddleware = asyncHandler(
 export const authorizeRoles = (...roles: string[]) => {
   return asyncHandler(
     async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-      if (!req.user) {
+      const user = req.user as IUser | undefined;
+
+      if (!user) {
         res.status(401).json({ error: "User not authenticated" });
         return;
       }
 
-      const userId = req.user?._id;
+      const userId = user._id;
 
       if (!userId) {
         res
@@ -196,8 +202,8 @@ export const authorizeRoles = (...roles: string[]) => {
         return;
       }
 
-      const user = await User.findById(userId);
-      if (!user) {
+      const foundUser = await User.findById(userId);
+      if (!foundUser) {
         res
           .status(HTTP_STATUS.NOT_FOUND)
           .json({ error: MESSAGES.USER_NOT_FOUND });
@@ -211,7 +217,7 @@ export const authorizeRoles = (...roles: string[]) => {
         return;
       }
 
-      req.profile = user;
+      req.profile = foundUser;
       next();
     }
   );

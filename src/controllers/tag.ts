@@ -127,7 +127,7 @@ export const deleteTag = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
     try {
       const slug = req.params.slug.toLowerCase();
-      const tag: ITag | null = await Tag.findOneAndRemove({ slug });
+      const tag: ITag | null = await Tag.findOneAndDelete({ slug });
 
       if (!tag) {
         res

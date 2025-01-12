@@ -139,7 +139,7 @@ export const deleteCategory = asyncHandler(
   async (req: Request, res: Response): Promise<void> => {
     try {
       const slug = req.params.slug.toLowerCase();
-      const category: ICategory | null = await Category.findOneAndRemove({
+      const category: ICategory | null = await Category.findOneAndDelete({
         slug,
       });
 
@@ -150,7 +150,9 @@ export const deleteCategory = asyncHandler(
         return;
       }
 
-      res.status(HTTP_STATUS.OK).json({ message: CATEGORY_MESSAGES.CATEGORY_DELETED });
+      res
+        .status(HTTP_STATUS.OK)
+        .json({ message: CATEGORY_MESSAGES.CATEGORY_DELETED });
     } catch (error) {
       handleError(res, error);
     }
