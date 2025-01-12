@@ -49,7 +49,7 @@ const userSchema: Schema<IUser> = new Schema(
       default: UserRole.USER,
     },
     photo: { data: Buffer, contentType: String },
-    resetPasswordLink: { data: String, default: "" },
+    resetPasswordLink: { data: String },
   },
   { timestamps: true }
 );

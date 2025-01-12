@@ -14,12 +14,7 @@ const port: string | number = process.env.PORT || 8000;
 
 // Database Connection
 mongoose
-  .connect(process.env.DATABASE_URL as string, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true,
-    useFindAndModify: false,
-  })
+  .connect(process.env.DATABASE_URL as string)
   .then(() => console.log("Connected to DataBase!!!"))
   .catch((err) => console.log("Database Connection Error:", err));
 
