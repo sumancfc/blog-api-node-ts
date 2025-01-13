@@ -1,3 +1,6 @@
+import { Response } from "express";
+import { errorHandler } from "../middlewares/dbErrorHandler";
+
 export interface CategoryRequest {
   name: string;
 }
@@ -52,4 +55,9 @@ export const USER_MESSAGES = {
   UNAUTHORIZED: "Unauthorized. No user ID found in the request.",
   USER_NOT_FOUND: "User not found",
   ADMIN_ONLY: "Access denied. Admin resource only.",
+};
+
+export const handleError = (res: Response, error: unknown) => {
+  const errorMessage = errorHandler(error as Error);
+  res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: errorMessage });
 };

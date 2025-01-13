@@ -1,5 +1,4 @@
 import { Response } from "express";
-import slugify from "slugify";
 
 export const validateName = (name: string): boolean => !!name?.trim();
 

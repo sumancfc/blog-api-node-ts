@@ -1,83 +1,61 @@
-import { Request, Response, NextFunction } from "express";
-import { User, UserRole } from "../models/userModel";
+import { RequestHandler } from "express";
 import _ from "lodash";
+import asyncHandler from "express-async-handler";
 import formidable from "formidable";
 import fs from "fs";
-import { errorHandler } from "../middlewares/dbErrorHandler";
-import asyncHandler from "express-async-handler";
+import { handleError, HTTP_STATUS, USER_MESSAGES } from "../utils";
+import { IUser, User, UserRole } from "../models/userModel";
+import { sendErrorResponse } from "../helpers";
 
 // Admin: Get all users
-export const getAllUsers = asyncHandler(
-  async (req: Request, res: Response): Promise<void> => {
-    try {
-      const users = await User.find();
-      res.status(200).json(users);
-    } catch (err) {
-      res.status(500).json({ error: "Failed to fetch users" });
-    }
-  }
-);
+export const getAllUsers: RequestHandler = asyncHandler(async (_, res) => {
+  const users: IUser[] = await User.find();
+  res.status(200).json(users);
+});
 
 // Admin: Update user role
-export const updateUserRole = asyncHandler(
-  async (req: Request, res: Response): Promise<void> => {
-    const { _id, role } = req.body;
+export const updateUserRole: RequestHandler = asyncHandler(async (req, res) => {
+  const userId = req.params.id;
+  const { role } = req.body;
 
-    if (!Object.values(UserRole).includes(role)) {
-      res.status(400).json({ error: "Invalid role" });
-      return;
-    }
-
-    try {
-      const user = await User.findByIdAndUpdate(_id, { role }, { new: true });
-      if (!user) {
-        res.status(404).json({ error: "User not found" });
-        return;
-      }
-      res.status(200).json(user);
-    } catch (err) {
-      res.status(500).json({ error: "Failed to update role" });
-    }
+  if (!Object.values(UserRole).includes(role)) {
+    return sendErrorResponse(res, HTTP_STATUS.BAD_REQUEST, "Invalid Role");
   }
-);
+
+  const user = await User.findByIdAndUpdate(userId, { role }, { new: true });
+
+  if (!user) {
+    return sendErrorResponse(
+      res,
+      HTTP_STATUS.NOT_FOUND,
+      USER_MESSAGES.USER_NOT_FOUND
+    );
+  }
+  res.status(200).json(user);
+});
 
 // Get User Profile
-export const getProfile = asyncHandler(
-  async (req: Request, res: Response): Promise<void> => {
-    res.json(req.profile);
-  }
-);
+export const getProfile: RequestHandler = asyncHandler(async (req, res) => {
+  res.json(req.profile);
+});
 
 //get user profile
-// exports.userProfile = async (req, res) => {
-//   try {
-//     const username = req.params.username;
+export const userProfile: RequestHandler = asyncHandler(async (req, res) => {
+  const username = req.params.username;
 
-//     const getUser = await User.findOne({ username }).exec();
+  const user: IUser | null = await User.findOne({ username }).exec();
 
-//     if (!getUser) res.status(400).json({ message: "User not found" });
+  if (!user) {
+    return sendErrorResponse(
+      res,
+      HTTP_STATUS.NOT_FOUND,
+      USER_MESSAGES.USER_NOT_FOUND
+    );
+  }
 
-//     let user = getUser;
-
-//     const blog = await Blog.find({ postedBy: user._id })
-//       .populate("categories", "_id name slug")
-//       .populate("tags", "_id name slug")
-//       .populate("postedBy", "_id name")
-//       .select(
-//         "_id title slug excerpt categories tags postedBy createdAt updatedAt"
-//       )
-//       .exec();
-
-//     user.photo = undefined;
-//     user.hashed_password = undefined;
-//     user.salt = undefined;
-
-//     res.status(200).json({ user, blogs: blog });
-//   } catch (err) {
-//     console.log(err);
-//     res.status(400).json({ message: errorHandler(err) });
-//   }
-// };
+  res.status(200).json({ user });
+  // res.status(200).json({ user, blogs: blog });
+});
 
 //update user profile
 // exports.updateUserProfile = (req, res) => {
