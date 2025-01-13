@@ -5,14 +5,30 @@ export interface ICategory extends Document {
   slug: string;
   category_photo?: { data: Buffer; contentType: string };
 }
-const categorySchema: Schema<ICategory> = new Schema(
+const categorySchema = new Schema<ICategory>(
   {
-    name: { type: String, trim: true, required: true, max: 30, min: 3 },
-    slug: { type: String, unique: true, index: true },
+    name: {
+      type: String,
+      trim: true,
+      required: true,
+      maxlength: 30,
+      minlength: 3,
+    },
+    slug: {
+      type: String,
+      index: true,
+      unique: true,
+      lowercase: true,
+      trim: true,
+      validate: {
+        validator: (v: string) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(v),
+        message:
+          "Slug must contain only lowercase letters, numbers, and hyphens",
+      },
+    },
     category_photo: { type: Buffer, contentType: String },
   },
   { timestamps: true }
 );
 
-const Category = mongoose.model<ICategory>("Category", categorySchema);
-export default Category;
+export const Category = mongoose.model<ICategory>("Category", categorySchema);

@@ -18,7 +18,7 @@ export interface IBlog extends Document {
   updatedAt?: Date;
 }
 
-const blogSchema: Schema<IBlog> = new Schema(
+const blogSchema = new Schema<IBlog>(
   {
     title: {
       type: String,
@@ -61,5 +61,4 @@ const blogSchema: Schema<IBlog> = new Schema(
   { timestamps: true }
 );
 
-const Blog: Model<IBlog> = mongoose.model<IBlog>("Blog", blogSchema);
-export default Blog;
+export const Blog: Model<IBlog> = mongoose.model<IBlog>("Blog", blogSchema);

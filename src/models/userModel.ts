@@ -26,18 +26,18 @@ export interface IUser extends Document {
   makeSalt: () => string;
 }
 
-const userSchema: Schema<IUser> = new Schema(
+const userSchema = new Schema<IUser>(
   {
     username: {
       type: String,
       trim: true,
       required: true,
       unique: true,
-      max: 30,
+      maxlength: 30,
       index: true,
       lowercase: true,
     },
-    name: { type: String, required: true, max: 30 },
+    name: { type: String, required: true, maxlength: 30 },
     email: { type: String, trim: true, required: true, unique: true },
     hashed_password: { type: String, required: true, select: false },
     profile: { type: String, required: true },
@@ -94,5 +94,4 @@ userSchema.methods = {
   },
 };
 
-const User = mongoose.model<IUser>("User", userSchema);
-export default User;
+export const User = mongoose.model<IUser>("User", userSchema);
