@@ -14,7 +14,7 @@ const router: Router = express.Router();
 router.post("/tag", requireSignin, adminMiddleware, createTag);
 router.get("/tags", getAllTags);
 router.get("/tag/:slug", getSingleTag);
-router.put("/tag/:slug", requireSignin, adminMiddleware, updateTag);
-router.delete("/tag/:slug", requireSignin, adminMiddleware, deleteTag);
+router.put("/tag/:id", requireSignin, adminMiddleware, updateTag);
+router.delete("/tag/:id", requireSignin, adminMiddleware, deleteTag);
 
 export default router;

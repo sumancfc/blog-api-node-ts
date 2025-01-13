@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import User, { UserRole } from "../models/userModel";
+import { User, UserRole } from "../models/userModel";
 import _ from "lodash";
 import formidable from "formidable";
 import fs from "fs";

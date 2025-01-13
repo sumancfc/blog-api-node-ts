@@ -17,13 +17,8 @@ router.get("/categories", getAllCategories);
 
 router.get("/category/:slug", getSingleCategory);
 
-router.put("/category/:slug", requireSignin, adminMiddleware, updateCategory);
+router.put("/category/:id", requireSignin, adminMiddleware, updateCategory);
 
-router.delete(
-  "/category/:slug",
-  requireSignin,
-  adminMiddleware,
-  deleteCategory
-);
+router.delete("/category/:id", requireSignin, adminMiddleware, deleteCategory);
 
 export default router;

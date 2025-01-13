@@ -11,7 +11,7 @@ const categorySchema = new Schema<ICategory>(
       type: String,
       trim: true,
       required: true,
-      maxlength: 30,
+      maxlength: 120,
       minlength: 3,
     },
     slug: {
