@@ -29,10 +29,13 @@ app.use(cookieParser());
 if (process.env.NODE_ENV === "development") {
   app.use(
     cors({
-      origin: process.env.CLIENT_URL,
+      origin: `${process.env.CLIENT_URL}`,
     })
   );
 }
+
+// Serve Swagger UI
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Imported here otherwise it gives error for secret should be set for express jwt
 import authRoutes from "./routes/auth";
@@ -54,8 +57,6 @@ app.use("/api/v1", tagRoutes);
 //   const routeModule = await import(routePath);
 //   app.use("/api/v1", routeModule.default);
 // });
-// Serve Swagger UI
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // CSRF Protection
 app.use(csrfProtection);
