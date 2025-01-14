@@ -1,15 +1,17 @@
-import express, { Express, Request, Response, NextFunction } from "express";
+import express, { Request, Response, NextFunction, Application } from "express";
 import mongoose from "mongoose";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import csrf from "csurf";
 import dotenv from "dotenv";
+import swaggerUi from "swagger-ui-express";
+import swaggerSpec from "./swaggerOptions";
 
 dotenv.config();
 
 const csrfProtection = csrf({ cookie: true });
-const app: Express = express();
+const app: Application = express();
 const port: string | number = process.env.PORT || 8000;
 
 // Database Connection
@@ -52,6 +54,8 @@ app.use("/api/v1", tagRoutes);
 //   const routeModule = await import(routePath);
 //   app.use("/api/v1", routeModule.default);
 // });
+// Serve Swagger UI
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // CSRF Protection
 app.use(csrfProtection);
