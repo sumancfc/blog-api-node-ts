@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction, RequestHandler } from "express";
+import { Request, RequestHandler } from "express";
 import jwt from "jsonwebtoken";
 import expressJWT from "express-jwt";
 import asyncHandler from "express-async-handler";
@@ -48,7 +48,9 @@ export const signup: RequestHandler = asyncHandler(async (req, res) => {
 
 // Signin controller
 export const signin: RequestHandler = asyncHandler(async (req, res) => {
-  const { email, password } = req.body as SigninRequest;
+  const { email, password, keepMeLoggedIn } = req.body as SigninRequest & {
+    keepMeLoggedIn?: boolean;
+  };
 
   const user = await User.findOne({ email })
     .select("+hashed_password +salt")
@@ -70,13 +72,21 @@ export const signin: RequestHandler = asyncHandler(async (req, res) => {
     );
   }
 
+  const expiresIn = keepMeLoggedIn ? "30d" : "1d";
+
   const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET as string, {
-    expiresIn: "1d",
+    expiresIn,
   });
+
+  const cookieMaxAge = keepMeLoggedIn
+    ? 30 * 24 * 60 * 60 * 1000
+    : 24 * 60 * 60 * 1000; // 30 days or 1 day in milliseconds
 
   res.cookie("token", token, {
     httpOnly: true,
-    expires: new Date(Date.now() + 86400000),
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    expires: new Date(Date.now() + cookieMaxAge),
   });
 
   const userWithoutSensitiveInfo = {
