@@ -2,14 +2,11 @@ import { Request, RequestHandler } from "express";
 import jwt from "jsonwebtoken";
 import expressJWT from "express-jwt";
 import asyncHandler from "express-async-handler";
-import { User, IUser } from "../models/userModel";
-import {
-  SignupRequest,
-  SigninRequest,
-  HTTP_STATUS,
-  USER_MESSAGES,
-} from "../utils";
+import { User } from "../models/userModel";
+import { HTTP_STATUS, USER_MESSAGES } from "../utils/status_message";
+import { IUser, SignupRequest, SigninRequest } from "../interfaces";
 import { sendErrorResponse } from "../helpers";
+import { getExpirySettings } from "../utils";
 
 // Signup controller
 export const signup: RequestHandler = asyncHandler(async (req, res) => {
@@ -72,15 +69,11 @@ export const signin: RequestHandler = asyncHandler(async (req, res) => {
     );
   }
 
-  const expiresIn = keepMeLoggedIn ? "30d" : "1d";
+  const { expiresIn, cookieMaxAge } = getExpirySettings(keepMeLoggedIn);
 
   const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET as string, {
     expiresIn,
   });
-
-  const cookieMaxAge = keepMeLoggedIn
-    ? 30 * 24 * 60 * 60 * 1000
-    : 24 * 60 * 60 * 1000; // 30 days or 1 day in milliseconds
 
   res.cookie("token", token, {
     httpOnly: true,
@@ -99,7 +92,6 @@ export const signin: RequestHandler = asyncHandler(async (req, res) => {
   };
 
   res.json({
-    token,
     userWithoutSensitiveInfo,
     message: USER_MESSAGES.SIGNIN_SUCCESS,
   });

@@ -7,7 +7,7 @@ import {
   deleteCategory,
 } from "../controllers/category";
 import { requireSignin, authorizeRoles } from "../controllers/auth";
-import { UserRole } from "../models/userModel";
+import { UserRole } from "../interfaces";
 
 const router: Router = express.Router();
 

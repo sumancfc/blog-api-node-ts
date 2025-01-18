@@ -1,22 +1,5 @@
-import mongoose, { Document, Schema, Model, Types } from "mongoose";
-
-export interface IBlog extends Document {
-  title: string;
-  slug: string;
-  body: string | object;
-  excerpt?: string;
-  metaTitle?: string;
-  metaDescription?: string;
-  photo?: {
-    data: Buffer;
-    contentType: string;
-  };
-  categories: Types.ObjectId[];
-  tags: Types.ObjectId[];
-  postedBy?: Types.ObjectId;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
+import mongoose, { Schema, Model } from "mongoose";
+import { IBlog } from "../interfaces";
 
 const blogSchema = new Schema<IBlog>(
   {

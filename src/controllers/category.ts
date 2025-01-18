@@ -1,8 +1,9 @@
 import { RequestHandler } from "express";
 import asyncHandler from "express-async-handler";
-import { Category, ICategory } from "../models/categoryModel";
-import { CategoryRequest, HTTP_STATUS, CATEGORY_MESSAGES } from "../utils";
+import { Category } from "../models/categoryModel";
 import { validateName, sendErrorResponse, createSlug } from "../helpers";
+import { CATEGORY_MESSAGES, HTTP_STATUS } from "../utils/status_message";
+import { CategoryRequest, ICategory } from "../interfaces";
 
 // Create category
 export const createCategory: RequestHandler = asyncHandler(async (req, res) => {

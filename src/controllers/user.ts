@@ -1,11 +1,12 @@
 import { RequestHandler } from "express";
 import _ from "lodash";
 import asyncHandler from "express-async-handler";
-import formidable from "formidable";
-import fs from "fs";
-import { handleError, HTTP_STATUS, USER_MESSAGES } from "../utils";
-import { IUser, User, UserRole } from "../models/userModel";
+//import formidable from "formidable";
+//import fs from "fs";
+import { HTTP_STATUS, USER_MESSAGES } from "../utils/status_message";
+import { User } from "../models/userModel";
 import { sendErrorResponse } from "../helpers";
+import { IUser, UserRole } from "../interfaces";
 
 // Admin: Get all users
 export const getAllUsers: RequestHandler = asyncHandler(async (_, res) => {

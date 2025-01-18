@@ -1,10 +1,5 @@
-import mongoose, { Schema, Document } from "mongoose";
-
-export interface ITag extends Document {
-  name: string;
-  slug: string;
-  tag_photo?: { data: Buffer; contentType: string };
-}
+import mongoose, { Schema } from "mongoose";
+import { ITag } from "../interfaces";
 
 const tagSchema = new Schema<ITag>(
   {
@@ -27,7 +22,7 @@ const tagSchema = new Schema<ITag>(
           "Slug must contain only lowercase letters, numbers, and hyphens",
       },
     },
-    tag_photo: { type: Buffer, contentType: String },
+    photo: { type: Buffer, contentType: String },
   },
   { timestamps: true }
 );

@@ -13,7 +13,7 @@ import {
   // updateUserProfile,
   // getUserPhoto,
 } from "../controllers/user";
-import { UserRole } from "../models/userModel";
+import { UserRole } from "../interfaces";
 
 const router: Router = express.Router();
 

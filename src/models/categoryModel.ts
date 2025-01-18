@@ -1,10 +1,6 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema } from "mongoose";
+import { ICategory } from "../interfaces";
 
-export interface ICategory extends Document {
-  name: string;
-  slug: string;
-  category_photo?: { data: Buffer; contentType: string };
-}
 const categorySchema = new Schema<ICategory>(
   {
     name: {
@@ -26,7 +22,7 @@ const categorySchema = new Schema<ICategory>(
           "Slug must contain only lowercase letters, numbers, and hyphens",
       },
     },
-    category_photo: { type: Buffer, contentType: String },
+    photo: { type: Buffer, contentType: String },
   },
   { timestamps: true }
 );

@@ -1,30 +1,6 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import crypto from "crypto";
-
-export enum UserRole {
-  ADMIN = "admin",
-  EDITOR = "editor",
-  CONTRIBUTOR = "contributor",
-  AUTHOR = "author",
-  USER = "user",
-}
-
-export interface IUser extends Document {
-  username: string;
-  name: string;
-  email: string;
-  hashed_password: string;
-  profile: string;
-  salt: string;
-  about?: string;
-  role: UserRole;
-  photo?: { data: Buffer; contentType: String };
-  resetPasswordLink: string;
-  _password?: string;
-  authenticate: (plainText: string) => boolean;
-  encryptPassword: (password: string) => string;
-  makeSalt: () => string;
-}
+import { UserRole, IUser } from "../interfaces";
 
 const userSchema = new Schema<IUser>(
   {
