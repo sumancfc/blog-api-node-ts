@@ -79,7 +79,20 @@ export const signin: RequestHandler = asyncHandler(async (req, res) => {
     expires: new Date(Date.now() + 86400000),
   });
 
-  res.json({ token, message: USER_MESSAGES.SIGNIN_SUCCESS });
+  const userWithoutSensitiveInfo = {
+    _id: user._id,
+    role: user.role,
+    name: user.name,
+    email: user.email,
+    username: user.username,
+    profile: user.profile,
+  };
+
+  res.json({
+    token,
+    userWithoutSensitiveInfo,
+    message: USER_MESSAGES.SIGNIN_SUCCESS,
+  });
 });
 
 // Signout controller

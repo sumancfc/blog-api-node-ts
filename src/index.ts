@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import csrf from "csurf";
 import dotenv from "dotenv";
+import helmet from "helmet";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./swaggerOptions";
 
@@ -21,6 +22,7 @@ mongoose
   .catch((err) => console.log("Database Connection Error:", err));
 
 // Middlewares
+app.use(helmet());
 app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -29,9 +31,11 @@ app.use(cookieParser());
 if (process.env.NODE_ENV === "development") {
   app.use(
     cors({
-      origin: `${process.env.CLIENT_URL}`,
+      origin: process.env.CLIENT_URL as string,
     })
   );
+} else {
+  app.use(cors());
 }
 
 // Serve Swagger UI

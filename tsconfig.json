@@ -7,8 +7,9 @@
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "moduleResolution": "node",
     "typeRoots": ["./node_modules/@types/", "./types"]
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "src/swaggerOptions.ts"],
   "exclude": ["node_modules"]
 }

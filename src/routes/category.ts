@@ -6,11 +6,7 @@ import {
   updateCategory,
   deleteCategory,
 } from "../controllers/category";
-import {
-  requireSignin,
-  adminMiddleware,
-  authorizeRoles,
-} from "../controllers/auth";
+import { requireSignin, authorizeRoles } from "../controllers/auth";
 import { UserRole } from "../models/userModel";
 
 const router: Router = express.Router();
@@ -123,8 +119,18 @@ router.get("/category/:slug", getSingleCategory);
  *       401:
  *         description: Unauthorized
  */
-router.put("/category/:id", requireSignin, adminMiddleware, updateCategory);
+router.put(
+  "/category/:id",
+  requireSignin,
+  authorizeRoles(UserRole.ADMIN),
+  updateCategory
+);
 
-router.delete("/category/:id", requireSignin, adminMiddleware, deleteCategory);
+router.delete(
+  "/category/:id",
+  requireSignin,
+  authorizeRoles(UserRole.ADMIN),
+  deleteCategory
+);
 
 export default router;
