@@ -60,6 +60,10 @@ const userSchema = new Schema<IUser>(
         },
         twoFactorEnabled: { type: Boolean, default: false },
         resetPasswordLink: { data: String },
+        is_verified: {
+            type: Boolean,
+            default: false,
+        },
     },
     { timestamps: true }
 );

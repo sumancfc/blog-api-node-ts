@@ -68,6 +68,7 @@ export interface IUser extends Document {
     emergencyContact?: IEmergencyContact;
     twoFactorEnabled: boolean;
     resetPasswordLink: string;
+    is_verified: boolean;
     _password?: string;
     authenticate: (plainText: string) => boolean;
     encryptPassword: (password: string) => string;

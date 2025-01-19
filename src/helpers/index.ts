@@ -12,10 +12,16 @@ export const createSlug = (name: string): string => {
         .replace(/^-|-$/g, ""); // Remove leading/trailing hyphens
 };
 
+// Send Error Response
 export const sendErrorResponse = (
     res: Response,
     status: number,
     message: string
 ): void => {
     res.status(status).json({ error: message });
+};
+
+// Encode Email
+export const encodeEmailForURL = (email: string) => {
+    return encodeURIComponent(email);
 };

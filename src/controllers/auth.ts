@@ -5,8 +5,9 @@ import asyncHandler from "express-async-handler";
 import { User } from "../models/userModel";
 import { HTTP_STATUS, USER_MESSAGES } from "../utils/status_message";
 import { IUser, SignUpRequest, SignInRequest } from "../interfaces/user";
-import { sendErrorResponse } from "../helpers";
-import { getExpirySettings } from "../utils";
+import { sendErrorResponse, encodeEmailForURL } from "../helpers";
+import { getExpirySettings, sendEmail } from "../utils";
+import { confirmEmailMessage, verifyEmailMessage } from "../utils/emailMessage";
 
 // Signup controller
 export const signup: RequestHandler = asyncHandler(async (req, res) => {
@@ -21,10 +22,10 @@ export const signup: RequestHandler = asyncHandler(async (req, res) => {
         );
     }
 
-    const username = email.split("@")[0];
+    const username: string = email.split("@")[0];
     const profile = `${process.env.CLIENT_URL}/profile/${username}`;
 
-    const user = await new User({
+    const user: IUser = await new User({
         name,
         email,
         password,
@@ -32,15 +33,22 @@ export const signup: RequestHandler = asyncHandler(async (req, res) => {
         profile,
     }).save();
 
-    user
-        ? res
-              .status(HTTP_STATUS.CREATED)
-              .json({ message: USER_MESSAGES.SIGNUP_SUCCESS })
-        : sendErrorResponse(
-              res,
-              HTTP_STATUS.BAD_REQUEST,
-              USER_MESSAGES.INVALID_USER
-          );
+    // Verify email message
+    const encodedEmail: string = encodeEmailForURL(email);
+    const message: string = verifyEmailMessage(name, encodedEmail);
+
+    if (user) {
+        await sendEmail(email, "For Email Verification", message, res);
+        res.status(HTTP_STATUS.CREATED).json({
+            message: USER_MESSAGES.SIGNUP_SUCCESS,
+        });
+    } else {
+        sendErrorResponse(
+            res,
+            HTTP_STATUS.BAD_REQUEST,
+            USER_MESSAGES.INVALID_USER
+        );
+    }
 });
 
 // Signin controller
@@ -69,6 +77,13 @@ export const signin: RequestHandler = asyncHandler(async (req, res) => {
         );
     }
 
+    if (!user.is_verified)
+        return sendErrorResponse(
+            res,
+            HTTP_STATUS.BAD_REQUEST,
+            USER_MESSAGES.EMAIL_VERIFY
+        );
+
     const { expiresIn, cookieMaxAge } = getExpirySettings(keepMeLoggedIn);
 
     const token = jwt.sign(
@@ -95,10 +110,37 @@ export const signin: RequestHandler = asyncHandler(async (req, res) => {
         profile: user.profile,
     };
 
-    res.json({
+    res.status(200).json({
         userWithoutSensitiveInfo,
         message: USER_MESSAGES.SIGNIN_SUCCESS,
     });
+});
+
+// Verify Email
+export const verifyEmail: RequestHandler = asyncHandler(async (req, res) => {
+    const id = req.params.id;
+    const trimmedId = id.trim();
+
+    const user = await User.findById(id).exec();
+
+    if (!user) {
+        return sendErrorResponse(
+            res,
+            HTTP_STATUS.BAD_REQUEST,
+            USER_MESSAGES.INVALID_LINK
+        );
+    }
+
+    const { _id, name, email } = user;
+
+    await User.updateOne({ _id }, { $set: { is_verified: true } });
+
+    const message = confirmEmailMessage(name);
+
+    // Send email to user
+    await sendEmail(email, "Welcome", message, res);
+
+    res.status(200).json({ message: USER_MESSAGES.EMAIL_VERIFIED });
 });
 
 // Signout controller
