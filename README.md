@@ -34,37 +34,37 @@ Ensure you have the following installed:
 
 1. Clone this repository:
 
-   ```bash
-   git clone https://github.com/sumancfc/blog-api-node-ts.git
-   cd blog-api-node-ts
-   ```
+    ```bash
+    git clone https://github.com/sumancfc/blog-api-node-ts.git
+    cd blog-api-node-ts
+    ```
 
 2. Install dependencies:
 
-   ```bash
-   npm install
-   ```
+    ```bash
+    npm install
+    ```
 
 3. Setup environment variables:
 
-   ```bash
-   PORT=8000
-   NODE_ENV=development or prodution
-   DATABASE_URL=mongodb://your-db-connection-string
-   JWT_SECRET=your-jwt-secret
-   CLIENT_URL=http://localhost:3000
-   COOKIE_EXPIRY_LONG=15
-   COOKIE_EXPIRY_SHORT=1
-   ```
+    ```bash
+    PORT=8000
+    NODE_ENV=development or prodution
+    DATABASE_URL=mongodb://your-db-connection-string
+    JWT_SECRET=your-jwt-secret
+    CLIENT_URL=http://localhost:3000
+    COOKIE_EXPIRY_LONG=15
+    COOKIE_EXPIRY_SHORT=1
+    ```
 
 4. Build the project
 
-   ```bash
-   npm run build
-   ```
+    ```bash
+    npm run build
+    ```
 
 5. Run the project
 
-   ```bash
-   npm run dev
-   ```
+    ```bash
+    npm run dev
+    ```

@@ -1,66 +1,70 @@
 {
-  "name": "server",
-  "version": "1.0.0",
-  "description": "Blog api using node express and mongodb",
-  "main": "src/index.ts",
-  "scripts": {
-    "start": "node dist/index.js",
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "tsc"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/sumancfc/blog-api-node-ts.git"
-  },
-  "keywords": [
-    "node",
-    "express",
-    "mongodb",
-    "blog",
-    "api"
-  ],
-  "author": "Suman Shrestha",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/sumancfc/blog-api-node-ts/issues"
-  },
-  "homepage": "https://github.com/sumancfc/blog-api-node-ts#readme",
-  "dependencies": {
-    "@types/formidable": "^3.4.5",
-    "cookie-parser": "^1.4.5",
-    "cors": "^2.8.5",
-    "csurf": "^1.11.0",
-    "dotenv": "^10.0.0",
-    "express": "^4.17.1",
-    "express-async-handler": "^1.1.4",
-    "express-jwt": "^6.0.0",
-    "express-validator": "^6.12.1",
-    "formidable": "^3.5.2",
-    "helmet": "^8.0.0",
-    "jsonwebtoken": "^8.5.1",
-    "lodash": "^4.17.21",
-    "mongoose": "^8.9.4",
-    "morgan": "^1.10.0",
-    "slugify": "^1.6.0",
-    "string-strip-html": "^13.4.8",
-    "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1"
-  },
-  "devDependencies": {
-    "@types/cookie-parser": "^1.4.8",
-    "@types/cors": "^2.8.17",
-    "@types/csurf": "^1.11.5",
-    "@types/express": "^5.0.0",
-    "@types/express-jwt": "^6.0.4",
-    "@types/jsonwebtoken": "^9.0.7",
-    "@types/lodash": "^4.17.13",
-    "@types/morgan": "^1.9.9",
-    "@types/node": "^22.10.2",
-    "@types/swagger-jsdoc": "^6.0.4",
-    "@types/swagger-ui-express": "^4.1.7",
-    "nodemon": "^2.0.12",
-    "ts-node": "^10.9.2",
-    "ts-node-dev": "^2.0.0",
-    "typescript": "^5.7.2"
-  }
+    "name": "server",
+    "version": "1.0.0",
+    "description": "Blog api using node express and mongodb",
+    "main": "src/index.ts",
+    "scripts": {
+        "start": "node dist/index.js",
+        "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+        "build": "tsc",
+        "prettier": "prettier --write ."
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/sumancfc/blog-api-node-ts.git"
+    },
+    "keywords": [
+        "node",
+        "express",
+        "mongodb",
+        "blog",
+        "api"
+    ],
+    "author": "Suman Shrestha",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/sumancfc/blog-api-node-ts/issues"
+    },
+    "homepage": "https://github.com/sumancfc/blog-api-node-ts#readme",
+    "dependencies": {
+        "@types/formidable": "^3.4.5",
+        "cookie-parser": "^1.4.5",
+        "cors": "^2.8.5",
+        "csurf": "^1.11.0",
+        "dotenv": "^10.0.0",
+        "express": "^4.21.2",
+        "express-async-handler": "^1.1.4",
+        "express-jwt": "^6.0.0",
+        "express-validator": "^6.12.1",
+        "formidable": "^3.5.2",
+        "helmet": "^8.0.0",
+        "jsonwebtoken": "^9.0.2",
+        "lodash": "^4.17.21",
+        "mongoose": "^8.9.5",
+        "morgan": "^1.10.0",
+        "nodemailer": "^6.9.16",
+        "slugify": "^1.6.0",
+        "string-strip-html": "^13.4.8",
+        "swagger-jsdoc": "^6.2.8",
+        "swagger-ui-express": "^5.0.1"
+    },
+    "devDependencies": {
+        "@types/cookie-parser": "^1.4.8",
+        "@types/cors": "^2.8.17",
+        "@types/csurf": "^1.11.5",
+        "@types/express": "^5.0.0",
+        "@types/express-jwt": "^6.0.4",
+        "@types/jsonwebtoken": "^9.0.7",
+        "@types/lodash": "^4.17.13",
+        "@types/morgan": "^1.9.9",
+        "@types/node": "^22.10.2",
+        "@types/nodemailer": "^6.4.17",
+        "@types/swagger-jsdoc": "^6.0.4",
+        "@types/swagger-ui-express": "^4.1.7",
+        "nodemon": "^2.0.12",
+        "prettier": "^3.4.2",
+        "ts-node": "^10.9.2",
+        "ts-node-dev": "^2.0.0",
+        "typescript": "^5.7.2"
+    }
 }

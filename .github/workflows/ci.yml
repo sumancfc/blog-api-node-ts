@@ -4,64 +4,63 @@
 name: Blog Api CI
 
 on:
-  push:
-    branches:
-      - main
-      - feature/*
-
+    push:
+        branches:
+            - main
+            - feature/*
 
 jobs:
-  build:
-    runs-on: ${{matrix.os}}
+    build:
+        runs-on: ${{matrix.os}}
 
-    strategy:
-      matrix:
-        node-version: [20.15.1]
-        os: [ubuntu-latest]
+        strategy:
+            matrix:
+                node-version: [20.15.1]
+                os: [ubuntu-latest]
 
-    steps:
-      # Step 1: Check out the code
-      - name: Checkout Code
-        uses: actions/checkout@v3
+        steps:
+            # Step 1: Check out the code
+            - name: Checkout Code
+              uses: actions/checkout@v3
 
-      # Step 2: Setup node.js
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: "npm"
+            # Step 2: Setup node.js
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v3
+              with:
+                  node-version: ${{ matrix.node-version }}
+                  cache: "npm"
 
-      # Step 3: Install dependencies
-      - name: Install Dependencies
-        run: npm install
+            # Step 3: Install dependencies
+            - name: Install Dependencies
+              run: npm install
 
-      # Step 4: Compile check
-      - name: TypeScript Compile Check
-        run: npx tsc --noEmit
+            # Step 4: Compile check
+            - name: TypeScript Compile Check
+              run: npx tsc --noEmit
 
-      # Step 5: Remove existing dist folder
-      - name: Remove Dist Folder
-        run: rm -rf dist
+            # Step 5: Remove existing dist folder
+            - name: Remove Dist Folder
+              run: rm -rf dist
 
-      # Step 6: Build project
-      - name: Build Project
-        run: npm run build
+            # Step 6: Build project
+            - name: Build Project
+              run: npm run build
 
-      # Step 7: Start project
-      # - name: Start
-      #   run: npm start
-      #   env:
-      #     DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      #     JWT_SECRET: ${{ secrets.JWT_SECRET}}
+            # Step 7: Start project
+            # - name: Start
+            #   run: npm start
+            #   env:
+            #     DATABASE_URL: ${{ secrets.DATABASE_URL }}
+            #     JWT_SECRET: ${{ secrets.JWT_SECRET}}
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: blog-api-backend
-          path: |
-            dist/
-            .gitignore
-            package.json
-            README.md
-            .env.example
-          include-hidden-files: true
+            - name: Upload artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: blog-api-backend
+                  path: |
+                      dist/
+                      .gitignore
+                      package.json
+                      README.md
+                      .env.example
+                  include-hidden-files: true
