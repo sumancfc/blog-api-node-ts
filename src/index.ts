@@ -17,9 +17,9 @@ const port: string | number = process.env.PORT || 8000;
 
 // Database Connection
 mongoose
-  .connect(process.env.DATABASE_URL as string)
-  .then(() => console.log("Connected to DataBase!!!"))
-  .catch((err) => console.log("Database Connection Error:", err));
+    .connect(process.env.DATABASE_URL as string)
+    .then(() => console.log("Connected to DataBase!!!"))
+    .catch((err) => console.log("Database Connection Error:", err));
 
 // Middlewares
 app.use(helmet());
@@ -29,13 +29,13 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 if (process.env.NODE_ENV === "development") {
-  app.use(
-    cors({
-      origin: process.env.CLIENT_URL as string,
-    })
-  );
+    app.use(
+        cors({
+            origin: process.env.CLIENT_URL as string,
+        })
+    );
 } else {
-  app.use(cors());
+    app.use(cors());
 }
 
 // Serve Swagger UI
@@ -66,14 +66,14 @@ app.use("/api/v1", tagRoutes);
 app.use(csrfProtection);
 
 app.get(
-  "/api/v1/csrf-token",
-  (req: Request, res: Response, next: NextFunction) => {
-    res.json({ csrfToken: req.csrfToken() });
-    next();
-  }
+    "/api/v1/csrf-token",
+    (req: Request, res: Response, next: NextFunction) => {
+        res.json({ csrfToken: req.csrfToken() });
+        next();
+    }
 );
 
 // Start server
 app.listen(port, () => {
-  console.log(`Server is running on port: ${port}`);
+    console.log(`Server is running on port: ${port}`);
 });

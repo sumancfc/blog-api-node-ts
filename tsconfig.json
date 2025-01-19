@@ -1,15 +1,15 @@
 {
-  "compilerOptions": {
-    "target": "ES6",
-    "module": "commonjs",
-    "rootDir": "./src",
-    "outDir": "./dist",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "moduleResolution": "node",
-    "typeRoots": ["./node_modules/@types/", "./types"]
-  },
-  "include": ["src/**/*", "src/swaggerOptions.ts"],
-  "exclude": ["node_modules"]
+    "compilerOptions": {
+        "target": "ES6",
+        "module": "commonjs",
+        "rootDir": "./src",
+        "outDir": "./dist",
+        "strict": true,
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "moduleResolution": "node",
+        "typeRoots": ["./node_modules/@types/", "./types"]
+    },
+    "include": ["src/**/*", "src/swaggerOptions.ts"],
+    "exclude": ["node_modules"]
 }

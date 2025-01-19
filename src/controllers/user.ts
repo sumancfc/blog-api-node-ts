@@ -6,56 +6,56 @@ import asyncHandler from "express-async-handler";
 import { HTTP_STATUS, USER_MESSAGES } from "../utils/status_message";
 import { User } from "../models/userModel";
 import { sendErrorResponse } from "../helpers";
-import { IUser, UserRole } from "../interfaces";
+import { IUser, UserRole } from "../interfaces/user";
 
 // Admin: Get all users
 export const getAllUsers: RequestHandler = asyncHandler(async (_, res) => {
-  const users: IUser[] = await User.find();
-  res.status(200).json(users);
+    const users: IUser[] = await User.find();
+    res.status(200).json(users);
 });
 
 // Admin: Update user role
 export const updateUserRole: RequestHandler = asyncHandler(async (req, res) => {
-  const userId = req.params.id;
-  const { role } = req.body;
+    const userId = req.params.id;
+    const { role } = req.body;
 
-  if (!Object.values(UserRole).includes(role)) {
-    return sendErrorResponse(res, HTTP_STATUS.BAD_REQUEST, "Invalid Role");
-  }
+    if (!Object.values(UserRole).includes(role)) {
+        return sendErrorResponse(res, HTTP_STATUS.BAD_REQUEST, "Invalid Role");
+    }
 
-  const user = await User.findByIdAndUpdate(userId, { role }, { new: true });
+    const user = await User.findByIdAndUpdate(userId, { role }, { new: true });
 
-  if (!user) {
-    return sendErrorResponse(
-      res,
-      HTTP_STATUS.NOT_FOUND,
-      USER_MESSAGES.USER_NOT_FOUND
-    );
-  }
-  res.status(200).json(user);
+    if (!user) {
+        return sendErrorResponse(
+            res,
+            HTTP_STATUS.NOT_FOUND,
+            USER_MESSAGES.USER_NOT_FOUND
+        );
+    }
+    res.status(200).json(user);
 });
 
 // Get User Profile
 export const getProfile: RequestHandler = asyncHandler(async (req, res) => {
-  res.json(req.profile);
+    res.json(req.profile);
 });
 
 //get user profile
 export const userProfile: RequestHandler = asyncHandler(async (req, res) => {
-  const username = req.params.username;
+    const username = req.params.username;
 
-  const user: IUser | null = await User.findOne({ username }).exec();
+    const user: IUser | null = await User.findOne({ username }).exec();
 
-  if (!user) {
-    return sendErrorResponse(
-      res,
-      HTTP_STATUS.NOT_FOUND,
-      USER_MESSAGES.USER_NOT_FOUND
-    );
-  }
+    if (!user) {
+        return sendErrorResponse(
+            res,
+            HTTP_STATUS.NOT_FOUND,
+            USER_MESSAGES.USER_NOT_FOUND
+        );
+    }
 
-  res.status(200).json({ user });
-  // res.status(200).json({ user, blogs: blog });
+    res.status(200).json({ user });
+    // res.status(200).json({ user, blogs: blog });
 });
 
 //update user profile

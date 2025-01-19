@@ -1,6 +1,6 @@
 import express, { Router } from "express";
 import { signup, signin, signout } from "../controllers/auth";
-import {runValidation} from "../validators";
+import { runValidation } from "../validators";
 import { userSignupValidation, userSigninValidation } from "../validators/auth";
 
 const router: Router = express.Router();

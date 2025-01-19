@@ -1,13 +1,13 @@
 import express, { Router } from "express";
 import {
-  createCategory,
-  getAllCategories,
-  getSingleCategory,
-  updateCategory,
-  deleteCategory,
+    createCategory,
+    getAllCategories,
+    getSingleCategory,
+    updateCategory,
+    deleteCategory,
 } from "../controllers/category";
 import { requireSignin, authorizeRoles } from "../controllers/auth";
-import { UserRole } from "../interfaces";
+import { UserRole } from "../interfaces/user";
 
 const router: Router = express.Router();
 
@@ -46,10 +46,10 @@ const router: Router = express.Router();
  *         description: Unauthorized
  */
 router.post(
-  "/category",
-  requireSignin,
-  authorizeRoles(UserRole.ADMIN),
-  createCategory
+    "/category",
+    requireSignin,
+    authorizeRoles(UserRole.ADMIN),
+    createCategory
 );
 
 /**
@@ -120,17 +120,17 @@ router.get("/category/:slug", getSingleCategory);
  *         description: Unauthorized
  */
 router.put(
-  "/category/:id",
-  requireSignin,
-  authorizeRoles(UserRole.ADMIN),
-  updateCategory
+    "/category/:id",
+    requireSignin,
+    authorizeRoles(UserRole.ADMIN),
+    updateCategory
 );
 
 router.delete(
-  "/category/:id",
-  requireSignin,
-  authorizeRoles(UserRole.ADMIN),
-  deleteCategory
+    "/category/:id",
+    requireSignin,
+    authorizeRoles(UserRole.ADMIN),
+    deleteCategory
 );
 
 export default router;

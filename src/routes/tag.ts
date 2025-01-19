@@ -1,10 +1,10 @@
 import express, { Router } from "express";
 import {
-  createTag,
-  getAllTags,
-  getSingleTag,
-  updateTag,
-  deleteTag,
+    createTag,
+    getAllTags,
+    getSingleTag,
+    updateTag,
+    deleteTag,
 } from "../controllers/tag";
 import { requireSignin, adminMiddleware } from "../controllers/auth";
 
