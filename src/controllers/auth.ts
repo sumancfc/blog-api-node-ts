@@ -4,10 +4,25 @@ import expressJWT from "express-jwt";
 import asyncHandler from "express-async-handler";
 import { User } from "../models/userModel";
 import { HTTP_STATUS, USER_MESSAGES } from "../utils/status_message";
-import { IUser, SignUpRequest, SignInRequest } from "../interfaces/user";
-import { sendErrorResponse, encodeEmailForURL } from "../helpers";
+import {
+    IUser,
+    SignUpRequest,
+    SignInRequest,
+    ForgotPasswordRequest,
+    ResetPasswordRequest,
+} from "../interfaces/user";
+import {
+    sendErrorResponse,
+    encodeEmailForURL,
+    generateAlphanumericCode,
+} from "../helpers";
 import { getExpirySettings, sendEmail } from "../utils";
-import { confirmEmailMessage, verifyEmailMessage } from "../utils/emailMessage";
+import {
+    confirmEmailMessage,
+    passwordResetMessage,
+    verifyEmailMessage,
+    passwordResetConfirmMessage,
+} from "../utils/emailMessage";
 
 // Signup controller
 export const signup: RequestHandler = asyncHandler(async (req, res) => {
@@ -252,3 +267,99 @@ export const authorizeRoles = (...roles: string[]): RequestHandler => {
         next();
     });
 };
+
+// Forgot Password
+export const forgotPassword: RequestHandler = asyncHandler(async (req, res) => {
+    const { email } = req.body as ForgotPasswordRequest;
+
+    if (!email) {
+        return sendErrorResponse(
+            res,
+            HTTP_STATUS.BAD_REQUEST,
+            USER_MESSAGES.INVALID_EMAIL
+        );
+    }
+
+    const user: IUser | null = await User.findOne({ email });
+
+    if (!user) {
+        return sendErrorResponse(
+            res,
+            HTTP_STATUS.NOT_FOUND,
+            USER_MESSAGES.USER_NOT_EXIST
+        );
+    }
+
+    const codeLength: number = Number(process.env.CODE_LENGTH) || 6;
+    const expiryTime: number = Number(process.env.EXPIRY_TIME) || 30;
+
+    const code: string = generateAlphanumericCode(codeLength);
+    const codeExpiry: Date = new Date(Date.now() + expiryTime * 60 * 1000);
+
+    try {
+        const updatedUser: IUser | null = await User.findOneAndUpdate(
+            { email },
+            {
+                resetPassword: code,
+                resetPasswordExpires: codeExpiry,
+            },
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return sendErrorResponse(
+                res,
+                HTTP_STATUS.BAD_REQUEST,
+                USER_MESSAGES.USER_UPDATE_FAIL
+            );
+        }
+
+        const message: string = passwordResetMessage(updatedUser.name, code);
+
+        await sendEmail(email, "Code For Password Reset", message, res);
+
+        res.status(HTTP_STATUS.OK).json({
+            message: USER_MESSAGES.PASSWORD_RESET_EMAIL_SENT,
+            expiresIn: `${expiryTime} minutes`,
+        });
+    } catch (error) {
+        sendErrorResponse(
+            res,
+            HTTP_STATUS.INTERNAL_SERVER_ERROR,
+            USER_MESSAGES.PASSWORD_RESET_FAILED
+        );
+    }
+});
+
+// Reset Password
+export const resetPassword: RequestHandler = asyncHandler(async (req, res) => {
+    const { email, resetCode, newPassword } = req.body as ResetPasswordRequest;
+
+    const user: IUser | null = await User.findOne({
+        email,
+        resetPassword: resetCode,
+        resetPasswordExpires: { $gt: Date.now() }, // Check if the code has expired
+    });
+
+    if (!user) {
+        return sendErrorResponse(
+            res,
+            HTTP_STATUS.NOT_FOUND,
+            USER_MESSAGES.INVALID_RESET_CODE_OR_EXPIRED
+        );
+    }
+
+    user.salt = user.makeSalt();
+    user.hashed_password = user.encryptPassword(newPassword);
+
+    user.resetPassword = "";
+    user.resetPasswordExpires = new Date();
+
+    await user.save();
+
+    const message: string = passwordResetConfirmMessage(user.name);
+
+    await sendEmail(email, "Password Changed", message, res);
+
+    res.status(200).json({ ok: true });
+});

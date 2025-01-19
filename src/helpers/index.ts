@@ -25,3 +25,18 @@ export const sendErrorResponse = (
 export const encodeEmailForURL = (email: string) => {
     return encodeURIComponent(email);
 };
+
+// Generate Code
+export const generateAlphanumericCode = (length: number): string => {
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+    let code: string = "";
+
+    for (let i: number = 0; i < length; i++) {
+        const randomIndex: number = Math.floor(
+            Math.random() * characters.length
+        );
+        code += characters[randomIndex];
+    }
+    return code;
+};

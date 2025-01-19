@@ -69,6 +69,8 @@ export interface IUser extends Document {
     twoFactorEnabled: boolean;
     resetPasswordLink: string;
     is_verified: boolean;
+    resetPassword: string;
+    resetPasswordExpires: Date;
     _password?: string;
     authenticate: (plainText: string) => boolean;
     encryptPassword: (password: string) => string;
@@ -85,3 +87,13 @@ export interface SignUpRequest extends UserRequest {
 }
 
 export interface SignInRequest extends UserRequest {}
+
+export interface ForgotPasswordRequest {
+    email: string;
+}
+
+export interface ResetPasswordRequest {
+    email: string;
+    resetCode: string;
+    newPassword: string;
+}

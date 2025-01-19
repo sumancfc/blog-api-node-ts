@@ -59,10 +59,17 @@ const userSchema = new Schema<IUser>(
             phone: { type: String },
         },
         twoFactorEnabled: { type: Boolean, default: false },
-        resetPasswordLink: { data: String },
+        //resetPasswordLink: { data: String },
         is_verified: {
             type: Boolean,
             default: false,
+        },
+        resetPassword: {
+            type: String,
+            default: "",
+        },
+        resetPasswordExpires: {
+            type: Date,
         },
     },
     { timestamps: true }
