@@ -55,6 +55,10 @@ Ensure you have the following installed:
     CLIENT_URL=http://localhost:3000
     COOKIE_EXPIRY_LONG=15
     COOKIE_EXPIRY_SHORT=1
+    EMAIL_USER=youremail@gmail.com
+    EMAIL_PASSWORD=youremailpassword
+    CODE_LENGTH=6
+    EXPIRY_TIME=30
     ```
 
 4. Build the project
