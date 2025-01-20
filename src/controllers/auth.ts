@@ -10,6 +10,7 @@ import {
     SignInRequest,
     ForgotPasswordRequest,
     ResetPasswordRequest,
+    AccountStatus
 } from "../interfaces/user";
 import {
     sendErrorResponse,
@@ -133,10 +134,10 @@ export const signin: RequestHandler = asyncHandler(async (req, res) => {
 
 // Verify Email
 export const verifyEmail: RequestHandler = asyncHandler(async (req, res) => {
-    const id = req.params.id;
-    const trimmedId = id.trim();
+    const id: string = req.params.id;
+    const trimmedId: string = id.trim();
 
-    const user = await User.findById(id).exec();
+    const user: IUser | null = await User.findById(trimmedId).exec();
 
     if (!user) {
         return sendErrorResponse(
@@ -146,9 +147,17 @@ export const verifyEmail: RequestHandler = asyncHandler(async (req, res) => {
         );
     }
 
+    if (user.is_verified) {
+        return sendErrorResponse(
+            res,
+            HTTP_STATUS.BAD_REQUEST,
+            USER_MESSAGES.ALREADY_VERIFIED
+        );
+    }
+
     const { _id, name, email } = user;
 
-    await User.updateOne({ _id }, { $set: { is_verified: true } });
+    await User.updateOne({ _id }, { $set: { is_verified: true, accountStatus: AccountStatus.ACTIVE } });
 
     const message = confirmEmailMessage(name);
 

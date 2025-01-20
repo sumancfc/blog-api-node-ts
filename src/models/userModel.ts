@@ -44,7 +44,7 @@ const userSchema = new Schema<IUser>(
         accountStatus: {
             type: String,
             enum: Object.values(AccountStatus),
-            default: AccountStatus.ACTIVE,
+            default: AccountStatus.INACTIVE,
         },
         lastLogin: { type: Date },
         preferences: {

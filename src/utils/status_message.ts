@@ -35,6 +35,7 @@ export const USER_MESSAGES = {
     PASSWORD_RESET_FAILED: "Password Reset Failed",
     USER_UPDATE_FAIL: "User update failed",
     INVALID_RESET_CODE_OR_EXPIRED: "Invalid Reset Code Or Expired",
+    ALREADY_VERIFIED: "User Already Verified",
     USER_NOT_EXIST: "User with that email does not exist.",
     INCORRECT_CREDENTIALS: "Email and Password do not match.",
     SIGNIN_SUCCESS: "User signin successful!!!",
