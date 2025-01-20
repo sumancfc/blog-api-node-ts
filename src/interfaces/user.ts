@@ -12,16 +12,16 @@ export enum UserRole {
 }
 
 export enum AccountStatus {
-    ACTIVE = "Active",
-    INACTIVE = "Inactive",
-    SUSPENDED = "Suspended",
+    ACTIVE = "active",
+    INACTIVE = "inactive",
+    SUSPENDED = "suspended",
 }
 
 export enum Gender {
-    MALE = "Male",
-    FEMALE = "Female",
-    OTHER = "Other",
-    PREFER_NOT_TO_SAY = "Prefer not to say",
+    MALE = "male",
+    FEMALE = "female",
+    OTHER = "other",
+    PREFER_NOT_TO_SAY = "prefer_not_to_say",
 }
 
 export interface ISocialMedia {
@@ -75,6 +75,7 @@ export interface IUser extends Document {
     authenticate: (plainText: string) => boolean;
     encryptPassword: (password: string) => string;
     makeSalt: () => string;
+    [key: string]: any;
 }
 
 export interface UserRequest {

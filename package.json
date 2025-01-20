@@ -27,7 +27,6 @@
     },
     "homepage": "https://github.com/sumancfc/blog-api-node-ts#readme",
     "dependencies": {
-        "@types/formidable": "^3.4.5",
         "cookie-parser": "^1.4.5",
         "cors": "^2.8.5",
         "csurf": "^1.11.0",
@@ -55,6 +54,7 @@
         "@types/csurf": "^1.11.5",
         "@types/express": "^5.0.0",
         "@types/express-jwt": "^6.0.4",
+        "@types/formidable": "^3.4.5",
         "@types/jsonwebtoken": "^9.0.7",
         "@types/lodash": "^4.17.13",
         "@types/morgan": "^1.9.9",

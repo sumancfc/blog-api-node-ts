@@ -8,6 +8,7 @@ import {
     updateUserRole,
     userProfile,
     getProfile,
+    updateUserProfile
 } from "../controllers/user";
 import { UserRole } from "../interfaces/user";
 
@@ -30,8 +31,8 @@ router.get(
 
 
 // User Routes
-router.get("/profile", requireSignIn, authorizeRoles(UserRole.USER), getProfile);
-// router.put("/profile", requireSignIn, authMiddleware, updateUserProfile);
+router.get("/user/profile", requireSignIn, authorizeRoles(UserRole.USER, UserRole.ADMIN), getProfile);
+router.put("/user/profile", requireSignIn, authorizeRoles(UserRole.USER, UserRole.ADMIN), updateUserProfile);
 // router.get("/user/photo/:username", getUserPhoto);
 
 export default router;

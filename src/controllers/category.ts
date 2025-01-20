@@ -26,7 +26,7 @@ export const createCategory: RequestHandler = asyncHandler(async (req, res) => {
         );
     }
 
-    const slug = createSlug(name);
+    const slug:string = createSlug(name);
     const category: ICategory = await new Category({ name, slug }).save();
 
     category
@@ -49,7 +49,7 @@ export const getAllCategories: RequestHandler = asyncHandler(async (_, res) => {
 // Get single category
 export const getSingleCategory: RequestHandler = asyncHandler(
     async (req, res) => {
-        const slug = createSlug(req.params.slug);
+        const slug:string = createSlug(req.params.slug);
         const category: ICategory | null = await Category.findOne({
             slug,
         }).exec();
@@ -67,7 +67,7 @@ export const getSingleCategory: RequestHandler = asyncHandler(
 // Update category
 export const updateCategory: RequestHandler = asyncHandler(async (req, res) => {
     const { name } = req.body as CategoryRequest;
-    const categoryId = req.params.id;
+    const categoryId: string = req.params.id;
 
     if (!validateName(name)) {
         return sendErrorResponse(
@@ -109,7 +109,7 @@ export const updateCategory: RequestHandler = asyncHandler(async (req, res) => {
 
 // Delete category
 export const deleteCategory: RequestHandler = asyncHandler(async (req, res) => {
-    const categoryId = req.params.id;
+    const categoryId: string = req.params.id;
 
     const deletedCategory: ICategory | null =
         await Category.findByIdAndDelete(categoryId);
