@@ -9,15 +9,16 @@ import {
 } from "../controllers/auth";
 import { runValidation } from "../validators";
 import { userSignupValidation, userSigninValidation } from "../validators/auth";
+import { forgotPasswordLimiter, resetPasswordLimiter, signInLimiter, signUpLimiter } from "../middlewares/rateLimiter";
 
 const router: Router = express.Router();
 
 // Auth Routes
-router.post("/signup", userSignupValidation, runValidation, signup);
-router.post("/signin", userSigninValidation, runValidation, signin);
+router.post("/signup", signUpLimiter, userSignupValidation, runValidation, signup);
+router.post("/signin", signInLimiter, userSigninValidation, runValidation, signin);
 router.get("/verify/:id", verifyEmail);
 router.get("/signout", signout);
-router.post("/forgot-password", forgotPassword);
-router.post("/reset-password", resetPassword);
+router.post("/forgot-password", forgotPasswordLimiter, forgotPassword);
+router.post("/reset-password", resetPasswordLimiter,resetPassword);
 
 export default router;
