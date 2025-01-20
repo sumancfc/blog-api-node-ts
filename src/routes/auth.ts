@@ -1,9 +1,9 @@
 import express, { Router } from "express";
 import {
-    signup,
-    signin,
+    signUp,
+    signIn,
     verifyEmail,
-    signout,
+    signOut,
     forgotPassword,
     resetPassword,
 } from "../controllers/auth";
@@ -14,10 +14,10 @@ import { forgotPasswordLimiter, resetPasswordLimiter, signInLimiter, signUpLimit
 const router: Router = express.Router();
 
 // Auth Routes
-router.post("/signup", signUpLimiter, userSignupValidation, runValidation, signup);
-router.post("/signin", signInLimiter, userSigninValidation, runValidation, signin);
+router.post("/signup", signUpLimiter, userSignupValidation, runValidation, signUp);
+router.post("/signin", signInLimiter, userSigninValidation, runValidation, signIn);
 router.get("/verify/:id", verifyEmail);
-router.get("/signout", signout);
+router.get("/signout", signOut);
 router.post("/forgot-password", forgotPasswordLimiter, forgotPassword);
 router.post("/reset-password", resetPasswordLimiter,resetPassword);
 

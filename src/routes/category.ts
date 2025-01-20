@@ -6,7 +6,7 @@ import {
     updateCategory,
     deleteCategory,
 } from "../controllers/category";
-import { requireSignin, authorizeRoles } from "../controllers/auth";
+import { requireSignIn, authorizeRoles } from "../controllers/auth";
 import { UserRole } from "../interfaces/user";
 
 const router: Router = express.Router();
@@ -47,8 +47,7 @@ const router: Router = express.Router();
  */
 router.post(
     "/category",
-    requireSignin,
-    authorizeRoles(UserRole.ADMIN),
+    requireSignIn, authorizeRoles(UserRole.ADMIN),
     createCategory
 );
 
@@ -121,15 +120,13 @@ router.get("/category/:slug", getSingleCategory);
  */
 router.put(
     "/category/:id",
-    requireSignin,
-    authorizeRoles(UserRole.ADMIN),
+    requireSignIn, authorizeRoles(UserRole.ADMIN),
     updateCategory
 );
 
 router.delete(
     "/category/:id",
-    requireSignin,
-    authorizeRoles(UserRole.ADMIN),
+    requireSignIn, authorizeRoles(UserRole.ADMIN),
     deleteCategory
 );
 

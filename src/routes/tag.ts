@@ -6,15 +6,16 @@ import {
     updateTag,
     deleteTag,
 } from "../controllers/tag";
-import { requireSignin, adminMiddleware } from "../controllers/auth";
+import { requireSignIn, authorizeRoles } from "../controllers/auth";
+import { UserRole } from "../interfaces/user";
 
 const router: Router = express.Router();
 
 // Tag routes
-router.post("/tag", requireSignin, adminMiddleware, createTag);
+router.post("/tag", requireSignIn, authorizeRoles(UserRole.ADMIN), createTag);
 router.get("/tags", getAllTags);
 router.get("/tag/:slug", getSingleTag);
-router.put("/tag/:id", requireSignin, adminMiddleware, updateTag);
-router.delete("/tag/:id", requireSignin, adminMiddleware, deleteTag);
+router.put("/tag/:id", requireSignIn, authorizeRoles(UserRole.ADMIN), updateTag);
+router.delete("/tag/:id", requireSignIn, authorizeRoles(UserRole.ADMIN), deleteTag);
 
 export default router;

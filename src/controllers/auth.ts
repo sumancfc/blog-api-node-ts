@@ -26,7 +26,7 @@ import {
 } from "../utils/emailMessage";
 
 // Signup controller
-export const signup: RequestHandler = asyncHandler(async (req, res) => {
+export const signUp: RequestHandler = asyncHandler(async (req, res) => {
     const { name, email, password } = req.body as SignUpRequest;
 
     const userExists = await User.findOne({ email }).exec();
@@ -67,8 +67,8 @@ export const signup: RequestHandler = asyncHandler(async (req, res) => {
     }
 });
 
-// Signin controller
-export const signin: RequestHandler = asyncHandler(async (req, res) => {
+// Sign In controller
+export const signIn: RequestHandler = asyncHandler(async (req, res) => {
     const { email, password, keepMeLoggedIn } = req.body as SignInRequest & {
         keepMeLoggedIn?: boolean;
     };
@@ -102,8 +102,8 @@ export const signin: RequestHandler = asyncHandler(async (req, res) => {
 
     const { expiresIn, cookieMaxAge } = getExpirySettings(keepMeLoggedIn);
 
-    const token = jwt.sign(
-        { _id: user._id },
+    const token: string = jwt.sign(
+        { _id: user._id, role: user.role },
         process.env.JWT_SECRET as string,
         {
             expiresIn,
@@ -167,85 +167,25 @@ export const verifyEmail: RequestHandler = asyncHandler(async (req, res) => {
     res.status(200).json({ message: USER_MESSAGES.EMAIL_VERIFIED });
 });
 
-// Signout controller
-export const signout: RequestHandler = asyncHandler(async (_, res) => {
+// Sign Out controller
+export const signOut: RequestHandler = asyncHandler(async (_, res) => {
     res.clearCookie("token");
     res.status(HTTP_STATUS.OK).json({ message: USER_MESSAGES.SIGNOUT_SUCCESS });
 });
 
-// Require signin middleware
-export const requireSignin = expressJWT({
+// Require Sign In middleware
+export const requireSignIn: RequestHandler = expressJWT({
     secret: process.env.JWT_SECRET as string,
     algorithms: ["HS256"],
     getToken: (req: Request) => req.cookies.token,
 });
 
-// Auth middleware
-export const authMiddleware: RequestHandler = asyncHandler(
-    async (req, res, next) => {
-        const user = req.user as IUser;
-
-        if (!user?._id) {
-            return sendErrorResponse(
-                res,
-                HTTP_STATUS.UNAUTHORIZED,
-                USER_MESSAGES.UNAUTHORIZED
-            );
-        }
-
-        const foundUser = await User.findById(user._id);
-        if (!foundUser) {
-            return sendErrorResponse(
-                res,
-                HTTP_STATUS.NOT_FOUND,
-                USER_MESSAGES.USER_NOT_FOUND
-            );
-        }
-
-        req.profile = foundUser;
-        next();
-    }
-);
-
-// Admin Middleware
-export const adminMiddleware: RequestHandler = asyncHandler(
-    async (req, res, next) => {
-        const user = req.user as IUser | undefined;
-
-        if (!user?._id) {
-            return sendErrorResponse(
-                res,
-                HTTP_STATUS.UNAUTHORIZED,
-                USER_MESSAGES.UNAUTHORIZED
-            );
-        }
-
-        const foundUser = await User.findById(user._id);
-        if (!foundUser) {
-            return sendErrorResponse(
-                res,
-                HTTP_STATUS.NOT_FOUND,
-                USER_MESSAGES.USER_NOT_FOUND
-            );
-        }
-
-        if (foundUser.role !== "admin") {
-            return sendErrorResponse(
-                res,
-                HTTP_STATUS.FORBIDDEN,
-                USER_MESSAGES.ADMIN_ONLY
-            );
-        }
-
-        req.profile = foundUser;
-        next();
-    }
-);
-
 // Role-based authorization middleware
 export const authorizeRoles = (...roles: string[]): RequestHandler => {
     return asyncHandler(async (req, res, next) => {
         const user = req.user as IUser;
+
+        console.log('User Role:', user.role); // Add this line for debugging
 
         if (!user?._id) {
             return sendErrorResponse(
