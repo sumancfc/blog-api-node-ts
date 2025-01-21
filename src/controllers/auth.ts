@@ -117,17 +117,21 @@ export const signIn: RequestHandler = asyncHandler(async (req, res) => {
         expires: new Date(Date.now() + cookieMaxAge),
     });
 
-    const userWithoutSensitiveInfo = {
-        _id: user._id,
+    // Update lastLogin in the database
+    user.lastLogin = new Date();
+    await user.save();
+
+    const userData = {
         role: user.role,
         name: user.name,
         email: user.email,
         username: user.username,
         profile: user.profile,
+        lastLogin: user.lastLogin
     };
 
     res.status(200).json({
-        userWithoutSensitiveInfo,
+        user: userData,
         message: USER_MESSAGES.SIGNIN_SUCCESS,
     });
 });
@@ -185,8 +189,6 @@ export const authorizeRoles = (...roles: string[]): RequestHandler => {
     return asyncHandler(async (req, res, next) => {
         const user = req.user as IUser;
 
-        console.log('User Role:', user.role); // Add this line for debugging
-
         if (!user?._id) {
             return sendErrorResponse(
                 res,
@@ -216,6 +218,20 @@ export const authorizeRoles = (...roles: string[]): RequestHandler => {
         next();
     });
 };
+
+// Is Owner or Admin
+/*export const isOwnerOrAdmin: RequestHandler = (req, res, next ) => {
+    const { username } = req.params;
+    if (!username) return;
+
+    const loggedInUser = req.user as IUser;
+
+    if (loggedInUser.username === username || loggedInUser.role === "admin") {
+        return next();
+    }
+
+    res.status(403).json({ message: "You are not authorized to access this resource." });
+}*/
 
 // Forgot Password
 export const forgotPassword: RequestHandler = asyncHandler(async (req, res) => {

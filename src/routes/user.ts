@@ -2,13 +2,15 @@ import express, { Router } from "express";
 import {
     requireSignIn,
     authorizeRoles,
+    //isOwnerOrAdmin,
 } from "../controllers/auth";
 import {
     getAllUsers,
     updateUserRole,
     userProfile,
     getProfile,
-    updateUserProfile
+    updateUserProfile,
+    getUserPhoto
 } from "../controllers/user";
 import { UserRole } from "../interfaces/user";
 
@@ -29,10 +31,10 @@ router.get(
     userProfile
 );
 
-
 // User Routes
 router.get("/user/profile", requireSignIn, authorizeRoles(UserRole.USER, UserRole.ADMIN), getProfile);
+// router.get("/user/profile:username", requireSignIn, authorizeRoles(UserRole.USER, UserRole.ADMIN), getUserProfile);
 router.put("/user/profile", requireSignIn, authorizeRoles(UserRole.USER, UserRole.ADMIN), updateUserProfile);
-// router.get("/user/photo/:username", getUserPhoto);
+router.get("/user/photo/:username", requireSignIn, authorizeRoles(UserRole.USER, UserRole.ADMIN), getUserPhoto);
 
 export default router;
