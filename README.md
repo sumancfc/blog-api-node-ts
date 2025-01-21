@@ -70,5 +70,5 @@ Ensure you have the following installed:
 5. Run the project
 
     ```bash
-    npm run dev
+    npm start
     ```

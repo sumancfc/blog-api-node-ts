@@ -10,9 +10,12 @@ import {
     userProfile,
     getProfile,
     updateUserProfile,
-    getUserPhoto
+    getUserPhoto,
+    createUser,
 } from "../controllers/user";
 import { UserRole } from "../interfaces/user";
+import { createUserValidation } from "../validators/user";
+import { runValidation } from "../validators";
 
 const router: Router = express.Router();
 
@@ -30,6 +33,8 @@ router.get(
     authorizeRoles(UserRole.ADMIN),
     userProfile
 );
+
+router.post("/admin/create-user", requireSignIn, authorizeRoles(UserRole.ADMIN), createUserValidation, runValidation, createUser);
 
 // User Routes
 router.get("/user/profile", requireSignIn, authorizeRoles(UserRole.USER, UserRole.ADMIN), getProfile);

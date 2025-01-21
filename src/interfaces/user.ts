@@ -98,3 +98,11 @@ export interface ResetPasswordRequest {
     resetCode: string;
     newPassword: string;
 }
+
+export interface CreateUserRequest {
+    name: string;
+    email: string;
+    password: string;
+    gender: Gender;
+    role: UserRole;
+}

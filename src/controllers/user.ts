@@ -5,8 +5,10 @@ import formidable, { Fields, File, Files } from "formidable";
 import asyncHandler from "express-async-handler";
 import { HTTP_STATUS, USER_MESSAGES } from "../utils/status_message";
 import { User } from "../models/userModel";
-import { sendErrorResponse } from "../helpers";
-import { Gender, IUser, UserRole } from "../interfaces/user";
+import { encodeEmailForURL, sendErrorResponse } from "../helpers";
+import { CreateUserRequest, Gender, IUser, UserRole } from "../interfaces/user";
+import { verifyEmailMessage } from "../utils/emailMessage";
+import { sendEmail } from "../utils";
 
 // Admin: Get all users
 export const getAllUsers: RequestHandler = asyncHandler(async (_, res) => {
@@ -40,7 +42,7 @@ export const getProfile: RequestHandler = asyncHandler(async (req, res) => {
     res.json(req.profile);
 });
 
-//get user profile
+// Get User Profile by username
 export const userProfile: RequestHandler = asyncHandler(async (req, res) => {
     const username: string = req.params.username;
 
@@ -176,3 +178,54 @@ export const getUserPhoto: RequestHandler = async (req, res) => {
         res.status(500).json({ error: "Server error" });
     }
 };
+
+// Create User
+export const createUser: RequestHandler = asyncHandler(async (req, res) => {
+    const { name, email, password, gender, role } = req.body as CreateUserRequest;
+
+    if(!name || !email || !password || !role || !gender) {
+        res.json({ message: "All fields are required" });
+        return;
+    }
+
+    const userExists = await User.findOne({ email }).exec();
+
+    if (userExists) {
+        return sendErrorResponse(
+            res,
+            HTTP_STATUS.BAD_REQUEST,
+            USER_MESSAGES.USER_EXISTS
+        );
+    }
+
+    const username: string = email.split("@")[0];
+    const profile = `${process.env.CLIENT_URL}/profile/${username}`;
+
+    const user: IUser = await new User({
+        name,
+        email,
+        password,
+        username,
+        profile,
+        gender,
+        role
+    }).save();
+
+    // Verify email message
+    const encodedEmail: string = encodeEmailForURL(email);
+
+    const message: string = verifyEmailMessage(name, encodedEmail);
+
+    if (user) {
+        await sendEmail(email, "For Email Verification", message, res);
+        res.status(HTTP_STATUS.CREATED).json({
+            message: USER_MESSAGES.USER_CREATED,
+        });
+    } else {
+        sendErrorResponse(
+            res,
+            HTTP_STATUS.BAD_REQUEST,
+            USER_MESSAGES.INVALID_USER
+        );
+    }
+});
