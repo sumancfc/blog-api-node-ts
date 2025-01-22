@@ -1,5 +1,4 @@
 import { Request, RequestHandler } from "express";
-import jwt from "jsonwebtoken";
 import expressJWT from "express-jwt";
 import asyncHandler from "express-async-handler";
 import { User } from "../models/userModel";
@@ -24,6 +23,7 @@ import {
     verifyEmailMessage,
     passwordResetConfirmMessage,
 } from "../utils/emailMessage";
+import { generateToken, setTokenInCookie } from "../utils/generateToken";
 
 // Signup controller
 export const signUp: RequestHandler = asyncHandler(async (req, res) => {
@@ -102,20 +102,9 @@ export const signIn: RequestHandler = asyncHandler(async (req, res) => {
 
     const { expiresIn, cookieMaxAge } = getExpirySettings(keepMeLoggedIn);
 
-    const token: string = jwt.sign(
-        { _id: user._id, role: user.role },
-        process.env.JWT_SECRET as string,
-        {
-            expiresIn,
-        }
-    );
+    const token: string = generateToken(user, expiresIn);
 
-    res.cookie("token", token, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        expires: new Date(Date.now() + cookieMaxAge),
-    });
+    setTokenInCookie(res, token, cookieMaxAge);
 
     // Update lastLogin in the database
     user.lastLogin = new Date();
@@ -182,7 +171,7 @@ export const requireSignIn: RequestHandler = expressJWT({
     secret: process.env.JWT_SECRET as string,
     algorithms: ["HS256"],
     getToken: (req: Request) => req.cookies.token,
-});
+}).unless({ path: ["/signup", "/signin"] });
 
 // Role-based authorization middleware
 export const authorizeRoles = (...roles: string[]): RequestHandler => {

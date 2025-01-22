@@ -1,4 +1,4 @@
-import { Document } from "mongoose";
+import { Document, Types } from "mongoose";
 
 /*****
  User Interfaces
@@ -43,6 +43,7 @@ export interface IPreferences {
 }
 
 export interface IUser extends Document {
+    _id: Types.ObjectId;
     username: string;
     name: string;
     email: string;

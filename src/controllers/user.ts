@@ -1,5 +1,4 @@
 import { RequestHandler } from "express";
-import _ from "lodash";
 import { promises as fsPromises } from 'fs';
 import formidable, { Fields, File, Files } from "formidable";
 import asyncHandler from "express-async-handler";
@@ -9,6 +8,7 @@ import { encodeEmailForURL, sendErrorResponse } from "../helpers";
 import { CreateUserRequest, Gender, IUser, UserRole } from "../interfaces/user";
 import { verifyEmailMessage } from "../utils/emailMessage";
 import { sendEmail } from "../utils";
+
 
 // Admin: Get all users
 export const getAllUsers: RequestHandler = asyncHandler(async (_, res) => {
@@ -39,16 +39,19 @@ export const updateUserRole: RequestHandler = asyncHandler(async (req, res) => {
 
 // Get User Profile
 export const getProfile: RequestHandler = asyncHandler(async (req, res) => {
-    res.json(req.profile);
-});
+    const { _id } = req.user as IUser;
 
-// Get User Profile by username
-export const userProfile: RequestHandler = asyncHandler(async (req, res) => {
-    const username: string = req.params.username;
+    if (!_id) {
+        return sendErrorResponse(
+            res,
+            HTTP_STATUS.UNAUTHORIZED,
+            USER_MESSAGES.UNAUTHORIZED
+        );
+    }
 
-    const user: IUser | null = await User.findOne({ username }).exec();
+    const user: IUser | null = await User.findById(_id).exec();
 
-    if (!user?._id) {
+    if (!user) {
         return sendErrorResponse(
             res,
             HTTP_STATUS.NOT_FOUND,
@@ -56,10 +59,11 @@ export const userProfile: RequestHandler = asyncHandler(async (req, res) => {
         );
     }
 
-    res.status(200).json({ user });
+    res.status(200).json(user);
     // res.status(200).json({ user, blogs: blog });
 });
 
+// Update User Profile
 export const updateUserProfile: RequestHandler = (req, res) => {
     const form = formidable({
         multiples: true,
@@ -73,9 +77,7 @@ export const updateUserProfile: RequestHandler = (req, res) => {
         if (err) {
             return res.status(400).json({ message: "Error processing form data", error: err.message });
         }
-        // Log fields and files
-        console.log("Parsed Fields:", fields);
-        console.log("Parsed Files:", files);
+
         try {
             const getUser = req.user as IUser;
             if (!getUser?._id) {
@@ -228,4 +230,58 @@ export const createUser: RequestHandler = asyncHandler(async (req, res) => {
             USER_MESSAGES.INVALID_USER
         );
     }
+});
+
+// Get User Profile by username
+export const getUserProfile: RequestHandler = asyncHandler(async (req, res) => {
+    const username: string = req.params.username;
+
+    if (!username) {
+        return sendErrorResponse(
+            res,
+            HTTP_STATUS.BAD_REQUEST,
+            "Username is required."
+        );
+    }
+
+    const user: IUser | null = await User.findOne({ username }).exec();
+
+    if (!user) {
+        return sendErrorResponse(
+            res,
+            HTTP_STATUS.NOT_FOUND,
+            USER_MESSAGES.USER_NOT_FOUND
+        );
+    }
+
+    res.status(200).json({ user });
+});
+
+// Delete User Profile
+export const deleteUserProfile: RequestHandler = asyncHandler(async (req, res) => {
+    const username: string = req.params.username;
+
+    if (!username) {
+        return sendErrorResponse(
+            res,
+            HTTP_STATUS.BAD_REQUEST,
+            USER_MESSAGES.USERNAME_REQUIRED
+        );
+    }
+
+    const user: IUser | null = await User.findOne({ username }).exec();
+
+    if (!user) {
+        return sendErrorResponse(
+            res,
+            HTTP_STATUS.NOT_FOUND,
+            USER_MESSAGES.USER_NOT_FOUND
+        );
+    }
+
+    await User.deleteOne({ username }).exec();
+
+    res.status(200).json({
+        message: `User with username '${username}' has been successfully deleted.`,
+    });
 });
