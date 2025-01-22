@@ -112,7 +112,7 @@ export const createBlog = async (
     });
 };
 
-// Get All Blogs
+// Get All Blogs with Tags and Categories
 export const getAllBlogs: RequestHandler = asyncHandler(async (req, res) => {
     const { pageNumber, keyword } = req.query;
 
@@ -137,70 +137,40 @@ export const getAllBlogs: RequestHandler = asyncHandler(async (req, res) => {
             "_id title slug body excerpt categories tags postedBy createdAt updatedAt"
         )
         .limit(pageSize)
-        .skip(skip);
+        .skip(skip).exec();
+
+    const categories = await Category.find({}).exec();
+    const tags = await Tag.find({}).exec();
 
     res.status(200).json({
         count,
         page,
         pages: Math.ceil(count / pageSize),
         blogs,
+        categories,
+        tags
     });
 });
 
-// //get all blogs, categories, tags
-// exports.getAllBlogsCatsTags = async (req, res) => {
-//   try {
-//     let limit = req.body.limit ? parseInt(req.body.limit) : 10;
-//     let skip = req.body.skip ? parseInt(req.body.skip) : 0;
+// Get Single blogs
+export const getSingleBlog: RequestHandler = asyncHandler(async (req,res) => {
+    const slug: string = req.params.slug.toLowerCase();
 
-//     let blogs, categories, tags;
+    if (!slug) {
+        res.status(400).json({ message: "Invalid slug provided" });
+        return;
+    }
 
-//     const allBlogs = await Blog.find({})
-//       .populate("categories", "_id name slug")
-//       .populate("tags", "_id name slug")
-//       .populate("postedBy", "_id name username")
-//       .sort({ createdAt: -1 })
-//       .skip(skip)
-//       .limit(limit)
-//       .select(
-//         "_id title slug excerpt categories tags postedBy createdAt updatedAt"
-//       )
-//       .exec();
+    const blog: IBlog | null = await Blog.findOne({ slug }).populate("categories", "_id name slug").populate("tags", "_id name slug").populate("postedBy", "_id name username").exec();
 
-//     const allCategories = await Category.find({}).exec();
-//     const allTags = await Tag.find({}).exec();
+    if (!blog) {
+        res.status(404).json({ message: "Blog not found" });
+        return;
+    }
 
-//     blogs = allBlogs;
-//     categories = allCategories;
-//     tags = allTags;
+    res.status(200).json(blog);
+});
 
-//     res.status(200).json({ blogs, categories, tags, size: blogs.length });
-//   } catch (err) {
-//     res.status(400).json({ error: errorHandler(err) });
-//   }
-// };
-
-// //get single blogs
-// exports.getSingleBlog = async (req, res) => {
-//   try {
-//     const slug = req.params.slug.toLowerCase();
-
-//     const blog = await Blog.findOne({ slug })
-//       .populate("categories", "_id name slug")
-//       .populate("tags", "_id name slug")
-//       .populate("postedBy", "_id name username")
-//       .select(
-//         "_id title slug excerpt metaTitle metaDescription categories tags postedBy createdAt updatedAt"
-//       )
-//       .exec();
-
-//     if (!blog) res.status(400).json({ message: "Blog not found" });
-
-//     res.status(200).json(blog);
-//   } catch (err) {
-//     res.status(400).json({ error: errorHandler(err) });
-//   }
-// };
 
 // //update blog
 // exports.updateBlog = (req, res) => {
@@ -253,23 +223,24 @@ export const getAllBlogs: RequestHandler = asyncHandler(async (req, res) => {
 //   });
 // };
 
-// //delete blog
-// exports.deleteBlog = async (req, res) => {
-//   try {
-//     const slug = req.params.slug.toLowerCase();
+// Delete Blog
+export const deleteBlog: RequestHandler = asyncHandler(async(req, res) => {
+    const slug: string = req.params.slug.toLowerCase();
 
-//     const blog = await Blog.findOneAndRemove({ slug }).exec();
+    if (!slug) {
+        res.status(400).json({ message: "Invalid slug provided" });
+        return;
+    }
 
-//     if (!blog)
-//       res
-//         .status(400)
-//         .json({ message: "Blog not found or already been deleted" });
+    const blog = await Blog.findOneAndDelete({ slug });
 
-//     res.status(200).json({ message: "Blog deleted successful" });
-//   } catch (err) {
-//     res.status(400).json({ error: errorHandler(err) });
-//   }
-// };
+    if (!blog) {
+        res.status(404).json({ message: "Blog not found or already been deleted" });
+        return;
+    }
+
+    res.status(200).json( { message: "Blog deleted successful" } );
+});
 
 // //get blog photo
 // exports.getPhoto = async (req, res) => {
