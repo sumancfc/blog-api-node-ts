@@ -27,7 +27,8 @@ export const forgotPasswordLimiter: RateLimitRequestHandler = rateLimit({
     windowMs: 60 * 60 * 1000, // 1 hour
     limit: 2,
     message: {
-        message: "Too many password forgot requests. Please try again after an hour.",
+        message:
+            "Too many password forgot requests. Please try again after an hour.",
     },
     standardHeaders: true,
     legacyHeaders: false,
@@ -37,7 +38,8 @@ export const resetPasswordLimiter: RateLimitRequestHandler = rateLimit({
     windowMs: 60 * 60 * 1000, // 1 hour
     limit: 3,
     message: {
-        message: "Too many password reset requests. Please try again after an hour.",
+        message:
+            "Too many password reset requests. Please try again after an hour.",
     },
     standardHeaders: true,
     legacyHeaders: false,

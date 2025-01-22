@@ -1,5 +1,5 @@
 import mongoose, { Schema, Model } from "mongoose";
-import { IBlog } from "../interfaces";
+import { IBlog } from "../interfaces/blog";
 
 const blogSchema = new Schema<IBlog>(
     {
@@ -8,7 +8,7 @@ const blogSchema = new Schema<IBlog>(
             trim: true,
             required: true,
             minlength: 10,
-            maxlength: 360,
+            maxlength: 2000,
         },
         slug: {
             type: String,
@@ -19,7 +19,7 @@ const blogSchema = new Schema<IBlog>(
             type: Schema.Types.Mixed,
             required: true,
             minlength: 30,
-            maxlength: 3000000,
+            maxlength: 30000000,
         },
         excerpt: {
             type: String,

@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import { Model, Schema, model } from "mongoose";
 import crypto from "crypto";
 import { UserRole, AccountStatus, Gender, IUser } from "../interfaces/user";
 
@@ -115,4 +115,4 @@ userSchema.methods = {
     },
 };
 
-export const User = mongoose.model<IUser>("User", userSchema);
+export const User: Model<IUser> = model<IUser>("User", userSchema);

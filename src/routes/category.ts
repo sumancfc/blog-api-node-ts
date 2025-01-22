@@ -14,19 +14,22 @@ const router: Router = express.Router();
 // Categories route
 router.post(
     "/category",
-    requireSignIn, authorizeRoles(UserRole.ADMIN),
+    requireSignIn,
+    authorizeRoles(UserRole.ADMIN),
     createCategory
 );
 router.get("/categories", getAllCategories);
 router.get("/category/:slug", getSingleCategory);
 router.put(
     "/category/:id",
-    requireSignIn, authorizeRoles(UserRole.ADMIN),
+    requireSignIn,
+    authorizeRoles(UserRole.ADMIN),
     updateCategory
 );
 router.delete(
     "/category/:id",
-    requireSignIn, authorizeRoles(UserRole.ADMIN),
+    requireSignIn,
+    authorizeRoles(UserRole.ADMIN),
     deleteCategory
 );
 

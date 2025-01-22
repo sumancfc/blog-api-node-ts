@@ -19,9 +19,9 @@ const options: Options = {
                 cookieAuth: {
                     type: "apiKey",
                     in: "cookie",
-                    name: "token"
-                }
-            }
+                    name: "token",
+                },
+            },
         },
         security: [
             {

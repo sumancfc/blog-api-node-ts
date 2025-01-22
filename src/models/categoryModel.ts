@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import { model, Model, Schema } from "mongoose";
 import { ICategory } from "../interfaces";
 
 const categorySchema = new Schema<ICategory>(
@@ -22,9 +22,12 @@ const categorySchema = new Schema<ICategory>(
                     "Slug must contain only lowercase letters, numbers, and hyphens",
             },
         },
-        photo: { type: Buffer, contentType: String },
+        photo: { data: Buffer, contentType: String },
     },
     { timestamps: true }
 );
 
-export const Category = mongoose.model<ICategory>("Category", categorySchema);
+export const Category: Model<ICategory> = model<ICategory>(
+    "Category",
+    categorySchema
+);

@@ -9,7 +9,7 @@ import {
     SignInRequest,
     ForgotPasswordRequest,
     ResetPasswordRequest,
-    AccountStatus
+    AccountStatus,
 } from "../interfaces/user";
 import {
     sendErrorResponse,
@@ -116,7 +116,7 @@ export const signIn: RequestHandler = asyncHandler(async (req, res) => {
         email: user.email,
         username: user.username,
         profile: user.profile,
-        lastLogin: user.lastLogin
+        lastLogin: user.lastLogin,
     };
 
     res.status(200).json({
@@ -150,7 +150,10 @@ export const verifyEmail: RequestHandler = asyncHandler(async (req, res) => {
 
     const { _id, name, email } = user;
 
-    await User.updateOne({ _id }, { $set: { is_verified: true, accountStatus: AccountStatus.ACTIVE } });
+    await User.updateOne(
+        { _id },
+        { $set: { is_verified: true, accountStatus: AccountStatus.ACTIVE } }
+    );
 
     const message = confirmEmailMessage(name);
 

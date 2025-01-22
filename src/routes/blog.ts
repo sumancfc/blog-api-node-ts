@@ -1,26 +1,17 @@
-// import express, { Router } from "express";
-// import {
-//   createBlog,
-//   // getAllBlogs,
-//   // getAllBlogsCatsTags,
-//   // getSingleBlog,
-//   // updateBlog,
-//   // deleteBlog,
-//   // getPhoto,
-//   // getRelatedBlogs,
-//   // searchBlogs,
-// } from "../controllers/blog";
-// import {
-//   requireSignin,
-//   adminMiddleware,
-//   authorizeRoles,
-// } from "../controllers/auth";
-// import { UserRole } from "../models/userModel";
+import express, { Router } from "express";
+import { createBlog, getAllBlogs } from "../controllers/blog";
+import { requireSignIn, authorizeRoles } from "../controllers/auth";
+import { UserRole } from "../interfaces/user";
 
-// const router: Router = express.Router();
+const router: Router = express.Router();
 
-// router.post("/create-blog", requireSignin, adminMiddleware, createBlog);
-// // router.get("/blogs", getAllBlogs);
+router.post(
+    "/create-blog",
+    requireSignIn,
+    authorizeRoles(UserRole.ADMIN),
+    createBlog
+);
+router.get("/blogs", getAllBlogs);
 // // router.post("/blogs-categories-tags", getAllBlogsCatsTags);
 // // router.get("/blog/:slug", getSingleBlog);
 // // router.put("/blog/:slug", requireSignin, adminMiddleware, updateBlog);
@@ -29,4 +20,4 @@
 // // router.post("/blogs/related", getRelatedBlogs);
 // // router.get("/blogs/search", searchBlogs);
 
-// export default router;
+export default router;

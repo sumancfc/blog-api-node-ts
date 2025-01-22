@@ -45,5 +45,5 @@ export const USER_MESSAGES = {
     USER_NOT_FOUND: "User not found",
     ADMIN_ONLY: "Access denied. Admin resource only.",
     USER_CREATED: "New User Created",
-    USERNAME_REQUIRED: "Username is required."
+    USERNAME_REQUIRED: "Username is required.",
 };

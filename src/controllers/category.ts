@@ -26,7 +26,7 @@ export const createCategory: RequestHandler = asyncHandler(async (req, res) => {
         );
     }
 
-    const slug:string = createSlug(name);
+    const slug: string = createSlug(name);
     const category: ICategory = await new Category({ name, slug }).save();
 
     category
@@ -49,7 +49,7 @@ export const getAllCategories: RequestHandler = asyncHandler(async (_, res) => {
 // Get single category
 export const getSingleCategory: RequestHandler = asyncHandler(
     async (req, res) => {
-        const slug:string = createSlug(req.params.slug);
+        const slug: string = createSlug(req.params.slug);
         const category: ICategory | null = await Category.findOne({
             slug,
         }).exec();

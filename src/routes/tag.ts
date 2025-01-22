@@ -15,7 +15,17 @@ const router: Router = express.Router();
 router.post("/tag", requireSignIn, authorizeRoles(UserRole.ADMIN), createTag);
 router.get("/tags", getAllTags);
 router.get("/tag/:slug", getSingleTag);
-router.put("/tag/:id", requireSignIn, authorizeRoles(UserRole.ADMIN), updateTag);
-router.delete("/tag/:id", requireSignIn, authorizeRoles(UserRole.ADMIN), deleteTag);
+router.put(
+    "/tag/:id",
+    requireSignIn,
+    authorizeRoles(UserRole.ADMIN),
+    updateTag
+);
+router.delete(
+    "/tag/:id",
+    requireSignIn,
+    authorizeRoles(UserRole.ADMIN),
+    deleteTag
+);
 
 export default router;

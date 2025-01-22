@@ -1,4 +1,4 @@
-import mongoose, { Schema } from "mongoose";
+import { Model, Schema, model } from "mongoose";
 import { ITag } from "../interfaces";
 
 const tagSchema = new Schema<ITag>(
@@ -22,9 +22,9 @@ const tagSchema = new Schema<ITag>(
                     "Slug must contain only lowercase letters, numbers, and hyphens",
             },
         },
-        photo: { type: Buffer, contentType: String },
+        photo: { data: Buffer, contentType: String },
     },
     { timestamps: true }
 );
 
-export const Tag = mongoose.model<ITag>("Tag", tagSchema);
+export const Tag: Model<ITag> = model<ITag>("Tag", tagSchema);

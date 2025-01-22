@@ -4,7 +4,7 @@
  *   name: Categories
  *   description: API to manage categories
  */
- // Create Categories
+// Create Categories
 /**
  * @swagger
  * /category:

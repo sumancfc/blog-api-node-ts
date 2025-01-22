@@ -14,9 +14,13 @@ export const createUserValidation: ValidationChain[] = [
         .withMessage("Password must contain a digit"),
     check("role")
         .isIn(Object.values(UserRole))
-        .withMessage(`Role must be one of the following: ${Object.values(UserRole).join(", ")}`),
+        .withMessage(
+            `Role must be one of the following: ${Object.values(UserRole).join(", ")}`
+        ),
     check("gender")
         .optional()
         .isIn(Object.values(Gender))
-        .withMessage(`Gender must be one of the following: ${Object.values(Gender).join(", ")}`),
+        .withMessage(
+            `Gender must be one of the following: ${Object.values(Gender).join(", ")}`
+        ),
 ];

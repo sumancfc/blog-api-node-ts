@@ -46,13 +46,13 @@ import authRoutes from "./routes/auth";
 import userRoutes from "./routes/user";
 import categoryRoutes from "./routes/category";
 import tagRoutes from "./routes/tag";
-// import blogRoutes from "./routes/blog";
+import blogRoutes from "./routes/blog";
 
 app.use("/api/v1", authRoutes);
 app.use("/api/v1", userRoutes);
 app.use("/api/v1", categoryRoutes);
 app.use("/api/v1", tagRoutes);
-// app.use("/api/v1", blogRoutes);
+app.use("/api/v1", blogRoutes);
 
 // Dynamically load routes
 // const routesPath = path.resolve(__dirname, "routes");
