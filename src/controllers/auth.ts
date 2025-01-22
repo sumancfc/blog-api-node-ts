@@ -33,7 +33,7 @@ export const signUp: RequestHandler = asyncHandler(async (req, res) => {
     if (userExists) {
         return sendErrorResponse(
             res,
-            HTTP_STATUS.BAD_REQUEST,
+            HTTP_STATUS.CONFLICT,
             USER_MESSAGES.USER_EXISTS
         );
     }

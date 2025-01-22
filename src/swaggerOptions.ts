@@ -16,25 +16,24 @@ const options: Options = {
         ],
         components: {
             securitySchemes: {
-                bearerAuth: {
-                    type: "http",
-                    scheme: "bearer",
-                    bearerFormat: "JWT",
-                },
-            },
+                cookieAuth: {
+                    type: "apiKey",
+                    in: "cookie",
+                    name: "token"
+                }
+            }
         },
         security: [
             {
-                bearerAuth: [],
+                cookieAuth: [],
             },
         ],
     },
     apis: [
         path.resolve(__dirname, "./routes/*.ts"),
+        path.resolve(__dirname, "./swagger/*.ts"),
         path.resolve(__dirname, "./index.ts"),
     ],
 };
 
-const swaggerSpec = swaggerJsdoc(options);
-
-export default swaggerSpec;
+export const swaggerSpec: object = swaggerJsdoc(options);

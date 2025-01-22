@@ -7,7 +7,7 @@ import csrf from "csurf";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import swaggerUi from "swagger-ui-express";
-import swaggerSpec from "./swaggerOptions";
+import { swaggerSpec } from "./swaggerOptions";
 
 dotenv.config();
 
@@ -19,7 +19,7 @@ const port: string | number = process.env.PORT || 8000;
 mongoose
     .connect(process.env.DATABASE_URL as string)
     .then(() => console.log("Connected to DataBase!!!"))
-    .catch((err) => console.log("Database Connection Error:", err));
+    .catch((err: Error) => console.log("Database Connection Error:", err));
 
 // Middlewares
 app.use(helmet());
