@@ -244,9 +244,9 @@ export const updateBlog: RequestHandler = async (req, res) => {
                                 (c: mongoose.Types.ObjectId): string =>
                                     c.toString()
                             );
-                        // @ts-ignore
+
                         const newCategoryIds: string[] = categories.map(
-                            (c: string): string => c.trim()
+                            (c: string | mongoose.Types.ObjectId): string => (c as string).trim()
                         );
 
                         const combinedCategories: string[] = [
@@ -267,9 +267,9 @@ export const updateBlog: RequestHandler = async (req, res) => {
                         const existingTagIds: string[] = existingBlog.tags.map(
                             (t: mongoose.Types.ObjectId): string => t.toString()
                         );
-                        // @ts-ignore
+
                         const newTagIds: string[] = tags.map(
-                            (t: string): string => t.trim()
+                            (t: string | mongoose.Types.ObjectId): string => (t as string).trim()
                         );
 
                         const combinedTags: string[] = [
