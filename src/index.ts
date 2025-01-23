@@ -1,5 +1,4 @@
-import express, { Express, Request, Response, NextFunction } from "express";
-import mongoose from "mongoose";
+import express, { Application, Request, Response, NextFunction } from "express";
 import morgan from "morgan";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -15,7 +14,7 @@ import { errorHandler } from "./middlewares/dbErrorHandler";
 dotenv.config();
 
 const csrfProtection = csrf({ cookie: true });
-const app: Express = express();
+const app: Application = express();
 const port: string | number = process.env.PORT || 8000;
 
 // Database Connection
@@ -44,7 +43,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // Dynamically load routes
 loadRoutes(app)
     .then((): void => {
-        // console.log("Routes loaded successfully");
+        console.log("Routes loaded successfully");
         // CSRF Protection
         app.use(csrfProtection);
     })

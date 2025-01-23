@@ -26,8 +26,8 @@ export const createCategory: RequestHandler = asyncHandler(async (req, res) => {
         );
     }
 
-    const slug: string = createSlug(name);
-    const category: ICategory = await new Category({ name, slug }).save();
+
+    const category: ICategory = await new Category({ name }).save();
 
     category
         ? res.status(HTTP_STATUS.OK).json(category)

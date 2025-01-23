@@ -8,7 +8,7 @@ import {
     resetPassword,
 } from "../controllers/auth";
 import { runValidation } from "../validators";
-import { userSignupValidation, userSigninValidation } from "../validators/auth";
+import { userSignUpValidation, userSignInValidation } from "../validators/auth";
 import {
     forgotPasswordLimiter,
     resetPasswordLimiter,
@@ -22,14 +22,14 @@ const router: Router = express.Router();
 router.post(
     "/signup",
     signUpLimiter,
-    userSignupValidation,
+    userSignUpValidation,
     runValidation,
     signUp
 );
 router.post(
     "/signin",
     signInLimiter,
-    userSigninValidation,
+    userSignInValidation,
     runValidation,
     signIn
 );

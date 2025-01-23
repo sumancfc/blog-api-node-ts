@@ -1,8 +1,8 @@
 import { check, ValidationChain } from "express-validator";
 
-export const userSignupValidation: ValidationChain[] = [
+export const userSignUpValidation: ValidationChain[] = [
     check("name").not().isEmpty().withMessage("Name is required"),
-    check("email").isEmail().withMessage("Must be a valid email address"),
+    check("email").exists().trim().normalizeEmail().isEmail().withMessage("Must be a valid email address"),
     check("password")
         .not()
         .isIn(["123456", "password", "god", "abcdef"])
@@ -13,8 +13,8 @@ export const userSignupValidation: ValidationChain[] = [
         .withMessage("Password must contain a digit"),
 ];
 
-export const userSigninValidation: ValidationChain[] = [
-    check("email").isEmail().withMessage("Must be a valid email address"),
+export const userSignInValidation: ValidationChain[] = [
+    check("email").trim().isEmail().withMessage("Must be a valid email address"),
     check("password")
         .isLength({ min: 6 })
         .withMessage("Password must be at least 6 characters long")

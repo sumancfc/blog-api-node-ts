@@ -8,29 +8,36 @@ import {
 } from "../controllers/category";
 import { requireSignIn, authorizeRoles } from "../controllers/auth";
 import { UserRole } from "../interfaces/user";
+import { categoryValidation } from "../validators/category";
+import { runValidation } from "../validators";
 
 const router: Router = express.Router();
 
-// Categories route
+// Category routes
 router.post(
-    "/category",
+    "/",
+    categoryValidation,
+    runValidation,
     requireSignIn,
     authorizeRoles(UserRole.ADMIN),
     createCategory
 );
-router.get("/categories", getAllCategories);
-router.get("/category/:slug", getSingleCategory);
+router.get("/all", getAllCategories);
+router.get("/:slug", getSingleCategory);
 router.put(
-    "/category/:id",
+    "/:id",
     requireSignIn,
     authorizeRoles(UserRole.ADMIN),
     updateCategory
 );
 router.delete(
-    "/category/:id",
+    "/:id",
+    categoryValidation,
+    runValidation,
     requireSignIn,
     authorizeRoles(UserRole.ADMIN),
     deleteCategory
 );
+
 
 export default router;

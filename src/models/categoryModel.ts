@@ -1,5 +1,7 @@
 import mongoose, { Model, Schema } from "mongoose";
 import { ICategory } from "../interfaces";
+import { createSlug } from "../helpers";
+import slugify from "slugify";
 
 const categorySchema = new Schema<ICategory>(
     {
@@ -27,6 +29,11 @@ const categorySchema = new Schema<ICategory>(
     },
     { timestamps: true }
 );
+
+categorySchema.pre("save", async function (next) {
+    this.slug = slugify(this.name).toLowerCase();
+    next()
+})
 
 export const Category: Model<ICategory> = mongoose.model<ICategory>(
     "Category",
