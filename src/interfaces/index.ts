@@ -1,7 +1,7 @@
-import { Document, Types } from "mongoose";
+import mongoose, { Document } from "mongoose";
 
 export interface IBase extends Document {
-    _id: Types.ObjectId;
+    _id: mongoose.Types.ObjectId;
     name: string;
     slug: string;
     photo?: { data: Buffer; contentType: string };

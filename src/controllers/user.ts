@@ -78,12 +78,10 @@ export const updateUserProfile: RequestHandler = (req, res) => {
         req,
         async (err: Error, fields: Fields<string>, files: Files<string>) => {
             if (err) {
-                return res
-                    .status(400)
-                    .json({
-                        message: "Error processing form data",
-                        error: err.message,
-                    });
+                return res.status(400).json({
+                    message: "Error processing form data",
+                    error: err.message,
+                });
             }
 
             try {
@@ -150,9 +148,8 @@ export const updateUserProfile: RequestHandler = (req, res) => {
                 // Handle photo upload
                 if (files.photo && Array.isArray(files.photo)) {
                     const photoFile: File = files.photo[0]; // assuming it's a single file
-                    const fileBuffer = await fsPromises.readFile(
-                        photoFile.filepath
-                    ); // Read file to buffer
+                    const fileBuffer: Buffer<ArrayBufferLike> =
+                        await fsPromises.readFile(photoFile.filepath); // Read file to buffer
                     user.photo = {
                         data: fileBuffer,
                         contentType: photoFile.mimetype || "image/jpeg", // Default to 'image/jpeg' if mimetype is not available

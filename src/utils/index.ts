@@ -11,12 +11,12 @@ export const handleError = (res: Response, error: unknown) => {
 
 // Cookies expiry
 export const getExpirySettings = (keepMeLoggedIn?: boolean) => {
-    const expiryDays = keepMeLoggedIn
+    const expiryDays: number = keepMeLoggedIn
         ? parseInt(process.env.COOKIE_EXPIRY_LONG || "30", 10)
         : parseInt(process.env.COOKIE_EXPIRY_SHORT || "1", 10);
 
     const expiresIn = `${expiryDays}d`; // For JWT
-    const cookieMaxAge = expiryDays * 24 * 60 * 60 * 1000; // For cookies
+    const cookieMaxAge: number = expiryDays * 24 * 60 * 60 * 1000; // For cookies
 
     return { expiresIn, cookieMaxAge };
 };

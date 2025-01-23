@@ -31,7 +31,7 @@ const uniqueMessage = (error: MongoError): string => {
  * Get the error message from error object
  */
 export const errorHandler = (error: MongoError): string => {
-    let message = "";
+    let message: string = "";
 
     if (error.code) {
         switch (error.code) {

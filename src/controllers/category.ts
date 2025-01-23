@@ -77,7 +77,7 @@ export const updateCategory: RequestHandler = asyncHandler(async (req, res) => {
         );
     }
 
-    const updatedSlug = createSlug(name);
+    const updatedSlug: string = createSlug(name);
 
     const existingCategory = await Category.findOne({
         name,

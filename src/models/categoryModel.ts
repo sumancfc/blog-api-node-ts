@@ -1,4 +1,4 @@
-import { model, Model, Schema } from "mongoose";
+import mongoose, { Model, Schema } from "mongoose";
 import { ICategory } from "../interfaces";
 
 const categorySchema = new Schema<ICategory>(
@@ -17,7 +17,8 @@ const categorySchema = new Schema<ICategory>(
             lowercase: true,
             trim: true,
             validate: {
-                validator: (v: string) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(v),
+                validator: (v: string): boolean =>
+                    /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(v),
                 message:
                     "Slug must contain only lowercase letters, numbers, and hyphens",
             },
@@ -27,7 +28,7 @@ const categorySchema = new Schema<ICategory>(
     { timestamps: true }
 );
 
-export const Category: Model<ICategory> = model<ICategory>(
+export const Category: Model<ICategory> = mongoose.model<ICategory>(
     "Category",
     categorySchema
 );

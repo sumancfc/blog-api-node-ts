@@ -1,4 +1,4 @@
-import { Model, Schema, model } from "mongoose";
+import mongoose, { Model, Schema } from "mongoose";
 import { ITag } from "../interfaces";
 
 const tagSchema = new Schema<ITag>(
@@ -17,7 +17,8 @@ const tagSchema = new Schema<ITag>(
             lowercase: true,
             trim: true,
             validate: {
-                validator: (v: string) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(v),
+                validator: (v: string): boolean =>
+                    /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(v),
                 message:
                     "Slug must contain only lowercase letters, numbers, and hyphens",
             },
@@ -27,4 +28,4 @@ const tagSchema = new Schema<ITag>(
     { timestamps: true }
 );
 
-export const Tag: Model<ITag> = model<ITag>("Tag", tagSchema);
+export const Tag: Model<ITag> = mongoose.model<ITag>("Tag", tagSchema);

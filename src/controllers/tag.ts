@@ -26,7 +26,7 @@ export const createTag: RequestHandler = asyncHandler(async (req, res) => {
         );
     }
 
-    const slug = createSlug(name);
+    const slug: string = createSlug(name);
     const tag: ITag = await new Tag({ name, slug }).save();
 
     tag
@@ -46,7 +46,7 @@ export const getAllTags: RequestHandler = asyncHandler(async (_, res) => {
 
 // Get single tag
 export const getSingleTag: RequestHandler = asyncHandler(async (req, res) => {
-    const slug = createSlug(req.params.slug);
+    const slug: string = createSlug(req.params.slug);
     const tag: ITag | null = await Tag.findOne({ slug }).exec();
 
     tag
@@ -61,7 +61,7 @@ export const getSingleTag: RequestHandler = asyncHandler(async (req, res) => {
 // Update tag
 export const updateTag: RequestHandler = asyncHandler(async (req, res) => {
     const { name } = req.body as TagRequest;
-    const tagId = req.params.id;
+    const tagId: string = req.params.id;
 
     if (!validateName(name)) {
         return sendErrorResponse(
@@ -71,7 +71,7 @@ export const updateTag: RequestHandler = asyncHandler(async (req, res) => {
         );
     }
 
-    const updatedSlug = createSlug(name);
+    const updatedSlug: string = createSlug(name);
 
     const existingTag = await Tag.findOne({
         name,
@@ -103,7 +103,7 @@ export const updateTag: RequestHandler = asyncHandler(async (req, res) => {
 
 // Delete tag
 export const deleteTag: RequestHandler = asyncHandler(async (req, res) => {
-    const tagId = req.params.id;
+    const tagId: string = req.params.id;
 
     const deletedTag: ITag | null = await Tag.findByIdAndDelete(tagId);
 

@@ -1,4 +1,4 @@
-import mongoose,{ Document } from "mongoose";
+import mongoose, { Document } from "mongoose";
 
 export interface IBlog extends Document {
     _id: mongoose.Types.ObjectId;
@@ -17,6 +17,7 @@ export interface IBlog extends Document {
     postedBy?: mongoose.Types.ObjectId;
     createdAt: Date;
     updatedAt: Date;
+    status: "published" | "draft";
 }
 
 export interface BlogRequest {

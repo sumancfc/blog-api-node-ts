@@ -1,17 +1,16 @@
-import { Request, RequestHandler, Response } from "express";
-import mongoose, { Types, model } from "mongoose";
-import _ from "lodash";
-import formidable, { Fields, Files } from "formidable";
 import { promises as fsPromises } from "fs";
-import { Blog } from "../models/blogModel";
+import { Request, RequestHandler, Response } from "express";
+import mongoose from "mongoose";
+import slugify from "slugify";
+import formidable, { Fields, Files } from "formidable";
+import asyncHandler from "express-async-handler";
 import { smartTrim, stripHtmlTags } from "../helpers/blog";
+import { Blog } from "../models/blogModel";
 import { Category } from "../models/categoryModel";
 import { Tag } from "../models/tagModel";
-import asyncHandler from "express-async-handler";
 import { ICategory, ITag } from "../interfaces";
 import { IBlog, BlogRequest, UpdateBlogRequest } from "../interfaces/blog";
 import { IUser } from "../interfaces/user";
-import slugify from "slugify";
 
 // Create blog
 export const createBlog = async (
@@ -204,8 +203,10 @@ export const updateBlog: RequestHandler = async (req, res) => {
                     fields as unknown as UpdateBlogRequest;
 
                 // Handle potential array values for title and content
-                const actualTitle = Array.isArray(title) ? title[0] : title;
-                const actualContent = Array.isArray(content)
+                const actualTitle: string | undefined = Array.isArray(title)
+                    ? title[0]
+                    : title;
+                const actualContent: string | undefined = Array.isArray(content)
                     ? content[0]
                     : content;
 
@@ -238,39 +239,48 @@ export const updateBlog: RequestHandler = async (req, res) => {
                     }
 
                     if (categories !== undefined) {
-                        const existingCategoryIds = existingBlog.categories.map(
-                            (c) => c.toString()
-                        );
+                        const existingCategoryIds: string[] =
+                            existingBlog.categories.map(
+                                (c: mongoose.Types.ObjectId): string =>
+                                    c.toString()
+                            );
                         // @ts-ignore
-                        const newCategoryIds = categories.map((c: string) =>
-                            c.trim()
+                        const newCategoryIds: string[] = categories.map(
+                            (c: string): string => c.trim()
                         );
 
-                        const combinedCategories = [
+                        const combinedCategories: string[] = [
                             ...existingCategoryIds,
                             ...newCategoryIds,
                         ];
-                        const uniqueCategories = [
+                        const uniqueCategories: string[] = [
                             ...new Set(combinedCategories),
                         ];
 
                         existingBlog.categories = uniqueCategories.map(
-                            (id) => new mongoose.Types.ObjectId(id)
+                            (id: string): mongoose.Types.ObjectId =>
+                                new mongoose.Types.ObjectId(id)
                         );
                     }
 
                     if (tags !== undefined) {
-                        const existingTagIds = existingBlog.tags.map((t) =>
-                            t.toString()
+                        const existingTagIds: string[] = existingBlog.tags.map(
+                            (t: mongoose.Types.ObjectId): string => t.toString()
                         );
                         // @ts-ignore
-                        const newTagIds = tags.map((t: string) => t.trim());
+                        const newTagIds: string[] = tags.map(
+                            (t: string): string => t.trim()
+                        );
 
-                        const combinedTags = [...existingTagIds, ...newTagIds];
-                        const uniqueTags = [...new Set(combinedTags)];
+                        const combinedTags: string[] = [
+                            ...existingTagIds,
+                            ...newTagIds,
+                        ];
+                        const uniqueTags: string[] = [...new Set(combinedTags)];
 
                         existingBlog.tags = uniqueTags.map(
-                            (id) => new mongoose.Types.ObjectId(id)
+                            (id: string): mongoose.Types.ObjectId =>
+                                new mongoose.Types.ObjectId(id)
                         );
                     }
 
@@ -288,9 +298,8 @@ export const updateBlog: RequestHandler = async (req, res) => {
                             });
                         }
 
-                        const fileBuffer = await fsPromises.readFile(
-                            photoFile.filepath
-                        );
+                        const fileBuffer: Buffer<ArrayBufferLike> =
+                            await fsPromises.readFile(photoFile.filepath);
                         existingBlog.photo = {
                             data: fileBuffer,
                             contentType: photoFile.mimetype || "image/jpeg",
@@ -378,13 +387,13 @@ export const getRelatedBlogs: RequestHandler = asyncHandler(
         }
 
         // Check if the provided category ID is valid
-        if (!Types.ObjectId.isValid(category)) {
+        if (!mongoose.Types.ObjectId.isValid(category)) {
             res.status(400).json({ message: "Invalid category ID." });
             return;
         }
 
         try {
-            const categoryId = new Types.ObjectId(category);
+            const categoryId = new mongoose.Types.ObjectId(category);
 
             const relatedBlogs = await Blog.find({
                 _id: { $ne: _id },

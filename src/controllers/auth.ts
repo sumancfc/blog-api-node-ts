@@ -155,7 +155,7 @@ export const verifyEmail: RequestHandler = asyncHandler(async (req, res) => {
         { $set: { is_verified: true, accountStatus: AccountStatus.ACTIVE } }
     );
 
-    const message = confirmEmailMessage(name);
+    const message: string = confirmEmailMessage(name);
 
     // Send email to user
     await sendEmail(email, "Welcome", message, res);
