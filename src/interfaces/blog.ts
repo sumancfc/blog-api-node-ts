@@ -17,7 +17,7 @@ export interface IBlog extends Document {
     postedBy?: mongoose.Types.ObjectId;
     createdAt: Date;
     updatedAt: Date;
-    status: "published" | "draft";
+    isPublished: boolean;
 }
 
 export interface BlogRequest {
@@ -25,6 +25,7 @@ export interface BlogRequest {
     content: string | string[];
     categories: string[];
     tags: string[];
+    isPublished?: string | string[];
 }
 
 export interface UpdateBlogRequest {
@@ -32,4 +33,5 @@ export interface UpdateBlogRequest {
     content?: string | string[];
     categories?: string[] | mongoose.Types.ObjectId[];
     tags?: string[] | mongoose.Types.ObjectId[];
+    isPublished?: string | string[];
 }

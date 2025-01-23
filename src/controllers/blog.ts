@@ -28,7 +28,7 @@ export const createBlog = async (
             return;
         }
 
-        const { title, content, categories, tags } =
+        const { title, content, categories, tags, isPublished } =
             fields as unknown as BlogRequest;
 
         // Handle potential array values for title and content
@@ -36,6 +36,9 @@ export const createBlog = async (
         const actualContent: string = Array.isArray(content)
             ? content[0]
             : content;
+
+        const published: string = Array.isArray(isPublished) ? isPublished[0] : isPublished || '';
+
 
         // Validation
         if (!actualTitle || actualTitle.length < 1) {
@@ -56,6 +59,7 @@ export const createBlog = async (
             });
             return;
         }
+
         if (!tags || tags.length === 0) {
             res.status(400).json({ error: "At least one tag is required" });
             return;
@@ -81,11 +85,10 @@ export const createBlog = async (
             metaTitle: `${actualTitle} | React Next Blog`,
             metaDescription: stripHtmlTags(actualContent.substring(0, 160)),
             postedBy: _id,
+            isPublished: published === "true"
         });
 
-        // @ts-ignore
-        if (blog.excerpt.length > 120) {
-            // @ts-ignore
+        if (blog.excerpt && blog.excerpt.length > 120) {
             blog.excerpt = blog.excerpt.substring(0, 117) + "...";
         }
 
@@ -114,25 +117,25 @@ export const createBlog = async (
 export const getAllBlogs: RequestHandler = asyncHandler(async (req, res) => {
     const { pageNumber, keyword } = req.query;
 
-    const pageSize: number = 3;
+    const pageSize: number = 10;
     const page: number = Number(pageNumber) || 1;
     const newKeyword = keyword
         ? {
               $or: [
                   { title: { $regex: keyword, $options: "i" } },
-                  { body: { $regex: keyword, $options: "i" } },
+                  { content: { $regex: keyword, $options: "i" } },
               ],
           }
         : {};
-    const count: number = await Blog.countDocuments({ ...newKeyword });
+    const count: number = await Blog.countDocuments({ ...newKeyword, isPublished: true });
     const skip: number = pageSize * (page - 1);
 
-    const blogs = await Blog.find({ ...newKeyword })
+    const blogs = await Blog.find({ ...newKeyword, isPublished: true })
         .populate<{ categories: ICategory[] }>("categories", "_id name slug")
         .populate<{ tags: ITag[] }>("tags", "_id name slug")
         .populate("postedBy", "_id name username")
         .select(
-            "_id title slug body excerpt categories tags postedBy createdAt updatedAt"
+            "_id title slug content excerpt categories tags postedBy createdAt updatedAt"
         )
         .limit(pageSize)
         .skip(skip)
@@ -199,7 +202,7 @@ export const updateBlog: RequestHandler = async (req, res) => {
                     res.status(400).json({ error: "Error processing form" });
                     return;
                 }
-                const { title, content, categories, tags } =
+                const { title, content, categories, tags, isPublished } =
                     fields as unknown as UpdateBlogRequest;
 
                 // Handle potential array values for title and content
@@ -284,6 +287,7 @@ export const updateBlog: RequestHandler = async (req, res) => {
                         );
                     }
 
+
                     // Process photo
                     if (files.photo && Array.isArray(files.photo)) {
                         const photoFile: formidable.File = Array.isArray(
@@ -304,6 +308,12 @@ export const updateBlog: RequestHandler = async (req, res) => {
                             data: fileBuffer,
                             contentType: photoFile.mimetype || "image/jpeg",
                         };
+                    }
+
+                    // Update isPublished if provided
+                    if (isPublished !== undefined) {
+                        const published: string = Array.isArray(isPublished) ? isPublished[0] : isPublished || '';
+                        existingBlog.isPublished = published === 'true';
                     }
 
                     // Save updated blog
@@ -434,10 +444,10 @@ export const searchBlogs: RequestHandler = asyncHandler(async (req, res) => {
     const blogs = await Blog.find({
         $or: [
             { title: { $regex: keyword, $options: "i" } },
-            { body: { $regex: keyword, $options: "i" } },
+            { content: { $regex: keyword, $options: "i" } },
         ],
     })
-        .select("-photo -body")
+        .select("-photo -content")
         .exec();
 
     if (blogs.length === 0) {

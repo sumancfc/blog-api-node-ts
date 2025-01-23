@@ -8,7 +8,9 @@ import dotenv from "dotenv";
 import helmet from "helmet";
 import swaggerUi from "swagger-ui-express";
 import loadRoutes from "./routes";
+import connectToDatabase from "./config/db";
 import { swaggerSpec } from "./swaggerOptions";
+import { errorHandler } from "./middlewares/dbErrorHandler";
 
 dotenv.config();
 
@@ -17,12 +19,7 @@ const app: Express = express();
 const port: string | number = process.env.PORT || 8000;
 
 // Database Connection
-mongoose
-    .connect(process.env.DATABASE_URL as string)
-    .then((): void => console.log("Connected to DataBase!!!"))
-    .catch((err: Error): void =>
-        console.log("Database Connection Error:", err)
-    );
+connectToDatabase();
 
 // Middlewares
 app.use(helmet());
@@ -47,15 +44,14 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // Dynamically load routes
 loadRoutes(app)
     .then((): void => {
-        console.log("Routes loaded successfully");
+        // console.log("Routes loaded successfully");
+        // CSRF Protection
+        app.use(csrfProtection);
     })
-    .catch((error) => {
+    .catch((error: Error) => {
         console.error("Error loading routes:", error);
         process.exit(1);
     });
-
-// CSRF Protection
-app.use(csrfProtection);
 
 app.get(
     "/api/v1/csrf-token",
@@ -66,9 +62,9 @@ app.get(
 );
 
 // Error Handling Middleware
-app.use((err: Error, req: Request, res: Response, next: NextFunction): void => {
-    console.error(err);
-    res.status(500).json({ error: "Internal Server Error" });
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+    const errorMessage: string = errorHandler(err);
+    res.status(500).json({ error: errorMessage });
 });
 
 // Start server

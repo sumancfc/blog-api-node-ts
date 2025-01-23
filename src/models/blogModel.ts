@@ -40,10 +40,9 @@ const blogSchema = new Schema<IBlog>(
         ],
         tags: [{ type: Schema.Types.ObjectId, ref: "Tag", required: true }],
         postedBy: { type: Schema.Types.ObjectId, ref: "User" },
-        status: {
-            type: String,
-            enum: ["published", "draft"],
-            default: "draft",
+        isPublished: {
+            type: Boolean,
+            default: true
         },
     },
     { timestamps: true }
