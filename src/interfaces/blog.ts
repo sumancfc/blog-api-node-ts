@@ -1,10 +1,10 @@
-import { Document, Types } from "mongoose";
+import mongoose,{ Document } from "mongoose";
 
 export interface IBlog extends Document {
-    _id: Types.ObjectId;
+    _id: mongoose.Types.ObjectId;
     title: string;
     slug: string;
-    body: string | object;
+    content: string;
     excerpt?: string;
     metaTitle?: string;
     metaDescription?: string;
@@ -12,14 +12,23 @@ export interface IBlog extends Document {
         data: Buffer;
         contentType: string;
     };
-    categories: Types.ObjectId[];
-    tags: Types.ObjectId[];
-    postedBy?: Types.ObjectId;
+    categories: mongoose.Types.ObjectId[];
+    tags: mongoose.Types.ObjectId[];
+    postedBy?: mongoose.Types.ObjectId;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export interface BlogRequest {
-    title: string;
-    body: string | object;
-    categories: Types.ObjectId[];
-    tags: Types.ObjectId[];
+    title: string | string[];
+    content: string | string[];
+    categories: string[];
+    tags: string[];
+}
+
+export interface UpdateBlogRequest {
+    title?: string | string[];
+    content?: string | string[];
+    categories?: string[] | mongoose.Types.ObjectId[];
+    tags?: string[] | mongoose.Types.ObjectId[];
 }

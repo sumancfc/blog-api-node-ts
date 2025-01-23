@@ -15,10 +15,10 @@ const blogSchema = new Schema<IBlog>(
             unique: true,
             index: true,
         },
-        body: {
-            type: Schema.Types.Mixed,
+        content: {
+            type: String,
             required: true,
-            minlength: 30,
+            minlength: 10,
             maxlength: 30000000,
         },
         excerpt: {

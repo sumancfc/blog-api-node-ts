@@ -1,4 +1,6 @@
 import { Request, RequestHandler, Response } from "express";
+import mongoose, { Types, model } from "mongoose";
+import _ from "lodash";
 import formidable, { Fields, Files } from "formidable";
 import { promises as fsPromises } from "fs";
 import { Blog } from "../models/blogModel";
@@ -7,7 +9,7 @@ import { Category } from "../models/categoryModel";
 import { Tag } from "../models/tagModel";
 import asyncHandler from "express-async-handler";
 import { ICategory, ITag } from "../interfaces";
-import { IBlog, BlogRequest } from "../interfaces/blog";
+import { IBlog, BlogRequest, UpdateBlogRequest } from "../interfaces/blog";
 import { IUser } from "../interfaces/user";
 import slugify from "slugify";
 
@@ -17,7 +19,6 @@ export const createBlog = async (
     res: Response
 ): Promise<void> => {
     let form = formidable({
-        multiples: true,
         keepExtensions: true,
         maxFileSize: 5 * 1024 * 1024,
     });
@@ -28,23 +29,28 @@ export const createBlog = async (
             return;
         }
 
-        const { title, body, categories, tags } =
+        const { title, content, categories, tags } =
             fields as unknown as BlogRequest;
 
-        // Convert title and body to string, regardless of its current type
-        const titleStr: string = Array.isArray(title) ? title[0] : title;
-        let bodyContent: string =
-            typeof body === "string" ? body : String(body);
+        // Handle potential array values for title and content
+        const actualTitle: string = Array.isArray(title) ? title[0] : title;
+        const actualContent: string = Array.isArray(content)
+            ? content[0]
+            : content;
 
         // Validation
-        if (!titleStr || titleStr.length < 1) {
-            res.status(400).json({ error: "Title is required" });
+        if (!actualTitle || actualTitle.length < 1) {
+            res.status(400).json({
+                error: "Title is required and must be a string",
+            });
             return;
         }
-        if (!body || bodyContent.length < 30) {
+
+        if (!actualContent || actualContent.length < 30) {
             res.status(400).json({ error: "Content is too short" });
             return;
         }
+
         if (!categories || categories.length === 0) {
             res.status(400).json({
                 error: "At least one category is required",
@@ -56,7 +62,7 @@ export const createBlog = async (
             return;
         }
 
-        const slug: string = slugify(titleStr).toLowerCase();
+        const slug: string = slugify(actualTitle).toLowerCase();
         const { _id } = req.user as IUser;
 
         const slugExists = await Blog.findOne({ slug });
@@ -66,44 +72,37 @@ export const createBlog = async (
             return;
         }
 
-        // Create a new blog document
-        const blog = new Blog();
-        blog.title = titleStr;
-        blog.slug = slug;
-        blog.body = bodyContent;
-        blog.excerpt = smartTrim(bodyContent, 120, " ", "...");
+        const blog = new Blog({
+            title: actualTitle,
+            slug,
+            content: actualContent,
+            categories,
+            tags,
+            excerpt: smartTrim(actualContent, 120, " ", "..."),
+            metaTitle: `${actualTitle} | React Next Blog`,
+            metaDescription: stripHtmlTags(actualContent.substring(0, 160)),
+            postedBy: _id,
+        });
+
+        // @ts-ignore
         if (blog.excerpt.length > 120) {
-            blog.excerpt = blog.excerpt.substring(0, 120 - 3) + "...";
-        }
-        blog.metaTitle = `${title} | React Next Blog`;
-        blog.metaDescription = stripHtmlTags(bodyContent.substring(0, 160));
-        blog.postedBy = _id;
-
-        try {
-            // Fetch category IDs based on slugs
-            const categoryIds = await Category.find({
-                slug: { $in: categories },
-            }).select("_id");
-            blog.categories = categoryIds.map((category) => category._id);
-
-            // Fetch tag IDs based on slugs
-            const tagIds = await Tag.find({ slug: { $in: tags } }).select(
-                "_id"
-            );
-            blog.tags = tagIds.map((tag) => tag._id);
-        } catch (error) {
-            return res
-                .status(400)
-                .json({ error: "Error fetching categories or tags" });
+            // @ts-ignore
+            blog.excerpt = blog.excerpt.substring(0, 117) + "...";
         }
 
         // Handle photo upload (if exists)
         if (files.photo && Array.isArray(files.photo)) {
-            const photoFile: formidable.File = files.photo[0]; // assuming it's a single file
-            const fileBuffer = await fsPromises.readFile(photoFile.filepath); // Read file to buffer
+            const photoFile: formidable.File = files.photo[0];
+            if (photoFile.size > 5 * 1024 * 1024) {
+                res.status(400).json({
+                    error: "Image should be less than 5 MB in size",
+                });
+                return;
+            }
+            const fileBuffer = await fsPromises.readFile(photoFile.filepath);
             blog.photo = {
                 data: fileBuffer,
-                contentType: photoFile.mimetype || "image/jpeg", // Default to 'image/jpeg' if mimetype is not available
+                contentType: photoFile.mimetype || "image/jpeg",
             };
         }
 
@@ -137,7 +136,8 @@ export const getAllBlogs: RequestHandler = asyncHandler(async (req, res) => {
             "_id title slug body excerpt categories tags postedBy createdAt updatedAt"
         )
         .limit(pageSize)
-        .skip(skip).exec();
+        .skip(skip)
+        .exec();
 
     const categories = await Category.find({}).exec();
     const tags = await Tag.find({}).exec();
@@ -148,12 +148,12 @@ export const getAllBlogs: RequestHandler = asyncHandler(async (req, res) => {
         pages: Math.ceil(count / pageSize),
         blogs,
         categories,
-        tags
+        tags,
     });
 });
 
 // Get Single blogs
-export const getSingleBlog: RequestHandler = asyncHandler(async (req,res) => {
+export const getSingleBlog: RequestHandler = asyncHandler(async (req, res) => {
     const slug: string = req.params.slug.toLowerCase();
 
     if (!slug) {
@@ -161,7 +161,11 @@ export const getSingleBlog: RequestHandler = asyncHandler(async (req,res) => {
         return;
     }
 
-    const blog: IBlog | null = await Blog.findOne({ slug }).populate("categories", "_id name slug").populate("tags", "_id name slug").populate("postedBy", "_id name username").exec();
+    const blog: IBlog | null = await Blog.findOne({ slug })
+        .populate("categories", "_id name slug")
+        .populate("tags", "_id name slug")
+        .populate("postedBy", "_id name username")
+        .exec();
 
     if (!blog) {
         res.status(404).json({ message: "Blog not found" });
@@ -171,60 +175,147 @@ export const getSingleBlog: RequestHandler = asyncHandler(async (req,res) => {
     res.status(200).json(blog);
 });
 
+// Update Blog
+export const updateBlog: RequestHandler = async (req, res) => {
+    try {
+        const blogId: string = req.params.id;
 
-// //update blog
-// exports.updateBlog = (req, res) => {
-//   const slug = req.params.slug.toLowerCase();
+        const searchExistingBlog: IBlog | null = await Blog.findById(blogId);
 
-//   Blog.findOne({ slug }).exec((err, old) => {
-//     if (err) res.status(400).json({ error: errorHandler(err) });
+        if (!searchExistingBlog) {
+            res.status(404).json({ error: "Blog not found" });
+            return;
+        }
 
-//     let form = new formidable.IncomingForm();
-//     form.keepExtensions = true;
-//     form.parse(req, (err, fields, files) => {
-//       if (err) res.status(400).json({ error: "Image could not upload" });
+        // Formidable configuration
+        const form = formidable({
+            keepExtensions: true,
+            maxFileSize: 5 * 1024 * 1024, // 20MB
+        });
 
-//       let oldSlug = old.slug;
-//       old = _.merge(old, fields);
-//       old.slug = oldSlug;
+        form.parse(
+            req,
+            async (err: Error | null, fields: Fields, files: Files) => {
+                if (err) {
+                    res.status(400).json({ error: "Error processing form" });
+                    return;
+                }
+                const { title, content, categories, tags } =
+                    fields as unknown as UpdateBlogRequest;
 
-//       const { body, metaDescription, categories, tags } = fields;
+                // Handle potential array values for title and content
+                const actualTitle = Array.isArray(title) ? title[0] : title;
+                const actualContent = Array.isArray(content)
+                    ? content[0]
+                    : content;
 
-//       if (body) {
-//         old.excerpt = smartTrim(body, 120, " ", "...");
-//         old.metaDescription = stripHtml(body.substring(0, 100));
-//       }
+                try {
+                    const existingBlog = await Blog.findById(blogId);
 
-//       if (categories) {
-//         old.categories = categories.split(",");
-//       }
+                    if (!existingBlog) {
+                        return res
+                            .status(404)
+                            .json({ message: "Blog not found" });
+                    }
 
-//       if (tags) {
-//         old.tags = tags.split(",");
-//       }
+                    // Update only if provided
+                    if (actualTitle) {
+                        existingBlog.title = actualTitle;
+                        existingBlog.slug = slugify(actualTitle).toLowerCase();
+                    }
+                    if (actualContent) {
+                        existingBlog.content = actualContent;
+                        existingBlog.excerpt = smartTrim(
+                            actualContent,
+                            120,
+                            " ",
+                            "..."
+                        );
+                        existingBlog.metaTitle = `${actualTitle || existingBlog.title} | React Next Blog`;
+                        existingBlog.metaDescription = stripHtmlTags(
+                            actualContent.substring(0, 160)
+                        );
+                    }
 
-//       if (files.photo) {
-//         if (files.photo.size > 20000000)
-//           res
-//             .status(400)
-//             .json({ error: "Image should be less then 2mb in size" });
+                    if (categories !== undefined) {
+                        const existingCategoryIds = existingBlog.categories.map(
+                            (c) => c.toString()
+                        );
+                        // @ts-ignore
+                        const newCategoryIds = categories.map((c: string) =>
+                            c.trim()
+                        );
 
-//         old.photo.data = fs.readFileSync(files.photo.path);
-//         old.photo.contentType = files.photo.type;
-//       }
+                        const combinedCategories = [
+                            ...existingCategoryIds,
+                            ...newCategoryIds,
+                        ];
+                        const uniqueCategories = [
+                            ...new Set(combinedCategories),
+                        ];
 
-//       old.save((err, result) => {
-//         // console.log(result);
-//         if (err) res.status(400).json({ error: errorHandler(err) });
+                        existingBlog.categories = uniqueCategories.map(
+                            (id) => new mongoose.Types.ObjectId(id)
+                        );
+                    }
 
-//         res.status(200).json(result);
-//       });
-//     });
-//   });
-// };
+                    if (tags !== undefined) {
+                        const existingTagIds = existingBlog.tags.map((t) =>
+                            t.toString()
+                        );
+                        // @ts-ignore
+                        const newTagIds = tags.map((t: string) => t.trim());
+
+                        const combinedTags = [...existingTagIds, ...newTagIds];
+                        const uniqueTags = [...new Set(combinedTags)];
+
+                        existingBlog.tags = uniqueTags.map(
+                            (id) => new mongoose.Types.ObjectId(id)
+                        );
+                    }
+
+                    // Process photo
+                    if (files.photo && Array.isArray(files.photo)) {
+                        const photoFile: formidable.File = Array.isArray(
+                            files.photo
+                        )
+                            ? files.photo[0]
+                            : files.photo;
+
+                        if (photoFile.size > 5 * 1024 * 1024) {
+                            return res.status(400).json({
+                                error: "Image should be less than 20MB",
+                            });
+                        }
+
+                        const fileBuffer = await fsPromises.readFile(
+                            photoFile.filepath
+                        );
+                        existingBlog.photo = {
+                            data: fileBuffer,
+                            contentType: photoFile.mimetype || "image/jpeg",
+                        };
+                    }
+
+                    // Save updated blog
+                    const updatedBlog = await existingBlog.save();
+                    res.status(200).json(updatedBlog);
+                } catch (error) {
+                    res.status(400).json({
+                        error: error,
+                    });
+                }
+            }
+        );
+    } catch (error) {
+        res.status(500).json({
+            error: "Server error updating blog",
+        });
+    }
+};
 
 // Delete Blog
-export const deleteBlog: RequestHandler = asyncHandler(async(req, res) => {
+export const deleteBlog: RequestHandler = asyncHandler(async (req, res) => {
     const slug: string = req.params.slug.toLowerCase();
 
     if (!slug) {
@@ -235,75 +326,117 @@ export const deleteBlog: RequestHandler = asyncHandler(async(req, res) => {
     const blog = await Blog.findOneAndDelete({ slug });
 
     if (!blog) {
-        res.status(404).json({ message: "Blog not found or already been deleted" });
+        res.status(404).json({
+            message: "Blog not found or already been deleted",
+        });
         return;
     }
 
-    res.status(200).json( { message: "Blog deleted successful" } );
+    res.status(200).json({ message: "Blog deleted successful" });
 });
 
-// //get blog photo
-// exports.getPhoto = async (req, res) => {
-//   try {
-//     const slug = req.params.slug.toLowerCase();
+// Get Blog Image
+export const getBlogPhoto: RequestHandler = asyncHandler(async (req, res) => {
+    const slug: string = req.params.slug.toLowerCase();
 
-//     const blog = await Blog.findOne({ slug }).select("photo").exec();
+    if (!slug) {
+        res.status(400).json({ message: "Invalid slug provided" });
+        return;
+    }
 
-//     if (!blog) res.status(400).json({ message: "Blog image not found" });
+    const blog = await Blog.findOne({ slug }).select("photo").exec();
 
-//     res.set("Content-Type", blog.photo.contentType);
+    if (!blog) {
+        res.status(400).json({ message: "Blog not found" });
+        return;
+    }
 
-//     return res.send(blog.photo.data);
-//   } catch (err) {
-//     res.status(400).json({ error: errorHandler(err) });
-//   }
-// };
+    if (!blog.photo) {
+        res.status(404).json({ error: "User photo not found" });
+        return;
+    }
 
-// //get related blogs
-// exports.getRelatedBlogs = async (req, res) => {
-//   try {
-//     let limit = req.body.limit ? parseInt(req.body.limit) : 4;
+    const contentType: string = blog.photo.contentType.toString();
 
-//     const { _id, categories } = req.body.blog;
+    res.set("Content-Type", contentType);
+    res.send(blog.photo.data);
+});
 
-//     const related = await Blog.find({
-//       _id: { $ne: _id },
-//       categories: { $in: categories },
-//     })
-//       .limit(limit)
-//       .populate("postedBy", "_id anme profile")
-//       .select("title slug excerpt postedBy createdAt updatedAt")
-//       .exec();
+// Get Related Blogs
+export const getRelatedBlogs: RequestHandler = asyncHandler(
+    async (req, res) => {
+        let limit: number = req.body.limit ? Number(req.body.limit) : 4;
 
-//     if (!related) res.status(400).json({ message: "Blogs not found" });
+        const { _id, category } = req.body;
 
-//     res.status(200).json(related);
-//   } catch (err) {
-//     res.status(400).json({ error: errorHandler(err) });
-//   }
-// };
+        if (!_id || !category || typeof category !== "string") {
+            res.status(400).json({
+                message:
+                    "Invalid request. Blog ID and a category are required.",
+            });
+            return;
+        }
 
-// //search blog
-// exports.searchBlogs = async (req, res) => {
-//   try {
-//     const { search } = req.query;
+        // Check if the provided category ID is valid
+        if (!Types.ObjectId.isValid(category)) {
+            res.status(400).json({ message: "Invalid category ID." });
+            return;
+        }
 
-//     if (search) {
-//       const blogs = await buildCheckFunction
-//         .find({
-//           $or: [
-//             { title: { $regex: search, $options: "i" } },
-//             {
-//               body: { $regex: search, $options: "i" },
-//             },
-//           ],
-//         })
-//         .select("-photo -body")
-//         .exec();
+        try {
+            const categoryId = new Types.ObjectId(category);
 
-//       res.status(200).json(blogs);
-//     }
-//   } catch (err) {
-//     res.status(400).json({ error: errorHandler(err) });
-//   }
-// };
+            const relatedBlogs = await Blog.find({
+                _id: { $ne: _id },
+                categories: categoryId,
+            })
+                .limit(limit)
+                .populate("tags", "_id name slug")
+                .populate("postedBy", "_id name username")
+                .select("title slug excerpt postedBy createdAt updatedAt")
+                .exec();
+
+            if (relatedBlogs.length === 0) {
+                res.status(404).json({ message: "No related blogs found." });
+                return;
+            }
+
+            res.status(200).json(relatedBlogs);
+        } catch (error) {
+            res.status(500).json({
+                message: "An error occurred while fetching related blogs.",
+                error,
+            });
+        }
+    }
+);
+
+// Search Blogs
+export const searchBlogs: RequestHandler = asyncHandler(async (req, res) => {
+    const { keyword } = req.query;
+
+    if (!keyword || typeof keyword !== "string") {
+        res.status(400).json({
+            message: "Search query is required and must be a string.",
+        });
+        return;
+    }
+
+    const blogs = await Blog.find({
+        $or: [
+            { title: { $regex: keyword, $options: "i" } },
+            { body: { $regex: keyword, $options: "i" } },
+        ],
+    })
+        .select("-photo -body")
+        .exec();
+
+    if (blogs.length === 0) {
+        res.status(404).json({
+            message: "No blogs found matching the search query.",
+        });
+        return;
+    }
+
+    res.status(200).json(blogs);
+});
