@@ -11,7 +11,7 @@ const options: Options = {
         },
         servers: [
             {
-                url: process.env.API_URL || "http://localhost:8000/api/v1",
+                url: `${process.env.API_URL}/api/v1` || "http://localhost:8000/api/v1",
             },
         ],
         components: {
@@ -29,10 +29,13 @@ const options: Options = {
             },
         ],
     },
-    apis: [
+    apis: process.env.API_URL ? [
+        path.resolve(__dirname, "./swagger/*.js"),
+        path.resolve(__dirname, "./index.js"),
+    ] : [
             path.resolve(__dirname, "./swagger/*.ts"),
             path.resolve(__dirname, "./index.ts"),
-        ],
+        ]
 };
 
 export const swaggerSpec: object = swaggerJsdoc(options);
