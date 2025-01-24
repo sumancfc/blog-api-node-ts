@@ -27,12 +27,6 @@ router.get(
     authorizeRoles(UserRole.ADMIN),
     getAllUsers
 );
-router.put(
-    "/admin/users/:id/role",
-    requireSignIn,
-    authorizeRoles(UserRole.ADMIN),
-    updateUserRole
-);
 router.post(
     "/admin/create-user",
     requireSignIn,
@@ -41,37 +35,44 @@ router.post(
     runValidation,
     createUser
 );
+router.put(
+    "/admin/user/:id/role",
+    requireSignIn,
+    authorizeRoles(UserRole.ADMIN),
+    updateUserRole
+);
 
 // User Routes
 router.get(
-    "/user/profile",
+    "/profile",
     requireSignIn,
     authorizeRoles(UserRole.USER, UserRole.ADMIN),
     getProfile
 );
 router.get(
-    "/user/profile/:username",
+    "/profile/:username",
     requireSignIn,
     authorizeRoles(UserRole.USER, UserRole.ADMIN),
     getUserProfile
 );
 router.put(
-    "/user/profile",
+    "/profile",
     requireSignIn,
     authorizeRoles(UserRole.USER, UserRole.ADMIN),
     updateUserProfile
 );
-router.get(
-    "/user/photo/:username",
-    requireSignIn,
-    authorizeRoles(UserRole.USER, UserRole.ADMIN),
-    getUserPhoto
-);
 router.delete(
-    "/user/profile/:username",
+    "/profile/:username",
     requireSignIn,
     authorizeRoles(UserRole.ADMIN),
     deleteUserProfile
 );
+router.get(
+    "/photo/:username",
+    requireSignIn,
+    authorizeRoles(UserRole.USER, UserRole.ADMIN),
+    getUserPhoto
+);
+
 
 export default router;

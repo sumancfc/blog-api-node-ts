@@ -1,6 +1,6 @@
 import { check, ValidationChain } from "express-validator";
 
-export const categoryValidation: ValidationChain[] = [
+export const categoryAndTagValidation: ValidationChain[] = [
     check("name")
         .trim()
         .not().isEmpty().withMessage("Name is required")

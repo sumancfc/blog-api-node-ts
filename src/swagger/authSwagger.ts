@@ -8,7 +8,7 @@
 // Register a User
 /**
  * @swagger
- * /signup:
+ * /auth/register:
  *   post:
  *     summary: Register a new user
  *     description: Creates a new user account with the provided information.
@@ -94,7 +94,7 @@
 // Login a User
 /**
  * @swagger
- * /signin:
+ * /auth/login:
  *   post:
  *     summary: Login user
  *     description: Authenticates a user with their email and password and sets a session cookie.
@@ -178,7 +178,7 @@
 // Logout a user
 /**
  * @swagger
- * /signout:
+ * /auth/logout:
  *   get:
  *     summary: Logout user
  *     description: Logs out the user by clearing the authentication cookie.
