@@ -15,21 +15,21 @@ import { UserRole } from "../interfaces/user";
 const router: Router = express.Router();
 
 router.post(
-    "/create-blog",
+    "/create",
     requireSignIn,
     authorizeRoles(UserRole.ADMIN),
     createBlog
 );
-router.get("/blogs", getAllBlogs);
-router.get("/blog/:slug", getSingleBlog);
+router.get("/all", getAllBlogs);
+router.get("/:slug", getSingleBlog);
 router.put(
-    "/blog/:id",
+    "/:id",
     requireSignIn,
     authorizeRoles(UserRole.ADMIN),
     updateBlog
 );
 router.delete(
-    "/blog/:slug",
+    "/:slug",
     requireSignIn,
     authorizeRoles(UserRole.ADMIN),
     deleteBlog

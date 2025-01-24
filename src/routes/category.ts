@@ -8,7 +8,7 @@ import {
 } from "../controllers/category";
 import { requireSignIn, authorizeRoles } from "../controllers/auth";
 import { UserRole } from "../interfaces/user";
-import { categoryValidation } from "../validators/category";
+import { categoryAndTagValidation } from "../validators/cat_tag";
 import { runValidation } from "../validators";
 
 const router: Router = express.Router();
@@ -16,7 +16,7 @@ const router: Router = express.Router();
 // Category routes
 router.post(
     "/",
-    categoryValidation,
+    categoryAndTagValidation,
     runValidation,
     requireSignIn,
     authorizeRoles(UserRole.ADMIN),
@@ -26,18 +26,17 @@ router.get("/all", getAllCategories);
 router.get("/:slug", getSingleCategory);
 router.put(
     "/:id",
+    categoryAndTagValidation,
     requireSignIn,
     authorizeRoles(UserRole.ADMIN),
     updateCategory
 );
 router.delete(
     "/:id",
-    categoryValidation,
     runValidation,
     requireSignIn,
     authorizeRoles(UserRole.ADMIN),
     deleteCategory
 );
-
 
 export default router;

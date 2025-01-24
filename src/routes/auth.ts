@@ -20,21 +20,21 @@ const router: Router = express.Router();
 
 // Auth Routes
 router.post(
-    "/signup",
+    "/register",
     signUpLimiter,
     userSignUpValidation,
     runValidation,
     signUp
 );
 router.post(
-    "/signin",
+    "/login",
     signInLimiter,
     userSignInValidation,
     runValidation,
     signIn
 );
-router.get("/verify/:id", verifyEmail);
-router.get("/signout", signOut);
+router.get("/email-verify/:id", verifyEmail);
+router.get("/logout", signOut);
 router.post("/forgot-password", forgotPasswordLimiter, forgotPassword);
 router.post("/reset-password", resetPasswordLimiter, resetPassword);
 
