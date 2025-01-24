@@ -1,4 +1,4 @@
-name: Blog Api CI/CD
+name: Blog API CI/CD
 
 on:
     push:
@@ -53,11 +53,6 @@ jobs:
         if: github.ref == 'refs/heads/main'
 
         steps:
-            - name: Download Artifacts
-              uses: actions/download-artifact@v4
-              with:
-                  name: blog-api-build
-
             - name: Deploy to Render
               uses: johnbeynon/render-deploy-action@v0.0.8
               with:
