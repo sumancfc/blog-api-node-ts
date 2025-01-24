@@ -13,7 +13,13 @@ import { UserRole } from "../interfaces/user";
 const router: Router = express.Router();
 
 // Tag routes
-router.post("/", categoryAndTagValidation, requireSignIn, authorizeRoles(UserRole.ADMIN), createTag);
+router.post(
+    "/",
+    categoryAndTagValidation,
+    requireSignIn,
+    authorizeRoles(UserRole.ADMIN),
+    createTag
+);
 router.get("/all", getAllTags);
 router.get("/:slug", getSingleTag);
 router.put(
@@ -23,11 +29,6 @@ router.put(
     authorizeRoles(UserRole.ADMIN),
     updateTag
 );
-router.delete(
-    "/:id",
-    requireSignIn,
-    authorizeRoles(UserRole.ADMIN),
-    deleteTag
-);
+router.delete("/:id", requireSignIn, authorizeRoles(UserRole.ADMIN), deleteTag);
 
 export default router;

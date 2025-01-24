@@ -17,3 +17,10 @@ export interface CategoryRequest {
 export interface TagRequest {
     name: string;
 }
+
+export interface ISocialMedia extends Document {
+    _id: mongoose.Types.ObjectId;
+    name: string;
+    link: string;
+    icon: string;
+}

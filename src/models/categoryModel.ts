@@ -32,8 +32,8 @@ const categorySchema = new Schema<ICategory>(
 
 categorySchema.pre("save", async function (next) {
     this.slug = slugify(this.name).toLowerCase();
-    next()
-})
+    next();
+});
 
 export const Category: Model<ICategory> = mongoose.model<ICategory>(
     "Category",

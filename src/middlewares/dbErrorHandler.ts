@@ -17,7 +17,9 @@ const uniqueMessage = (error: MongoError): string => {
             error.message.lastIndexOf("_1")
         );
         output =
-            fieldName.charAt(0).toUpperCase() + fieldName.slice(1) + " already exists";
+            fieldName.charAt(0).toUpperCase() +
+            fieldName.slice(1) +
+            " already exists";
     } catch (ex) {
         output = "Unique field already exists";
     }
@@ -28,7 +30,8 @@ const uniqueMessage = (error: MongoError): string => {
 /**
  * Get the error message from error object
  */
-export const errorHandler = (error: any): string => { // Use 'any' for flexibility
+export const errorHandler = (error: any): string => {
+    // Use 'any' for flexibility
     let message: string = "";
 
     if (error.name === "ValidationError") {

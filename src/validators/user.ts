@@ -3,7 +3,11 @@ import { UserRole, Gender } from "../interfaces/user";
 
 export const createUserValidation: ValidationChain[] = [
     check("name").not().isEmpty().withMessage("Name is required"),
-    check("email").trim().normalizeEmail().isEmail().withMessage("Must be a valid email address"),
+    check("email")
+        .trim()
+        .normalizeEmail()
+        .isEmail()
+        .withMessage("Must be a valid email address"),
     check("password")
         .not()
         .isIn(["123456", "password", "god", "abcdef"])
