@@ -37,8 +37,9 @@ export const createBlog = async (
             ? content[0]
             : content;
 
-        const published: string = Array.isArray(isPublished) ? isPublished[0] : isPublished || '';
-
+        const published: string = Array.isArray(isPublished)
+            ? isPublished[0]
+            : isPublished || "";
 
         // Validation
         if (!actualTitle || actualTitle.length < 1) {
@@ -85,7 +86,7 @@ export const createBlog = async (
             metaTitle: `${actualTitle} | React Next Blog`,
             metaDescription: stripHtmlTags(actualContent.substring(0, 160)),
             postedBy: _id,
-            isPublished: published === "true"
+            isPublished: published === "true",
         });
 
         if (blog.excerpt && blog.excerpt.length > 120) {
@@ -127,7 +128,10 @@ export const getAllBlogs: RequestHandler = asyncHandler(async (req, res) => {
               ],
           }
         : {};
-    const count: number = await Blog.countDocuments({ ...newKeyword, isPublished: true });
+    const count: number = await Blog.countDocuments({
+        ...newKeyword,
+        isPublished: true,
+    });
     const skip: number = pageSize * (page - 1);
 
     const blogs = await Blog.find({ ...newKeyword, isPublished: true })
@@ -249,7 +253,8 @@ export const updateBlog: RequestHandler = async (req, res) => {
                             );
 
                         const newCategoryIds: string[] = categories.map(
-                            (c: string | mongoose.Types.ObjectId): string => (c as string).trim()
+                            (c: string | mongoose.Types.ObjectId): string =>
+                                (c as string).trim()
                         );
 
                         const combinedCategories: string[] = [
@@ -272,7 +277,8 @@ export const updateBlog: RequestHandler = async (req, res) => {
                         );
 
                         const newTagIds: string[] = tags.map(
-                            (t: string | mongoose.Types.ObjectId): string => (t as string).trim()
+                            (t: string | mongoose.Types.ObjectId): string =>
+                                (t as string).trim()
                         );
 
                         const combinedTags: string[] = [
@@ -286,7 +292,6 @@ export const updateBlog: RequestHandler = async (req, res) => {
                                 new mongoose.Types.ObjectId(id)
                         );
                     }
-
 
                     // Process photo
                     if (files.photo && Array.isArray(files.photo)) {
@@ -312,8 +317,10 @@ export const updateBlog: RequestHandler = async (req, res) => {
 
                     // Update isPublished if provided
                     if (isPublished !== undefined) {
-                        const published: string = Array.isArray(isPublished) ? isPublished[0] : isPublished || '';
-                        existingBlog.isPublished = published === 'true';
+                        const published: string = Array.isArray(isPublished)
+                            ? isPublished[0]
+                            : isPublished || "";
+                        existingBlog.isPublished = published === "true";
                     }
 
                     // Save updated blog

@@ -35,12 +35,16 @@ const userSchema = new Schema<IUser>(
             enum: Object.values(Gender),
         },
         languages: [{ type: String }],
-        socialMedia: {
-            facebook: { type: String },
-            twitter: { type: String },
-            linkedin: { type: String },
-            instagram: { type: String },
-        },
+        socialMedia: [
+            {
+                socialMediaId: {
+                    type: Schema.Types.ObjectId,
+                    ref: "SocialMedia",
+                    required: true,
+                },
+                username: { type: String, required: true },
+            },
+        ],
         accountStatus: {
             type: String,
             enum: Object.values(AccountStatus),
@@ -59,7 +63,6 @@ const userSchema = new Schema<IUser>(
             phone: { type: String },
         },
         twoFactorEnabled: { type: Boolean, default: false },
-        //resetPasswordLink: { data: String },
         is_verified: {
             type: Boolean,
             default: false,

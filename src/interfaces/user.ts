@@ -1,4 +1,5 @@
 import mongoose, { Document } from "mongoose";
+import { ISocialMedia } from "./index";
 
 /*****
  User Interfaces
@@ -22,13 +23,6 @@ export enum Gender {
     FEMALE = "female",
     OTHER = "other",
     PREFER_NOT_TO_SAY = "prefer_not_to_say",
-}
-
-export interface ISocialMedia {
-    facebook?: string;
-    twitter?: string;
-    linkedin?: string;
-    instagram?: string;
 }
 
 export interface IEmergencyContact {

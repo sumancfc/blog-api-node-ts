@@ -22,12 +22,7 @@ router.post(
 );
 router.get("/all", getAllBlogs);
 router.get("/:slug", getSingleBlog);
-router.put(
-    "/:id",
-    requireSignIn,
-    authorizeRoles(UserRole.ADMIN),
-    updateBlog
-);
+router.put("/:id", requireSignIn, authorizeRoles(UserRole.ADMIN), updateBlog);
 router.delete(
     "/:slug",
     requireSignIn,

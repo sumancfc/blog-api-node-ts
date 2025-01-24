@@ -42,7 +42,7 @@ const blogSchema = new Schema<IBlog>(
         postedBy: { type: Schema.Types.ObjectId, ref: "User" },
         isPublished: {
             type: Boolean,
-            default: true
+            default: true,
         },
     },
     { timestamps: true }

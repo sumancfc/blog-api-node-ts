@@ -26,7 +26,6 @@ export const createCategory: RequestHandler = asyncHandler(async (req, res) => {
         );
     }
 
-
     const category: ICategory = await new Category({ name }).save();
 
     category

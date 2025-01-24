@@ -74,5 +74,4 @@ router.get(
     getUserPhoto
 );
 
-
 export default router;
