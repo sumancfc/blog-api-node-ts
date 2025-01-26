@@ -76,30 +76,35 @@ const startServer: () => Promise<void> = async () => {
         console.error("Failed to start server:", err);
         process.exit(1);
     }
-}
+};
 
 const setupGracefulShutdown = (server: any): void => {
-    process.on('SIGTERM', () => gracefulShutdown(server));
-    process.on('SIGINT', () => gracefulShutdown(server));
-}
+    process.on("SIGTERM", () => gracefulShutdown(server));
+    process.on("SIGINT", () => gracefulShutdown(server));
+};
 
 const gracefulShutdown = (server: any): void => {
-    console.log('Received kill signal, shutting down gracefully');
+    console.log("Received kill signal, shutting down gracefully");
     server.close(() => {
-        console.log('Closed out remaining connections');
-        connectToDatabase.closeConnection().then(() => {
-            console.log('MongoDB connection closed');
-            process.exit(0);
-        }).catch(err => {
-            console.error('Error during shutdown:', err);
-            process.exit(1);
-        });
+        console.log("Closed out remaining connections");
+        connectToDatabase
+            .closeConnection()
+            .then(() => {
+                console.log("MongoDB connection closed");
+                process.exit(0);
+            })
+            .catch((err) => {
+                console.error("Error during shutdown:", err);
+                process.exit(1);
+            });
     });
 
     setTimeout(() => {
-        console.error('Could not close connections in time, forcefully shutting down');
+        console.error(
+            "Could not close connections in time, forcefully shutting down"
+        );
         process.exit(1);
     }, 10000);
-}
+};
 
 startServer();

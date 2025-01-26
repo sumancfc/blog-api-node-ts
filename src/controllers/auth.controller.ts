@@ -11,9 +11,13 @@ import {
     ResetPasswordRequest,
     AccountStatus,
 } from "../interfaces/user.interface";
-import { getExpirySettings, sendEmail, sendErrorResponse,
+import {
+    getExpirySettings,
+    sendEmail,
+    sendErrorResponse,
     encodeEmailForURL,
-    generateAlphanumericCode,} from "../utils";
+    generateAlphanumericCode,
+} from "../utils";
 import {
     confirmEmailMessage,
     passwordResetMessage,

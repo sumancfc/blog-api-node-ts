@@ -1,5 +1,5 @@
 /**
- * @swaggers
+ * @swagger
  * tags:
  *   name: Authentication
  *   description: API to manage authentication
@@ -7,8 +7,8 @@
 
 // Register a User
 /**
- * @swaggers
- * /admin/register:
+ * @swagger
+ * /auth/register:
  *   post:
  *     summary: Register a new user
  *     description: Creates a new user account with the provided information.
@@ -93,8 +93,8 @@
 
 // Login a User
 /**
- * @swaggers
- * /admin/login:
+ * @swagger
+ * /auth/login:
  *   post:
  *     summary: Login user
  *     description: Authenticates a user with their email and password and sets a session cookie.
@@ -177,8 +177,8 @@
 
 // Logout a user
 /**
- * @swaggers
- * /admin/logout:
+ * @swagger
+ * /auth/logout:
  *   get:
  *     summary: Logout user
  *     description: Logs out the user by clearing the authentication cookie.

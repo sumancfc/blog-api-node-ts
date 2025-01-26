@@ -21,9 +21,3 @@ connectToDatabase.closeConnection = async (): Promise<void> => {
 };
 
 export default connectToDatabase;
-
-
-
-
-
-

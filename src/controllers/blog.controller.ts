@@ -9,7 +9,11 @@ import { Blog } from "../models/blog.model";
 import { Category } from "../models/category.model";
 import { Tag } from "../models/tag.model";
 import { ICategory, ITag } from "../interfaces";
-import { IBlog, BlogRequest, UpdateBlogRequest } from "../interfaces/blog.interface";
+import {
+    IBlog,
+    BlogRequest,
+    UpdateBlogRequest,
+} from "../interfaces/blog.interface";
 import { IUser } from "../interfaces/user.interface";
 
 // Create blog

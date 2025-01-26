@@ -8,7 +8,10 @@ import {
     resetPassword,
 } from "../controllers/auth.controller";
 import { runValidation } from "../validators";
-import { userSignUpValidation, userSignInValidation } from "../validators/auth.validator";
+import {
+    userSignUpValidation,
+    userSignInValidation,
+} from "../validators/auth.validator";
 import {
     forgotPasswordLimiter,
     resetPasswordLimiter,

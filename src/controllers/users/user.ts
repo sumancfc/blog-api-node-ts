@@ -5,7 +5,12 @@ import asyncHandler from "express-async-handler";
 import { HTTP_STATUS, USER_MESSAGES } from "../../utils/statusMessage.util";
 import { User } from "../../models/user.model";
 import { encodeEmailForURL, sendErrorResponse, sendEmail } from "../../utils";
-import { CreateUserRequest, Gender, IUser, UserRole } from "../../interfaces/user.interface";
+import {
+    CreateUserRequest,
+    Gender,
+    IUser,
+    UserRole,
+} from "../../interfaces/user.interface";
 import { verifyEmailMessage } from "../../utils/emailMessage.util";
 
 // Admin: Get all users

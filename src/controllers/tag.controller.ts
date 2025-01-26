@@ -26,8 +26,7 @@ export const createTag: RequestHandler = asyncHandler(async (req, res) => {
         );
     }
 
-    const slug: string = createSlug(name);
-    const tag: ITag = await new Tag({ name, slug }).save();
+    const tag: ITag = await new Tag({ name }).save();
 
     tag
         ? res.status(HTTP_STATUS.OK).json(tag)
