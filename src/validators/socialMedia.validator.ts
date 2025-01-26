@@ -1,5 +1,5 @@
 import { body, param, ValidationChain } from "express-validator";
-import { SocialMedia } from "../models/socialMediaModel";
+import { SocialMedia } from "../models/socialMedia.model";
 
 export const createSocialMediaValidator: ValidationChain[] = [
     body("name")

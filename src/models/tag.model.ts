@@ -1,5 +1,6 @@
 import mongoose, { Model, Schema } from "mongoose";
 import { ITag } from "../interfaces";
+import slugify from "slugify";
 
 const tagSchema = new Schema<ITag>(
     {
@@ -27,5 +28,10 @@ const tagSchema = new Schema<ITag>(
     },
     { timestamps: true }
 );
+
+tagSchema.pre("save", async function (next) {
+    this.slug = slugify(this.name).toLowerCase();
+    next();
+});
 
 export const Tag: Model<ITag> = mongoose.model<ITag>("Tag", tagSchema);

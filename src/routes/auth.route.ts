@@ -6,15 +6,18 @@ import {
     signOut,
     forgotPassword,
     resetPassword,
-} from "../controllers/auth";
+} from "../controllers/auth.controller";
 import { runValidation } from "../validators";
-import { userSignUpValidation, userSignInValidation } from "../validators/auth";
+import {
+    userSignUpValidation,
+    userSignInValidation,
+} from "../validators/auth.validator";
 import {
     forgotPasswordLimiter,
     resetPasswordLimiter,
     signInLimiter,
     signUpLimiter,
-} from "../middlewares/rateLimiter";
+} from "../middlewares/rateLimiter.middleware";
 
 const router: Router = express.Router();
 

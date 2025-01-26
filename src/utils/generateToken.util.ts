@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { IUser } from "../interfaces/user";
+import { IUser } from "../interfaces/user.interface";
 import { Response } from "express";
 
 export const generateToken = (user: IUser, expiresIn: string): string => {

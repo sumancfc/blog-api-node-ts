@@ -8,9 +8,9 @@ import {
     getBlogPhoto,
     getRelatedBlogs,
     searchBlogs,
-} from "../controllers/blog";
-import { requireSignIn, authorizeRoles } from "../controllers/auth";
-import { UserRole } from "../interfaces/user";
+} from "../controllers/blog.controller";
+import { requireSignIn, authorizeRoles } from "../controllers/auth.controller";
+import { UserRole } from "../interfaces/user.interface";
 
 const router: Router = express.Router();
 

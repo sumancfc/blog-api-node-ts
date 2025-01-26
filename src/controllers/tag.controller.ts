@@ -1,9 +1,9 @@
 import { RequestHandler } from "express";
 import asyncHandler from "express-async-handler";
-import { Tag } from "../models/tagModel";
-import { validateName, sendErrorResponse, createSlug } from "../helpers";
+import { Tag } from "../models/tag.model";
+import { validateName, sendErrorResponse, createSlug } from "../utils";
 import { ITag, TagRequest } from "../interfaces";
-import { HTTP_STATUS, TAG_MESSAGES } from "../utils/status_message";
+import { HTTP_STATUS, TAG_MESSAGES } from "../utils/statusMessage.util";
 
 // Create Tag
 export const createTag: RequestHandler = asyncHandler(async (req, res) => {
@@ -26,8 +26,7 @@ export const createTag: RequestHandler = asyncHandler(async (req, res) => {
         );
     }
 
-    const slug: string = createSlug(name);
-    const tag: ITag = await new Tag({ name, slug }).save();
+    const tag: ITag = await new Tag({ name }).save();
 
     tag
         ? res.status(HTTP_STATUS.OK).json(tag)

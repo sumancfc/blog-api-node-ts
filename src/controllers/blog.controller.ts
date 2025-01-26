@@ -4,13 +4,17 @@ import mongoose from "mongoose";
 import slugify from "slugify";
 import formidable, { Fields, Files } from "formidable";
 import asyncHandler from "express-async-handler";
-import { smartTrim, stripHtmlTags } from "../helpers/blog";
-import { Blog } from "../models/blogModel";
-import { Category } from "../models/categoryModel";
-import { Tag } from "../models/tagModel";
+import { smartTrim, stripHtmlTags } from "../utils/blog.util";
+import { Blog } from "../models/blog.model";
+import { Category } from "../models/category.model";
+import { Tag } from "../models/tag.model";
 import { ICategory, ITag } from "../interfaces";
-import { IBlog, BlogRequest, UpdateBlogRequest } from "../interfaces/blog";
-import { IUser } from "../interfaces/user";
+import {
+    IBlog,
+    BlogRequest,
+    UpdateBlogRequest,
+} from "../interfaces/blog.interface";
+import { IUser } from "../interfaces/user.interface";
 
 // Create blog
 export const createBlog = async (

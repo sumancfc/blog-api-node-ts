@@ -5,14 +5,14 @@ import {
     getSocialMediaByID,
     updateSocialMedia,
     deleteSocialMedia,
-} from "../controllers/socialmedia";
-import { requireSignIn, authorizeRoles } from "../controllers/auth";
-import { UserRole } from "../interfaces/user";
+} from "../controllers/admin/socialmedia";
+import { requireSignIn, authorizeRoles } from "../controllers/auth.controller";
+import { UserRole } from "../interfaces/user.interface";
 import {
     createSocialMediaValidator,
     updateSocialMediaValidator,
     socialMediaByIdValidator,
-} from "../validators/socialmedia";
+} from "../validators/socialMedia.validator";
 import { runValidation } from "../validators";
 
 const router: Router = express.Router();

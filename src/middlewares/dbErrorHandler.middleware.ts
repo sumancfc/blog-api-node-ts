@@ -1,4 +1,4 @@
-// src/helpers/dbErrorHandler.ts
+// src/helpers/dbErrorHandler.middleware.ts
 
 interface MongoError extends Error {
     code?: number;
