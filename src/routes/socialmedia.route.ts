@@ -29,7 +29,6 @@ router.post(
 router.get(
     "/all",
     requireSignIn,
-    authorizeRoles(UserRole.USER, UserRole.ADMIN),
     getAllSocialMedias
 );
 router.get(
@@ -37,7 +36,6 @@ router.get(
     socialMediaByIdValidator,
     runValidation,
     requireSignIn,
-    authorizeRoles(UserRole.USER, UserRole.ADMIN),
     getSocialMediaByID
 );
 router.put(

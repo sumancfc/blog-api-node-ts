@@ -1,6 +1,8 @@
 import swaggerJsdoc, { Options } from "swagger-jsdoc";
 import path from "path";
 
+const apiUrl: string = process.env.API_URL || "http://localhost:8000";
+
 const options: Options = {
     definition: {
         openapi: "3.0.0",
@@ -11,9 +13,7 @@ const options: Options = {
         },
         servers: [
             {
-                url: process.env.API_URL
-                    ? `${process.env.API_URL}/api/v1`
-                    : "http://localhost:8000/api/v1",
+                url: `${apiUrl}/api/v1`,
             },
         ],
         components: {
@@ -31,15 +31,10 @@ const options: Options = {
             },
         ],
     },
-    apis: process.env.API_URL
-        ? [
-              path.resolve(__dirname, "./swagger/*.js"),
-              path.resolve(__dirname, "./index.js"),
-          ]
-        : [
-              path.resolve(__dirname, "./swagger/*.ts"),
-              path.resolve(__dirname, "./index.ts"),
-          ],
+    apis: [
+        path.resolve(__dirname, "./swagger/*.{js,ts}"),
+        path.resolve(__dirname, "./index.{js,ts}"),
+    ],
 };
 
 export const swaggerSpec: object = swaggerJsdoc(options);
