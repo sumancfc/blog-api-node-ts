@@ -13,9 +13,8 @@ import { errorHandler } from "./middlewares/dbErrorHandler.middleware";
 
 dotenv.config();
 
-const csrfProtection = csrf({ cookie: true });
 const app: Application = express();
-const port: string | number = process.env.PORT || 8000;
+const port: number = Number(process.env.PORT) || 8000;
 
 // Middlewares
 app.use(helmet());
@@ -24,15 +23,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-if (process.env.NODE_ENV === "development") {
-    app.use(
-        cors({
-            origin: process.env.CLIENT_URL as string,
-        })
-    );
-} else {
-    app.use(cors());
-}
+// CORS Configuration
+const corsOptions = {
+    origin: process.env.NODE_ENV === "development"
+        ? process.env.CLIENT_URL
+        : process.env.API_URL,
+    credentials: true
+};
+app.use(cors(corsOptions));
 
 // Serve Swagger UI
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -41,21 +39,32 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 loadRoutes(app)
     .then((): void => {
         console.log("Routes loaded successfully");
-        // CSRF Protection
+
+        // CSRF Protection - moved after route loading
+        const csrfProtection = csrf({
+            cookie: true,
+            ignoreMethods: ['GET', 'HEAD', 'OPTIONS'] // Optional: ignore safe HTTP methods
+        });
         app.use(csrfProtection);
+
+        // CSRF Token Route - moved inside route loading success block
+        app.get("/api/v1/csrf-token", (req: Request, res: Response) => {
+            try {
+                const csrfToken = req.csrfToken();
+                res.json({ csrfToken });
+            } catch (error) {
+                console.error('CSRF Token Generation Error:', error);
+                res.status(500).json({
+                    error: 'Could not generate CSRF token',
+                    details: error instanceof Error ? error.message : 'Unknown error'
+                });
+            }
+        });
     })
     .catch((error: Error) => {
         console.error("Error loading routes:", error);
         process.exit(1);
     });
-
-app.get(
-    "/api/v1/csrf-token",
-    (req: Request, res: Response, next: NextFunction) => {
-        res.json({ csrfToken: req.csrfToken() });
-        next();
-    }
-);
 
 // Error Handling Middleware
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
