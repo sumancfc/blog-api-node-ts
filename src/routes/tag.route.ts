@@ -5,10 +5,10 @@ import {
     getSingleTag,
     updateTag,
     deleteTag,
-} from "../controllers/tag";
-import { requireSignIn, authorizeRoles } from "../controllers/auth";
-import { categoryAndTagValidation } from "../validators/cat_tag";
-import { UserRole } from "../interfaces/user";
+} from "../controllers/tag.controller";
+import { requireSignIn, authorizeRoles } from "../controllers/auth.controller";
+import { categoryAndTagValidation } from "../validators/common.validator";
+import { UserRole } from "../interfaces/user.interface";
 
 const router: Router = express.Router();
 

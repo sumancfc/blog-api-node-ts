@@ -1,5 +1,5 @@
 import { check, ValidationChain } from "express-validator";
-import { UserRole, Gender } from "../interfaces/user";
+import { UserRole, Gender } from "../interfaces/user.interface";
 
 export const createUserValidation: ValidationChain[] = [
     check("name").not().isEmpty().withMessage("Name is required"),

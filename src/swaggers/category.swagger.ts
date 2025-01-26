@@ -1,17 +1,17 @@
 /**
- * @swagger
+ * @swaggers
  * tags:
- *   name: Tags
- *   description: API to manage tags
+ *   name: Categories
+ *   description: API to manage categories
  */
 
-// Create Tag
+// Create Category
 /**
- * @swagger
- * /tag:
+ * @swaggers
+ * /category:
  *   post:
- *     summary: Create a new tag
- *     tags: [Tags]
+ *     summary: Create a new category
+ *     tags: [Categories]
  *     security:
  *       - cookieAuth: []
  *     requestBody:
@@ -27,53 +27,53 @@
  *                 type: string
  *     responses:
  *       201:
- *         description: Successfully created tag
+ *         description: Successfully created category
  *       400:
  *         description: Validation error
  *       401:
  *         description: Unauthorized
  */
 
-// Get All Tags
+// Get All Categories
 /**
- * @swagger
- * /tag/all:
+ * @swaggers
+ * /category/all:
  *   get:
- *     summary: Get all blog-tags
- *     tags: [Tags]
+ *     summary: Get all categories
+ *     tags: [Categories]
  *     responses:
  *       200:
- *         description: Successfully retrieved tags
+ *         description: Successfully retrieved categories
  */
 
-// Get Tag by Slug
+// Get Category by Slug
 /**
- * @swagger
- * /tag/{slug}:
+ * @swaggers
+ * /category/{slug}:
  *   get:
- *     summary: Get a single tag by slug
- *     tags: [Tags]
+ *     summary: Get a single category by slug
+ *     tags: [Categories]
  *     parameters:
  *       - in: path
  *         name: slug
  *         schema:
  *           type: string
  *         required: true
- *         description: The slug of the tag
+ *         description: The slug of the category
  *     responses:
  *       200:
- *         description: Successfully retrieved tag
+ *         description: Successfully retrieved category
  *       404:
- *         description: Tag not found
+ *         description: Category not found
  */
 
-// Update Tag by id
+// Update Category by id
 /**
- * @swagger
- * /tag/{id}:
+ * @swaggers
+ * /category/{id}:
  *   put:
- *     summary: Update a tag by ID
- *     tags: [Tags]
+ *     summary: Update a category by ID
+ *     tags: [Categories]
  *     security:
  *       - cookieAuth: []
  *     parameters:
@@ -82,7 +82,7 @@
  *         schema:
  *           type: string
  *         required: true
- *         description: The ID of the tag
+ *         description: The ID of the category
  *     requestBody:
  *       required: true
  *       content:
@@ -96,20 +96,20 @@
  *                 type: string
  *     responses:
  *       200:
- *         description: Successfully updated tag
+ *         description: Successfully updated category
  *       404:
- *         description: Tag not found
+ *         description: Category not found
  *       401:
  *         description: Unauthorized
  */
 
-// Delete Tag by id
+// Delete Category by id
 /**
- * @swagger
- * /tag/{id}:
+ * @swaggers
+ * /category/{id}:
  *   delete:
- *     summary: Delete a Tag by ID
- *     tags: [Tags]
+ *     summary: Delete a category by ID
+ *     tags: [Categories]
  *     security:
  *       - cookieAuth: []
  *     parameters:
@@ -118,12 +118,12 @@
  *         schema:
  *           type: string
  *         required: true
- *         description: The ID of the tag
+ *         description: The ID of the category
  *     responses:
  *       200:
- *         description: Successfully updated tag
+ *         description: Successfully updated category
  *       404:
- *         description: Tag not found
+ *         description: Category not found
  *       401:
  *         description: Unauthorized
  */

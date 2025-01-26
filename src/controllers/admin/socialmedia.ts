@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import { SocialMedia } from "../models/socialMediaModel";
-import { ICategory, ISocialMedia } from "../interfaces";
-import { Category } from "../models/categoryModel";
+import { SocialMedia } from "../../models/socialMedia.model";
+import { ISocialMedia } from "../../interfaces";
 
 // Create Social Media ---> Admin
 export const createSocialMedia = async (

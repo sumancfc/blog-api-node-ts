@@ -5,10 +5,10 @@ import {
     getSingleCategory,
     updateCategory,
     deleteCategory,
-} from "../controllers/category";
-import { requireSignIn, authorizeRoles } from "../controllers/auth";
-import { UserRole } from "../interfaces/user";
-import { categoryAndTagValidation } from "../validators/cat_tag";
+} from "../controllers/category.controller";
+import { requireSignIn, authorizeRoles } from "../controllers/auth.controller";
+import { UserRole } from "../interfaces/user.interface";
+import { categoryAndTagValidation } from "../validators/common.validator";
 import { runValidation } from "../validators";
 
 const router: Router = express.Router();

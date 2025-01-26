@@ -1,8 +1,8 @@
 import { Request, RequestHandler } from "express";
 import expressJWT from "express-jwt";
 import asyncHandler from "express-async-handler";
-import { User } from "../models/userModel";
-import { HTTP_STATUS, USER_MESSAGES } from "../utils/status_message";
+import { User } from "../models/user.model";
+import { HTTP_STATUS, USER_MESSAGES } from "../utils/statusMessage.util";
 import {
     IUser,
     SignUpRequest,
@@ -10,20 +10,17 @@ import {
     ForgotPasswordRequest,
     ResetPasswordRequest,
     AccountStatus,
-} from "../interfaces/user";
-import {
-    sendErrorResponse,
+} from "../interfaces/user.interface";
+import { getExpirySettings, sendEmail, sendErrorResponse,
     encodeEmailForURL,
-    generateAlphanumericCode,
-} from "../helpers";
-import { getExpirySettings, sendEmail } from "../utils";
+    generateAlphanumericCode,} from "../utils";
 import {
     confirmEmailMessage,
     passwordResetMessage,
     verifyEmailMessage,
     passwordResetConfirmMessage,
-} from "../utils/emailMessage";
-import { generateToken, setTokenInCookie } from "../utils/generateToken";
+} from "../utils/emailMessage.util";
+import { generateToken, setTokenInCookie } from "../utils/generateToken.util";
 
 // Signup controller
 export const signUp: RequestHandler = asyncHandler(async (req, res) => {

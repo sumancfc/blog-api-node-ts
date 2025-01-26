@@ -1,7 +1,7 @@
 import { Response } from "express";
 import nodemailer, { SentMessageInfo } from "nodemailer";
-import { errorHandler } from "../middlewares/dbErrorHandler";
-import { HTTP_STATUS, USER_MESSAGES } from "./status_message";
+import { errorHandler } from "../middlewares/dbErrorHandler.middleware";
+import { HTTP_STATUS, USER_MESSAGES } from "./statusMessage.util";
 
 // Error handle
 export const handleError = (res: Response, error: unknown) => {
@@ -61,4 +61,45 @@ export const sendEmail = async (
     } catch (err) {
         console.log(err);
     }
+};
+
+export const validateName = (name: string): boolean => !!name?.trim();
+
+export const createSlug = (name: string): string => {
+    return name
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\s-]/g, "") // Remove unwanted characters
+        .replace(/\s+/g, "-") // Replace spaces with hyphens
+        .replace(/-+/g, "-") // Condense multiple hyphens
+        .replace(/^-|-$/g, ""); // Remove leading/trailing hyphens
+};
+
+// Send Error Response
+export const sendErrorResponse = (
+    res: Response,
+    status: number,
+    message: string
+): void => {
+    res.status(status).json({ error: message });
+};
+
+// Encode Email
+export const encodeEmailForURL = (email: string) => {
+    return encodeURIComponent(email);
+};
+
+// Generate Code
+export const generateAlphanumericCode = (length: number): string => {
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+
+    let code: string = "";
+
+    for (let i: number = 0; i < length; i++) {
+        const randomIndex: number = Math.floor(
+            Math.random() * characters.length
+        );
+        code += characters[randomIndex];
+    }
+    return code;
 };

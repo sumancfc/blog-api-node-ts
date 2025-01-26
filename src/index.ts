@@ -6,19 +6,16 @@ import csrf from "csurf";
 import dotenv from "dotenv";
 import helmet from "helmet";
 import swaggerUi from "swagger-ui-express";
-import loadRoutes from "./routes";
-import connectToDatabase from "./config/db";
 import { swaggerSpec } from "./swaggerOptions";
-import { errorHandler } from "./middlewares/dbErrorHandler";
+import loadRoutes from "./routes";
+import connectToDatabase from "./configs/db.config";
+import { errorHandler } from "./middlewares/dbErrorHandler.middleware";
 
 dotenv.config();
 
 const csrfProtection = csrf({ cookie: true });
 const app: Application = express();
 const port: string | number = process.env.PORT || 8000;
-
-// Database Connection
-connectToDatabase();
 
 // Middlewares
 app.use(helmet());
@@ -66,7 +63,43 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     res.status(500).json({ error: errorMessage });
 });
 
-// Start server
-app.listen(port, (): void => {
-    console.log(`Server is running on port: ${port}`);
-});
+// Database Connection and Server Start
+const startServer: () => Promise<void> = async () => {
+    try {
+        await connectToDatabase();
+        const server = app.listen(port, (): void => {
+            console.log(`Server is running on port: ${port}`);
+        });
+
+        setupGracefulShutdown(server);
+    } catch (err) {
+        console.error("Failed to start server:", err);
+        process.exit(1);
+    }
+}
+
+const setupGracefulShutdown = (server: any): void => {
+    process.on('SIGTERM', () => gracefulShutdown(server));
+    process.on('SIGINT', () => gracefulShutdown(server));
+}
+
+const gracefulShutdown = (server: any): void => {
+    console.log('Received kill signal, shutting down gracefully');
+    server.close(() => {
+        console.log('Closed out remaining connections');
+        connectToDatabase.closeConnection().then(() => {
+            console.log('MongoDB connection closed');
+            process.exit(0);
+        }).catch(err => {
+            console.error('Error during shutdown:', err);
+            process.exit(1);
+        });
+    });
+
+    setTimeout(() => {
+        console.error('Could not close connections in time, forcefully shutting down');
+        process.exit(1);
+    }, 10000);
+}
+
+startServer();

@@ -33,11 +33,11 @@ const options: Options = {
     },
     apis: process.env.API_URL
         ? [
-              path.resolve(__dirname, "./swagger/*.js"),
+              path.resolve(__dirname, "./swaggers/*.js"),
               path.resolve(__dirname, "./index.js"),
           ]
         : [
-              path.resolve(__dirname, "./swagger/*.ts"),
+              path.resolve(__dirname, "./swaggers/*.ts"),
               path.resolve(__dirname, "./index.ts"),
           ],
 };

@@ -1,6 +1,5 @@
 import mongoose, { Model, Schema } from "mongoose";
 import { ICategory } from "../interfaces";
-import { createSlug } from "../helpers";
 import slugify from "slugify";
 
 const categorySchema = new Schema<ICategory>(

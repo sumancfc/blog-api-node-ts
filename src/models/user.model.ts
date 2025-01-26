@@ -1,6 +1,6 @@
 import mongoose, { Model, Schema } from "mongoose";
 import crypto from "crypto";
-import { UserRole, AccountStatus, Gender, IUser } from "../interfaces/user";
+import { UserRole, AccountStatus, Gender, IUser } from "../interfaces/user.interface";
 
 const userSchema = new Schema<IUser>(
     {

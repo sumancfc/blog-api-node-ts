@@ -2,12 +2,11 @@ import { RequestHandler } from "express";
 import { promises as fsPromises } from "fs";
 import formidable, { Fields, File, Files } from "formidable";
 import asyncHandler from "express-async-handler";
-import { HTTP_STATUS, USER_MESSAGES } from "../utils/status_message";
-import { User } from "../models/userModel";
-import { encodeEmailForURL, sendErrorResponse } from "../helpers";
-import { CreateUserRequest, Gender, IUser, UserRole } from "../interfaces/user";
-import { verifyEmailMessage } from "../utils/emailMessage";
-import { sendEmail } from "../utils";
+import { HTTP_STATUS, USER_MESSAGES } from "../../utils/statusMessage.util";
+import { User } from "../../models/user.model";
+import { encodeEmailForURL, sendErrorResponse, sendEmail } from "../../utils";
+import { CreateUserRequest, Gender, IUser, UserRole } from "../../interfaces/user.interface";
+import { verifyEmailMessage } from "../../utils/emailMessage.util";
 
 // Admin: Get all users
 export const getAllUsers: RequestHandler = asyncHandler(async (_, res) => {

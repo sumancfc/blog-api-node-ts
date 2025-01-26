@@ -3,7 +3,7 @@ import {
     requireSignIn,
     authorizeRoles,
     //isOwnerOrAdmin,
-} from "../controllers/auth";
+} from "../controllers/auth.controller";
 import {
     getAllUsers,
     updateUserRole,
@@ -13,9 +13,9 @@ import {
     createUser,
     getUserProfile,
     deleteUserProfile,
-} from "../controllers/user";
-import { UserRole } from "../interfaces/user";
-import { createUserValidation } from "../validators/user";
+} from "../controllers/users/user";
+import { UserRole } from "../interfaces/user.interface";
+import { createUserValidation } from "../validators/user.validator";
 import { runValidation } from "../validators";
 
 const router: Router = express.Router();
