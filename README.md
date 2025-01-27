@@ -72,3 +72,36 @@ Ensure you have the following installed:
     ```bash
     npm start
     ```
+
+## Folder Structure
+
+Here is the folder structure of the project:
+
+```
+src
+├── configs       # Configuration files
+├── controllers   # Controllers for handling requests
+├── interfaces    # TypeScript interfaces
+├── middlewares   # Middleware functions
+├── models        # Database models
+├── routes        # API route definitions
+├── swagger       # Swagger documentation files
+├── types         # Custom TypeScript types
+├── utils         # Utility functions
+├── validators    # Validation schemas
+├── index.ts      # Entry point of the application
+├── swaggerOptions.ts # Swagger configuration file
+```
+
+Additional files and folders in the root directory:
+
+```
+.env.example    # Example environment file
+.gitignore      # Git ignore file
+.prettierignore # Prettier ignore file
+.prettierrc     # Prettier configuration file
+package.json    # Node.js project metadata
+package-lock.json # Lockfile for npm dependencies
+README.md       # Project documentation
+tsconfig.json   # TypeScript configuration
+```
