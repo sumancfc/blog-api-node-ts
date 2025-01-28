@@ -79,6 +79,16 @@ const userSchema = new Schema<IUser>(
         resetPasswordExpires: {
             type: Date,
         },
+        agreedToTerms: {
+            type: Boolean,
+            required: true,
+            validate: {
+                validator: function (value: boolean) {
+                    return value === true;
+                },
+                message: "You must agree to the terms and conditions.",
+            },
+        },
     },
     { timestamps: true }
 );

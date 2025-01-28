@@ -16,6 +16,9 @@ export const userSignUpValidation: ValidationChain[] = [
         .withMessage("Password must be at least 6 characters long")
         .matches(/\d/)
         .withMessage("Password must contain a digit"),
+    check("agreedToTerms")
+        .equals("true")
+        .withMessage("You must agree to the terms and conditions"),
 ];
 
 export const userSignInValidation: ValidationChain[] = [

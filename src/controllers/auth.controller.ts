@@ -28,7 +28,7 @@ import { generateToken, setTokenInCookie } from "../utils/generateToken.util";
 
 // Signup controller
 export const signUp: RequestHandler = asyncHandler(async (req, res) => {
-    const { name, email, password } = req.body as SignUpRequest;
+    const { name, email, password, agreedToTerms } = req.body as SignUpRequest;
 
     const userExists = await User.findOne({ email }).exec();
     if (userExists) {
@@ -48,6 +48,7 @@ export const signUp: RequestHandler = asyncHandler(async (req, res) => {
         password,
         username,
         profile,
+        agreedToTerms,
     }).save();
 
     // Verify email message

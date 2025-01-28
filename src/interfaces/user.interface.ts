@@ -66,6 +66,7 @@ export interface IUser extends Document {
     is_verified: boolean;
     resetPassword: string;
     resetPasswordExpires: Date;
+    agreedToTerms: boolean;
     _password?: string;
     authenticate: (plainText: string) => boolean;
     encryptPassword: (password: string) => string;
@@ -80,6 +81,7 @@ export interface UserRequest {
 
 export interface SignUpRequest extends UserRequest {
     name: string;
+    agreedToTerms: boolean;
 }
 
 export interface SignInRequest extends UserRequest {}
