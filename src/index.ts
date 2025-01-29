@@ -25,46 +25,49 @@ app.use(cookieParser());
 
 // CORS Configuration
 const corsOptions = {
-    origin: process.env.NODE_ENV === "development"
+    origin: process.env.NODE_ENV === "production"
         ? process.env.CLIENT_URL
-        : process.env.API_URL,
+        : "http://localhost:3000",
     credentials: true
 };
 app.use(cors(corsOptions));
+
+// CSRF Protection
+const csrfProtection = csrf({
+    cookie: true,
+    ignoreMethods: ['GET', 'HEAD', 'OPTIONS']
+});
+
+// CSRF Token Route
+app.get("/api/v1/csrf-token", csrfProtection, (req: Request, res: Response) => {
+    try {
+        const csrfToken = req.csrfToken();
+        res.json({ csrfToken });
+    } catch (error) {
+        console.error('CSRF Token Generation Error:', error);
+        res.status(500).json({
+            message: 'Could not generate CSRF token',
+            details: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
 
 // Serve Swagger UI
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Dynamically load routes
-loadRoutes(app)
-    .then((): void => {
+const setupRoutes = async () => {
+    try {
+        await loadRoutes(app);
         console.log("Routes loaded successfully");
 
-        // CSRF Protection - moved after route loading
-        const csrfProtection = csrf({
-            cookie: true,
-            ignoreMethods: ['GET', 'HEAD', 'OPTIONS'] // Optional: ignore safe HTTP methods
-        });
+        // Apply CSRF protection after routes are loaded
         app.use(csrfProtection);
-
-        // CSRF Token Route - moved inside route loading success block
-        app.get("/api/v1/csrf-token", (req: Request, res: Response) => {
-            try {
-                const csrfToken = req.csrfToken();
-                res.json({ csrfToken });
-            } catch (error) {
-                console.error('CSRF Token Generation Error:', error);
-                res.status(500).json({
-                    message: 'Could not generate CSRF token',
-                    details: error instanceof Error ? error.message : 'Unknown error'
-                });
-            }
-        });
-    })
-    .catch((error: Error) => {
+    } catch (error) {
         console.error("Error loading routes:", error);
         process.exit(1);
-    });
+    }
+};
 
 // Error Handling Middleware
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
@@ -73,10 +76,11 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 });
 
 // Database Connection and Server Start
-const startServer: () => Promise<void> = async () => {
+const startServer = async () => {
     try {
         await connectToDatabase();
-        const server = app.listen(port, (): void => {
+        await setupRoutes();
+        const server = app.listen(port, () => {
             console.log(`Server is running on port: ${port}`);
         });
 
