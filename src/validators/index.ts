@@ -9,7 +9,7 @@ export const runValidation = (
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
-        res.status(422).json({ error: errors.array()[0].msg });
+        res.status(422).json({ message: errors.array()[0].msg });
         return;
     }
 

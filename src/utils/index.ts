@@ -6,7 +6,7 @@ import { HTTP_STATUS, USER_MESSAGES } from "./statusMessage.util";
 // Error handle
 export const handleError = (res: Response, error: unknown) => {
     const errorMessage = errorHandler(error as Error);
-    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ error: errorMessage });
+    res.status(HTTP_STATUS.INTERNAL_SERVER_ERROR).json({ message: errorMessage });
 };
 
 // Cookies expiry
@@ -81,7 +81,7 @@ export const sendErrorResponse = (
     status: number,
     message: string
 ): void => {
-    res.status(status).json({ error: message });
+    res.status(status).json({ message: message });
 };
 
 // Encode Email

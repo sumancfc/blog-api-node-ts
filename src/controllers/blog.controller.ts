@@ -28,7 +28,7 @@ export const createBlog = async (
 
     form.parse(req, async (err: Error | null, fields: Fields, files: Files) => {
         if (err) {
-            res.status(400).json({ error: "Error processing form" });
+            res.status(400).json({ message: "Error processing form" });
             return;
         }
 
@@ -48,25 +48,25 @@ export const createBlog = async (
         // Validation
         if (!actualTitle || actualTitle.length < 1) {
             res.status(400).json({
-                error: "Title is required and must be a string",
+                message: "Title is required and must be a string",
             });
             return;
         }
 
         if (!actualContent || actualContent.length < 30) {
-            res.status(400).json({ error: "Content is too short" });
+            res.status(400).json({ message: "Content is too short" });
             return;
         }
 
         if (!categories || categories.length === 0) {
             res.status(400).json({
-                error: "At least one category is required",
+                message: "At least one category is required",
             });
             return;
         }
 
         if (!tags || tags.length === 0) {
-            res.status(400).json({ error: "At least one tag is required" });
+            res.status(400).json({ message: "At least one tag is required" });
             return;
         }
 
@@ -102,7 +102,7 @@ export const createBlog = async (
             const photoFile: formidable.File = files.photo[0];
             if (photoFile.size > 5 * 1024 * 1024) {
                 res.status(400).json({
-                    error: "Image should be less than 5 MB in size",
+                    message: "Image should be less than 5 MB in size",
                 });
                 return;
             }
@@ -193,7 +193,7 @@ export const updateBlog: RequestHandler = async (req, res) => {
         const searchExistingBlog: IBlog | null = await Blog.findById(blogId);
 
         if (!searchExistingBlog) {
-            res.status(404).json({ error: "Blog not found" });
+            res.status(404).json({ message: "Blog not found" });
             return;
         }
 
@@ -207,7 +207,7 @@ export const updateBlog: RequestHandler = async (req, res) => {
             req,
             async (err: Error | null, fields: Fields, files: Files) => {
                 if (err) {
-                    res.status(400).json({ error: "Error processing form" });
+                    res.status(400).json({ message: "Error processing form" });
                     return;
                 }
                 const { title, content, categories, tags, isPublished } =
@@ -307,7 +307,7 @@ export const updateBlog: RequestHandler = async (req, res) => {
 
                         if (photoFile.size > 5 * 1024 * 1024) {
                             return res.status(400).json({
-                                error: "Image should be less than 20MB",
+                                message: "Image should be less than 20MB",
                             });
                         }
 
@@ -332,14 +332,14 @@ export const updateBlog: RequestHandler = async (req, res) => {
                     res.status(200).json(updatedBlog);
                 } catch (error) {
                     res.status(400).json({
-                        error: error,
+                        message: error,
                     });
                 }
             }
         );
     } catch (error) {
         res.status(500).json({
-            error: "Server error updating blog",
+            message: "Server error updating blog",
         });
     }
 };
@@ -382,7 +382,7 @@ export const getBlogPhoto: RequestHandler = asyncHandler(async (req, res) => {
     }
 
     if (!blog.photo) {
-        res.status(404).json({ error: "User photo not found" });
+        res.status(404).json({ message: "User photo not found" });
         return;
     }
 

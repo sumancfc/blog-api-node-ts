@@ -55,7 +55,7 @@ loadRoutes(app)
             } catch (error) {
                 console.error('CSRF Token Generation Error:', error);
                 res.status(500).json({
-                    error: 'Could not generate CSRF token',
+                    message: 'Could not generate CSRF token',
                     details: error instanceof Error ? error.message : 'Unknown error'
                 });
             }
@@ -69,7 +69,7 @@ loadRoutes(app)
 // Error Handling Middleware
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
     const errorMessage: string = errorHandler(err);
-    res.status(500).json({ error: errorMessage });
+    res.status(500).json({ message: errorMessage });
 });
 
 // Database Connection and Server Start
