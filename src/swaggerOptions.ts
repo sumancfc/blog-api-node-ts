@@ -1,7 +1,7 @@
 import swaggerJsdoc, { Options } from "swagger-jsdoc";
 import path from "path";
 
-const apiUrl: string = process.env.API_URL || "http://localhost:8000";
+const apiUrl = process.env.NODE_ENV === "production" ? process.env.API_URL : "http://localhost:8000";
 
 const options: Options = {
     definition: {
@@ -14,6 +14,7 @@ const options: Options = {
         servers: [
             {
                 url: `${apiUrl}/api/v1`,
+                description: "API server",
             },
         ],
         components: {
