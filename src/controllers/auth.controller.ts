@@ -15,7 +15,6 @@ import {
     getExpirySettings,
     sendEmail,
     sendErrorResponse,
-    encodeEmailForURL,
     generateAlphanumericCode,
 } from "../utils";
 import {
@@ -51,9 +50,7 @@ export const signUp: RequestHandler = asyncHandler(async (req, res) => {
         agreedToTerms,
     }).save();
 
-    // Verify email message
-    const encodedEmail: string = encodeEmailForURL(email);
-    const message: string = verifyEmailMessage(name, encodedEmail);
+    const message: string = verifyEmailMessage(name, username);
 
     if (user) {
         await sendEmail(email, "For Email Verification", message, res);
@@ -129,10 +126,9 @@ export const signIn: RequestHandler = asyncHandler(async (req, res) => {
 
 // Verify Email
 export const verifyEmail: RequestHandler = asyncHandler(async (req, res) => {
-    const id: string = req.params.id;
-    const trimmedId: string = id.trim();
+    const username: string = req.params.username;
 
-    const user: IUser | null = await User.findById(trimmedId).exec();
+    const user: IUser | null = await User.findOne({ username }).exec();
 
     if (!user) {
         return sendErrorResponse(
@@ -212,20 +208,6 @@ export const authorizeRoles = (...roles: string[]): RequestHandler => {
         next();
     });
 };
-
-// Is Owner or Admin
-/*export const isOwnerOrAdmin: RequestHandler = (req, res, next ) => {
-    const { username } = req.params;
-    if (!username) return;
-
-    const loggedInUser = req.user as IUser;
-
-    if (loggedInUser.username === username || loggedInUser.role === "admin") {
-        return next();
-    }
-
-    res.status(403).json({ message: "You are not authorized to access this resource." });
-}*/
 
 // Forgot Password
 export const forgotPassword: RequestHandler = asyncHandler(async (req, res) => {

@@ -1,5 +1,5 @@
-export const verifyEmailMessage = (name: string, email: string): string => {
-    return `<body width="100%" style="margin: 0; padding: 0 !important; mso-line-height-rule: exactly; background-color: #f5f6fa;">
+export const verifyEmailMessage = (name: string, username: string): string => {
+    return `<body style="width:100%; margin: 0; padding: 0 !important; mso-line-height-rule: exactly; background-color: #f5f6fa;">
 <center style="width: 100%; background-color: #f5f6fa;">
       <table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#f5f6fa">
           <tr>
@@ -15,16 +15,16 @@ export const verifyEmailMessage = (name: string, email: string): string => {
                               <td style="padding: 0 30px 20px">
                                   <p style="margin-bottom: 10px;">Hi ${name}</p>
                                   <p style="margin-bottom: 10px;">Welcome! <br> You are receiving this email because you have registered on our site.</p>
-                                  <p style="margin-bottom: 10px;">Click the link below to active your account.</p>
+                                  <p style="margin-bottom: 10px;">Click the link below to activate your account.</p>
                                   <p style="margin-bottom: 25px;">This link will expire in 15 minutes and can only be used once.</p>
-                                  <a href="http://localhost:3000/verify?email=${email}" style="background-color:#6576ff;border-radius:4px;color:#ffffff;display:inline-block;font-size:13px;font-weight:600;line-height:44px;text-align:center;text-decoration:none;text-transform: uppercase; padding: 0 30px">Verify Email</a>
+                                  <a href="{process.env.CLIENT_URL}/email-verification/${username}" style="background-color:#6576ff;border-radius:4px;color:#ffffff;display:inline-block;font-size:13px;font-weight:600;line-height:44px;text-align:center;text-decoration:none;text-transform: uppercase; padding: 0 30px">Verify Your Email</a>
                               </td>
                           </tr>
                           <tr>
                               <td style="padding: 0 30px">
                                   <h4 style="font-size: 15px; color: #000000; font-weight: 600; margin: 0; text-transform: uppercase; margin-bottom: 10px">or</h4>
                                   <p style="margin-bottom: 10px;">If the button above does not work, paste this link into your web browser:</p>
-                                  <a href="#" style="color: #6576ff; text-decoration:none;word-break: break-all;">http://localhost:3000/verify?email=${email}</a>
+                                  <a href="${process.env.CLIENT_URL}/email-verification/${username}">${process.env.CLIENT_URL}/email-verification/${username}</a>
                               </td>
                           </tr>
                           <tr>

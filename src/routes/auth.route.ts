@@ -36,7 +36,7 @@ router.post(
     runValidation,
     signIn
 );
-router.get("/email-verify/:id", verifyEmail);
+router.get("/email-verify/:username", verifyEmail);
 router.get("/logout", signOut);
 router.post("/forgot-password", forgotPasswordLimiter, forgotPassword);
 router.post("/reset-password", resetPasswordLimiter, resetPassword);
