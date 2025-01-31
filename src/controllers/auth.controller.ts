@@ -24,13 +24,17 @@ import {
     passwordResetConfirmMessage,
 } from "../utils/emailMessage.util";
 import { generateToken, setTokenInCookie } from "../utils/generateToken.util";
+import logger from "../configs/logger";
 
 // Signup controller
 export const signUp: RequestHandler = asyncHandler(async (req, res) => {
     const { name, email, password, agreedToTerms } = req.body as SignUpRequest;
 
+    logger.info(`Sign up requested for email: ${email}`);
+
     const userExists = await User.findOne({ email }).exec();
     if (userExists) {
+        logger.warn(`User already exists with email: ${email}`);
         return sendErrorResponse(
             res,
             HTTP_STATUS.CONFLICT,
@@ -53,11 +57,13 @@ export const signUp: RequestHandler = asyncHandler(async (req, res) => {
     const message: string = verifyEmailMessage(name, username);
 
     if (user) {
+        logger.info(`User created with email: ${email}`);
         await sendEmail(email, "For Email Verification", message, res);
         res.status(HTTP_STATUS.CREATED).json({
             message: USER_MESSAGES.SIGNUP_SUCCESS,
         });
     } else {
+        logger.error(`Failed to create user with email: ${email}`);
         sendErrorResponse(
             res,
             HTTP_STATUS.BAD_REQUEST,
@@ -72,11 +78,14 @@ export const signIn: RequestHandler = asyncHandler(async (req, res) => {
         keepMeLoggedIn?: boolean;
     };
 
+    logger.info(`Sign in requested for email: ${email}`);
+
     const user = await User.findOne({ email })
         .select("+hashed_password +salt")
         .exec();
 
     if (!user) {
+        logger.warn(`User not found with email: ${email}`);
         return sendErrorResponse(
             res,
             HTTP_STATUS.BAD_REQUEST,
@@ -85,6 +94,7 @@ export const signIn: RequestHandler = asyncHandler(async (req, res) => {
     }
 
     if (!user.authenticate(password)) {
+        logger.warn(`Incorrect credentials for email: ${email}`);
         return sendErrorResponse(
             res,
             HTTP_STATUS.BAD_REQUEST,
@@ -92,15 +102,16 @@ export const signIn: RequestHandler = asyncHandler(async (req, res) => {
         );
     }
 
-    if (!user.is_verified)
+    if (!user.is_verified) {
+        logger.warn(`Email not verified for email: ${email}`);
         return sendErrorResponse(
             res,
             HTTP_STATUS.BAD_REQUEST,
             USER_MESSAGES.EMAIL_VERIFY
         );
+    }
 
     const { expiresIn, cookieMaxAge } = getExpirySettings(keepMeLoggedIn);
-
     const token: string = generateToken(user, expiresIn);
 
     setTokenInCookie(res, token, cookieMaxAge);
@@ -108,6 +119,8 @@ export const signIn: RequestHandler = asyncHandler(async (req, res) => {
     // Update lastLogin in the database
     user.lastLogin = new Date();
     await user.save();
+
+    logger.info(`User signed in with email: ${email}`);
 
     const userData = {
         role: user.role,
@@ -128,9 +141,12 @@ export const signIn: RequestHandler = asyncHandler(async (req, res) => {
 export const verifyEmail: RequestHandler = asyncHandler(async (req, res) => {
     const username: string = req.params.username;
 
+    logger.info(`Email verification requested for username: ${username}`);
+
     const user: IUser | null = await User.findOne({ username }).exec();
 
     if (!user) {
+        logger.warn(`Invalid link for username: ${username}`);
         return sendErrorResponse(
             res,
             HTTP_STATUS.BAD_REQUEST,
@@ -139,6 +155,7 @@ export const verifyEmail: RequestHandler = asyncHandler(async (req, res) => {
     }
 
     if (user.is_verified) {
+        logger.warn(`Email already verified for username: ${username}`);
         return sendErrorResponse(
             res,
             HTTP_STATUS.BAD_REQUEST,
@@ -153,6 +170,8 @@ export const verifyEmail: RequestHandler = asyncHandler(async (req, res) => {
         { $set: { is_verified: true, accountStatus: AccountStatus.ACTIVE } }
     );
 
+    logger.info(`Email verified for username: ${username}`);
+
     const message: string = confirmEmailMessage(name);
 
     // Send email to user
@@ -163,6 +182,7 @@ export const verifyEmail: RequestHandler = asyncHandler(async (req, res) => {
 
 // Sign Out controller
 export const signOut: RequestHandler = asyncHandler(async (_, res) => {
+    logger.info("User signed out");
     res.clearCookie("token");
     res.status(HTTP_STATUS.OK).json({ message: USER_MESSAGES.SIGNOUT_SUCCESS });
 });
@@ -180,6 +200,7 @@ export const authorizeRoles = (...roles: string[]): RequestHandler => {
         const user = req.user as IUser;
 
         if (!user?._id) {
+            logger.warn("Unauthorized access attempt");
             return sendErrorResponse(
                 res,
                 HTTP_STATUS.UNAUTHORIZED,
@@ -189,6 +210,7 @@ export const authorizeRoles = (...roles: string[]): RequestHandler => {
 
         const foundUser = await User.findById(user._id);
         if (!foundUser) {
+            logger.warn(`User not found with id: ${user._id}`);
             return sendErrorResponse(
                 res,
                 HTTP_STATUS.NOT_FOUND,
@@ -197,6 +219,9 @@ export const authorizeRoles = (...roles: string[]): RequestHandler => {
         }
 
         if (!roles.includes(foundUser.role)) {
+            logger.warn(
+                `Access denied for user with id: ${user._id}. Required roles: ${roles.join(", ")}`
+            );
             return sendErrorResponse(
                 res,
                 HTTP_STATUS.FORBIDDEN,
@@ -213,7 +238,10 @@ export const authorizeRoles = (...roles: string[]): RequestHandler => {
 export const forgotPassword: RequestHandler = asyncHandler(async (req, res) => {
     const { email } = req.body as ForgotPasswordRequest;
 
+    logger.info(`Password reset requested for email: ${email}`);
+
     if (!email) {
+        logger.warn("Invalid email provided for password reset");
         return sendErrorResponse(
             res,
             HTTP_STATUS.BAD_REQUEST,
@@ -224,6 +252,7 @@ export const forgotPassword: RequestHandler = asyncHandler(async (req, res) => {
     const user: IUser | null = await User.findOne({ email });
 
     if (!user) {
+        logger.warn(`User not found with email: ${email}`);
         return sendErrorResponse(
             res,
             HTTP_STATUS.NOT_FOUND,
@@ -233,7 +262,6 @@ export const forgotPassword: RequestHandler = asyncHandler(async (req, res) => {
 
     const codeLength: number = Number(process.env.CODE_LENGTH) || 6;
     const expiryTime: number = Number(process.env.EXPIRY_TIME) || 30;
-
     const code: string = generateAlphanumericCode(codeLength);
     const codeExpiry: Date = new Date(Date.now() + expiryTime * 60 * 1000);
 
@@ -248,6 +276,9 @@ export const forgotPassword: RequestHandler = asyncHandler(async (req, res) => {
         );
 
         if (!updatedUser) {
+            logger.error(
+                `Failed to update user with email: ${email} for password reset`
+            );
             return sendErrorResponse(
                 res,
                 HTTP_STATUS.BAD_REQUEST,
@@ -255,8 +286,9 @@ export const forgotPassword: RequestHandler = asyncHandler(async (req, res) => {
             );
         }
 
-        const message: string = passwordResetMessage(updatedUser.name, code);
+        logger.info(`Password reset code sent to email: ${email}`);
 
+        const message: string = passwordResetMessage(updatedUser.name, code);
         await sendEmail(email, "Code For Password Reset", message, res);
 
         res.status(HTTP_STATUS.OK).json({
@@ -264,6 +296,7 @@ export const forgotPassword: RequestHandler = asyncHandler(async (req, res) => {
             expiresIn: `${expiryTime} minutes`,
         });
     } catch (error) {
+        logger.error(`Error during password reset for email: ${email}`, error);
         sendErrorResponse(
             res,
             HTTP_STATUS.INTERNAL_SERVER_ERROR,
@@ -276,31 +309,44 @@ export const forgotPassword: RequestHandler = asyncHandler(async (req, res) => {
 export const resetPassword: RequestHandler = asyncHandler(async (req, res) => {
     const { email, resetCode, newPassword } = req.body as ResetPasswordRequest;
 
-    const user: IUser | null = await User.findOne({
-        email,
-        resetPassword: resetCode,
-        resetPasswordExpires: { $gt: Date.now() }, // Check if the code has expired
-    });
+    logger.info(`Reset password requested for email: ${email}`);
 
-    if (!user) {
-        return sendErrorResponse(
+    try {
+        const user: IUser | null = await User.findOne({
+            email,
+            resetPassword: resetCode,
+            resetPasswordExpires: { $gt: Date.now() }, // Check if the code has expired
+        });
+
+        if (!user) {
+            logger.warn(`Invalid or expired reset code for email: ${email}`);
+            return sendErrorResponse(
+                res,
+                HTTP_STATUS.NOT_FOUND,
+                USER_MESSAGES.INVALID_RESET_CODE_OR_EXPIRED
+            );
+        }
+
+        user.salt = user.makeSalt();
+        user.hashed_password = user.encryptPassword(newPassword);
+
+        user.resetPassword = "";
+        user.resetPasswordExpires = new Date();
+
+        await user.save();
+
+        logger.info(`Password reset successfully for email: ${email}`);
+
+        const message: string = passwordResetConfirmMessage(user.name);
+        await sendEmail(email, "Password Changed", message, res);
+
+        res.status(200).json({ ok: true });
+    } catch (error) {
+        logger.error(`Error resetting password for email: ${email}`, error);
+        sendErrorResponse(
             res,
-            HTTP_STATUS.NOT_FOUND,
-            USER_MESSAGES.INVALID_RESET_CODE_OR_EXPIRED
+            HTTP_STATUS.INTERNAL_SERVER_ERROR,
+            USER_MESSAGES.ERROR_RESETTING_PASSWORD
         );
     }
-
-    user.salt = user.makeSalt();
-    user.hashed_password = user.encryptPassword(newPassword);
-
-    user.resetPassword = "";
-    user.resetPasswordExpires = new Date();
-
-    await user.save();
-
-    const message: string = passwordResetConfirmMessage(user.name);
-
-    await sendEmail(email, "Password Changed", message, res);
-
-    res.status(200).json({ ok: true });
 });
