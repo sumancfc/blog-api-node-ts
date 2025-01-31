@@ -32,10 +32,17 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
+// Serve Swagger UI
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 // CSRF Protection
 const csrfProtection = csrf({
-    cookie: true,
-    ignoreMethods: ['GET', 'HEAD', 'OPTIONS']
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        sameSite: 'Strict', // Adjust based on your needs
+    },
+    ignoreMethods: ['GET', 'HEAD', 'OPTIONS'],
 });
 
 // CSRF Token Route
@@ -52,8 +59,6 @@ app.get("/api/v1/csrf-token", csrfProtection, (req: Request, res: Response) => {
     }
 });
 
-// Serve Swagger UI
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Dynamically load routes
 const setupRoutes = async () => {
@@ -68,6 +73,7 @@ const setupRoutes = async () => {
         process.exit(1);
     }
 };
+setupRoutes();
 
 // Error Handling Middleware
 app.use((err: any, req: Request, res: Response, next: NextFunction) => {
