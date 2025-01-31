@@ -30,18 +30,26 @@ const loadRoutesRecursively = async (
             );
         } else if (
             item.isFile() &&
-            item.name.endsWith(".ts") &&
-            item.name !== "index.ts"
+            (item.name.endsWith(".ts") || item.name.endsWith(".js")) &&
+            item.name !== "index.ts" && item.name !== "index.js"
         ) {
-            const routeModule: any = await import(fullPath);
-            const routeName: string = path
-                .parse(item.name)
-                .name.replace(".route", "");
-            const routePath: string =
-                routeName === "index" ? apiPath : `${apiPath}/${routeName}`;
-            app.use(routePath, routeModule.default);
+            try {
+                const routeModule: any = await import(fullPath);
+                const routeName: string = path
+                    .parse(item.name)
+                    .name.replace(".route", "");
+                const routePath: string =
+                    routeName === "index" ? apiPath : `${apiPath}/${routeName}`;
+                app.use(routePath, routeModule.default);
+            } catch (error) {
+                console.error(`Error loading route ${fullPath}:`, error);
+            }
         }
     }
 };
 
 export default loadRoutes;
+
+
+
+
