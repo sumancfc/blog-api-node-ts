@@ -25,10 +25,11 @@ app.use(cookieParser());
 
 // CORS Configuration
 const corsOptions = {
-    origin: process.env.NODE_ENV === "production"
-        ? process.env.CLIENT_URL
-        : "http://localhost:3000",
-    credentials: true
+    origin:
+        process.env.NODE_ENV === "production"
+            ? process.env.CLIENT_URL
+            : "http://localhost:3000",
+    credentials: true,
 };
 app.use(cors(corsOptions));
 
@@ -42,7 +43,7 @@ const csrfProtection = csrf({
         httpOnly: true,
         sameSite: "strict",
     },
-    ignoreMethods: ['GET', 'HEAD', 'OPTIONS']
+    ignoreMethods: ["GET", "HEAD", "OPTIONS"],
 });
 
 // CSRF Token Route
@@ -51,10 +52,10 @@ app.get("/api/v1/csrf-token", csrfProtection, (req: Request, res: Response) => {
         const csrfToken: string = req.csrfToken();
         res.json({ csrfToken });
     } catch (error) {
-        console.error('CSRF Token Generation Error:', error);
+        console.error("CSRF Token Generation Error:", error);
         res.status(500).json({
-            message: 'Could not generate CSRF token',
-            details: error instanceof Error ? error.message : 'Unknown error'
+            message: "Could not generate CSRF token",
+            details: error instanceof Error ? error.message : "Unknown error",
         });
     }
 });

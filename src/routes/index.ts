@@ -31,7 +31,8 @@ const loadRoutesRecursively = async (
         } else if (
             item.isFile() &&
             (item.name.endsWith(".ts") || item.name.endsWith(".js")) &&
-            item.name !== "index.ts" && item.name !== "index.js"
+            item.name !== "index.ts" &&
+            item.name !== "index.js"
         ) {
             try {
                 const routeModule: any = await import(fullPath);
@@ -49,7 +50,3 @@ const loadRoutesRecursively = async (
 };
 
 export default loadRoutes;
-
-
-
-

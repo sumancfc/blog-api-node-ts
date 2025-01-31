@@ -10,15 +10,17 @@ import { requireSignIn, authorizeRoles } from "../controllers/auth.controller";
 import { UserRole } from "../interfaces/user.interface";
 import { categoryAndTagValidation } from "../validators/common.validator";
 import { runValidation } from "../validators";
+import { rateLimiterConfig } from "../middlewares/rateLimiter.middleware";
 
 const router: Router = express.Router();
 
 // Category routes
 router.post(
     "/",
+    rateLimiterConfig,
+    requireSignIn,
     categoryAndTagValidation,
     runValidation,
-    requireSignIn,
     authorizeRoles(UserRole.ADMIN),
     createCategory
 );
@@ -26,15 +28,19 @@ router.get("/all", getAllCategories);
 router.get("/:slug", getSingleCategory);
 router.put(
     "/:id",
-    categoryAndTagValidation,
+    rateLimiterConfig,
     requireSignIn,
+    categoryAndTagValidation,
+    runValidation,
     authorizeRoles(UserRole.ADMIN),
     updateCategory
 );
 router.delete(
     "/:id",
-    runValidation,
+    rateLimiterConfig,
     requireSignIn,
+    categoryAndTagValidation,
+    runValidation,
     authorizeRoles(UserRole.ADMIN),
     deleteCategory
 );

@@ -11,12 +11,14 @@ import {
 } from "../controllers/blog.controller";
 import { requireSignIn, authorizeRoles } from "../controllers/auth.controller";
 import { UserRole } from "../interfaces/user.interface";
+import { rateLimiterConfig } from "../middlewares/rateLimiter.middleware";
 
 const router: Router = express.Router();
 
 router.post(
     "/create",
     requireSignIn,
+    rateLimiterConfig,
     authorizeRoles(UserRole.ADMIN),
     createBlog
 );

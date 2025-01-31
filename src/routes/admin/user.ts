@@ -6,7 +6,8 @@ import {
 import {
     getAllUsers,
     updateUserRole,
-    createUser, deleteUserProfile,
+    createUser,
+    deleteUserProfile,
 } from "../../controllers/users/user";
 import { UserRole } from "../../interfaces/user.interface";
 import { createUserValidation } from "../../validators/user.validator";
@@ -15,18 +16,13 @@ import { runValidation } from "../../validators";
 const router: Router = express.Router();
 
 // Admin User Routes
-router.get(
-    "/all",
-    requireSignIn,
-    authorizeRoles(UserRole.ADMIN),
-    getAllUsers
-);
+router.get("/all", requireSignIn, authorizeRoles(UserRole.ADMIN), getAllUsers);
 router.post(
     "/create",
     requireSignIn,
-    authorizeRoles(UserRole.ADMIN),
     createUserValidation,
     runValidation,
+    authorizeRoles(UserRole.ADMIN),
     createUser
 );
 router.put(

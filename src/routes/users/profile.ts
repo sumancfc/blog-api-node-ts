@@ -7,7 +7,8 @@ import {
     getProfile,
     updateUserProfile,
     getUserProfile,
-    deleteUserProfile, getUserPhoto,
+    deleteUserProfile,
+    getUserPhoto,
 } from "../../controllers/users/user";
 import { UserRole } from "../../interfaces/user.interface";
 

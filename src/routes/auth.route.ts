@@ -12,33 +12,28 @@ import {
     userSignUpValidation,
     userSignInValidation,
 } from "../validators/auth.validator";
-import {
-    forgotPasswordLimiter,
-    resetPasswordLimiter,
-    signInLimiter,
-    signUpLimiter,
-} from "../middlewares/rateLimiter.middleware";
+import { rateLimiterConfig } from "../middlewares/rateLimiter.middleware";
 
 const router: Router = express.Router();
 
 // Auth Routes
 router.post(
     "/register",
-    signUpLimiter,
+    rateLimiterConfig,
     userSignUpValidation,
     runValidation,
     signUp
 );
 router.post(
     "/login",
-    signInLimiter,
+    rateLimiterConfig,
     userSignInValidation,
     runValidation,
     signIn
 );
 router.get("/email-verify/:username", verifyEmail);
 router.get("/logout", signOut);
-router.post("/forgot-password", forgotPasswordLimiter, forgotPassword);
-router.post("/reset-password", resetPasswordLimiter, resetPassword);
+router.post("/forgot-password", rateLimiterConfig, forgotPassword);
+router.post("/reset-password", rateLimiterConfig, resetPassword);
 
 export default router;

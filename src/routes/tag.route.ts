@@ -9,14 +9,18 @@ import {
 import { requireSignIn, authorizeRoles } from "../controllers/auth.controller";
 import { categoryAndTagValidation } from "../validators/common.validator";
 import { UserRole } from "../interfaces/user.interface";
+import { runValidation } from "../validators";
+import { rateLimiterConfig } from "../middlewares/rateLimiter.middleware";
 
 const router: Router = express.Router();
 
 // Tag routes
 router.post(
     "/",
-    categoryAndTagValidation,
+    rateLimiterConfig,
     requireSignIn,
+    categoryAndTagValidation,
+    runValidation,
     authorizeRoles(UserRole.ADMIN),
     createTag
 );
@@ -24,11 +28,21 @@ router.get("/all", getAllTags);
 router.get("/:slug", getSingleTag);
 router.put(
     "/:id",
-    categoryAndTagValidation,
+    rateLimiterConfig,
     requireSignIn,
+    categoryAndTagValidation,
+    runValidation,
     authorizeRoles(UserRole.ADMIN),
     updateTag
 );
-router.delete("/:id", requireSignIn, authorizeRoles(UserRole.ADMIN), deleteTag);
+router.delete(
+    "/:id",
+    rateLimiterConfig,
+    requireSignIn,
+    categoryAndTagValidation,
+    runValidation,
+    authorizeRoles(UserRole.ADMIN),
+    deleteTag
+);
 
 export default router;

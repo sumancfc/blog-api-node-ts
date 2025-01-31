@@ -26,11 +26,7 @@ router.post(
     authorizeRoles(UserRole.ADMIN),
     createSocialMedia
 );
-router.get(
-    "/all",
-    requireSignIn,
-    getAllSocialMedias
-);
+router.get("/all", requireSignIn, getAllSocialMedias);
 router.get(
     "/:id",
     socialMediaByIdValidator,
