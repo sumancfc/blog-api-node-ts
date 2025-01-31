@@ -38,17 +38,17 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // CSRF Protection
 const csrfProtection = csrf({
     cookie: {
-        secure: process.env.NODE_ENV === 'production',
+        secure: process.env.NODE_ENV === "production",
         httpOnly: true,
-        sameSite: 'Strict', // Adjust based on your needs
+        sameSite: "strict",
     },
-    ignoreMethods: ['GET', 'HEAD', 'OPTIONS'],
+    ignoreMethods: ['GET', 'HEAD', 'OPTIONS']
 });
 
 // CSRF Token Route
 app.get("/api/v1/csrf-token", csrfProtection, (req: Request, res: Response) => {
     try {
-        const csrfToken = req.csrfToken();
+        const csrfToken: string = req.csrfToken();
         res.json({ csrfToken });
     } catch (error) {
         console.error('CSRF Token Generation Error:', error);
@@ -59,9 +59,8 @@ app.get("/api/v1/csrf-token", csrfProtection, (req: Request, res: Response) => {
     }
 });
 
-
 // Dynamically load routes
-const setupRoutes = async () => {
+const setupRoutes = async (): Promise<void> => {
     try {
         await loadRoutes(app);
         console.log("Routes loaded successfully");
@@ -73,10 +72,9 @@ const setupRoutes = async () => {
         process.exit(1);
     }
 };
-setupRoutes();
 
 // Error Handling Middleware
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+app.use((err: any, req: Request, res: Response, next: NextFunction): void => {
     const errorMessage: string = errorHandler(err);
     res.status(500).json({ message: errorMessage });
 });
