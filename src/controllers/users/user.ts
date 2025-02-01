@@ -1,4 +1,4 @@
-import { RequestHandler , Request, Response } from "express";
+import { RequestHandler } from "express";
 import { promises as fsPromises } from "fs";
 import formidable, { Fields, File, Files } from "formidable";
 import asyncHandler from "express-async-handler";
@@ -13,11 +13,6 @@ import {
 } from "../../interfaces/user.interface";
 import { verifyEmailMessage } from "../../utils/emailMessage.util";
 import { Relationship } from "../../models/relationship.model";
-
-interface IUserRequest extends Request {
-   // params: { userIdToFollow: string };
-    user?: IUser;
-}
 
 // Admin: Get all users
 export const getAllUsers: RequestHandler = asyncHandler(async (_, res) => {
@@ -328,7 +323,7 @@ export const deleteUserProfile: RequestHandler = asyncHandler(
 // Follow User
 export const userToFollow: RequestHandler = asyncHandler(
     async (req, res): Promise<void> => {
-        const userIdToFollow: string = req.params.userIdToFollow;
+        const userIdToFollow: string = req.params.userId;
 
         if (!userIdToFollow) {
             res.status(400).json({ message: "User Id not found." });
@@ -339,12 +334,20 @@ export const userToFollow: RequestHandler = asyncHandler(
             sendErrorResponse(
                 res,
                 HTTP_STATUS.UNAUTHORIZED,
-                USER_MESSAGES.USER_NOT_FOUND
+                USER_MESSAGES.UNAUTHORIZED
             );
             return;
         }
 
         try {
+            const { _id } = req.user as IUser;
+
+            // Prevent following oneself
+            if (_id.toString() === userIdToFollow) {
+                res.status(400).json({ message: "You cannot follow yourself." });
+                return;
+            }
+
             const userToFollow = await User.findById(userIdToFollow);
 
             if (!userToFollow) {
@@ -357,7 +360,6 @@ export const userToFollow: RequestHandler = asyncHandler(
             }
 
             // Check if the current user is already following
-            const { _id } = req.user as IUser;
             const isAlreadyFollowing = await Relationship.findOne({
                 userId: _id,
                 relatedUserId: userIdToFollow,
@@ -377,25 +379,23 @@ export const userToFollow: RequestHandler = asyncHandler(
             });
             await followingRelationship.save();
 
-            // Create "follower" relationship
-            const followerRelationship = new Relationship({
-                userId: userIdToFollow,
-                relatedUserId: _id,
-                relationshipType: "follower",
-            });
-            await followerRelationship.save();
-
-            // Update the current user's "following" array
+            // Update the current user's "following" array and count
             await User.findByIdAndUpdate(
                 _id,
-                { $push: { following: followingRelationship._id } },
+                {
+                    $push: { following: userIdToFollow },
+                    $inc: { followingCount: 1 }
+                },
                 { new: true }
             );
 
-            // Update the user being followed "followers" array
+            // Update the user being followed "followers" array and count
             await User.findByIdAndUpdate(
                 userIdToFollow,
-                { $push: { followers: followerRelationship._id } },
+                {
+                    $push: { followers: _id },
+                    $inc: { followersCount: 1 }
+                },
                 { new: true }
             );
 
@@ -404,6 +404,158 @@ export const userToFollow: RequestHandler = asyncHandler(
             });
         } catch (error) {
             console.error('Error in userToFollow:', error);
+            sendErrorResponse(
+                res,
+                HTTP_STATUS.INTERNAL_SERVER_ERROR,
+                'An error occurred while processing your request.'
+            );
+        }
+    }
+);
+
+// Follow Back User
+export const followBack: RequestHandler = asyncHandler(
+    async (req, res): Promise<void> => {
+        const userIdToFollowBack: string = req.params.userId;
+
+        if (!req.user) {
+            sendErrorResponse(
+                res,
+                HTTP_STATUS.UNAUTHORIZED,
+                USER_MESSAGES.UNAUTHORIZED
+            );
+            return;
+        }
+
+        try {
+            const { _id } = req.user as IUser;
+
+            // Prevent following oneself
+            if (_id.toString() === userIdToFollowBack) {
+                res.status(400).json({ message: "You cannot follow yourself." });
+                return;
+            }
+
+            // Check if the other user is already following the current user
+            const isFollowedBy = await Relationship.findOne({
+                userId: userIdToFollowBack,
+                relatedUserId: _id,
+                relationshipType: "following",
+            });
+
+            if (!isFollowedBy) {
+                res.status(400).json({ message: "This user is not following you." });
+                return;
+            }
+
+            // Check if already following back
+            const alreadyFollowingBack = await Relationship.findOne({
+                userId: _id,
+                relatedUserId: userIdToFollowBack,
+                relationshipType: "following",
+            });
+
+            if (alreadyFollowingBack) {
+                res.status(409).json({ message: "You are already following this user." });
+                return;
+            }
+
+            // Create new following relationship
+            const newFollowing = new Relationship({
+                userId: _id,
+                relatedUserId: userIdToFollowBack,
+                relationshipType: "following",
+            });
+            await newFollowing.save();
+
+            // Update current user's following array and count
+            await User.findByIdAndUpdate(
+                _id,
+                {
+                    $push: { following: userIdToFollowBack },
+                    $inc: { followingCount: 1 }
+                },
+                { new: true }
+            );
+
+            // Update other user's followers array and count
+            await User.findByIdAndUpdate(
+                userIdToFollowBack,
+                {
+                    $push: { followers: _id },
+                    $inc: { followersCount: 1 }
+                },
+                { new: true }
+            );
+
+            res.status(200).json({ message: "Successfully followed back." });
+        } catch (error) {
+            console.error('Error in followBack:', error);
+            sendErrorResponse(
+                res,
+                HTTP_STATUS.INTERNAL_SERVER_ERROR,
+                'An error occurred while processing your request.'
+            );
+        }
+    }
+);
+
+// Unfollow
+export const unfollowUser: RequestHandler = asyncHandler(
+    async (req, res): Promise<void> => {
+        const userIdToUnfollow: string = req.params.userId;
+
+        if (!req.user) {
+            sendErrorResponse(
+                res,
+                HTTP_STATUS.UNAUTHORIZED,
+                USER_MESSAGES.UNAUTHORIZED
+            );
+            return;
+        }
+
+        try {
+            const { _id } = req.user as IUser;
+
+            // Prevent unfollowing oneself
+            if (_id.toString() === userIdToUnfollow) {
+                res.status(400).json({ message: "You cannot unfollow yourself." });
+                return;
+            }
+
+            // Find and remove the following relationship
+            const deletedRelationship = await Relationship.findOneAndDelete({
+                userId: _id,
+                relatedUserId: userIdToUnfollow,
+                relationshipType: "following",
+            });
+
+            if (!deletedRelationship) {
+                res.status(404).json({ message: "You are not following this user." });
+                return;
+            }
+
+            // Remove from current user's following array and decrement following count
+            await User.findByIdAndUpdate(
+                _id,
+                {
+                    $pull: { following: userIdToUnfollow },
+                    $inc: { followingCount: -1 }
+                }
+            );
+
+            // Remove from other user's followers array and decrement followers count
+            await User.findByIdAndUpdate(
+                userIdToUnfollow,
+                {
+                    $pull: { followers: _id },
+                    $inc: { followersCount: -1 }
+                }
+            );
+
+            res.status(200).json({ message: "Successfully unfollowed user." });
+        } catch (error) {
+            console.error('Error in unfollowUser:', error);
             sendErrorResponse(
                 res,
                 HTTP_STATUS.INTERNAL_SERVER_ERROR,

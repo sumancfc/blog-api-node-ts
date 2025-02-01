@@ -9,6 +9,7 @@ import {
     getUserProfile,
     getUserPhoto,
     userToFollow,
+    followBack, unfollowUser,
 } from "../../controllers/users/user";
 import { UserRole } from "../../interfaces/user.interface";
 
@@ -40,10 +41,14 @@ router.put(
     updateUserProfile
 );
 router.post(
-    "/:userIdToFollow",
+    "/follow/:userId",
     requireSignIn,
     authorizeRoles(UserRole.USER, UserRole.ADMIN),
     userToFollow
 );
+router.post('/follow-back/:userId', requireSignIn,
+    authorizeRoles(UserRole.USER, UserRole.ADMIN), followBack);
+router.delete('/unfollow/:userId', requireSignIn,
+    authorizeRoles(UserRole.USER, UserRole.ADMIN), unfollowUser);
 
 export default router;

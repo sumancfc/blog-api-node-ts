@@ -46,5 +46,5 @@ export const USER_MESSAGES = {
     ADMIN_ONLY: "Access denied. Admin resource only.",
     USER_CREATED: "New User Created",
     USERNAME_REQUIRED: "Username is required.",
-    ERROR_RESETTING_PASSWORD: "Error while reset password."
+    ERROR_RESETTING_PASSWORD: "Error while reset password.",
 };
