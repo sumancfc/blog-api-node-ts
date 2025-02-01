@@ -7,8 +7,8 @@ import {
     getProfile,
     updateUserProfile,
     getUserProfile,
-    deleteUserProfile,
     getUserPhoto,
+    userToFollow,
 } from "../../controllers/users/user";
 import { UserRole } from "../../interfaces/user.interface";
 
@@ -38,6 +38,12 @@ router.put(
     requireSignIn,
     authorizeRoles(UserRole.USER, UserRole.ADMIN),
     updateUserProfile
+);
+router.post(
+    "/:userIdToFollow",
+    requireSignIn,
+    authorizeRoles(UserRole.USER, UserRole.ADMIN),
+    userToFollow
 );
 
 export default router;

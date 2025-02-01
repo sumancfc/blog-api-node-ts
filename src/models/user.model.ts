@@ -50,6 +50,9 @@ const userSchema = new Schema<IUser>(
                 username: { type: String, required: true },
             },
         ],
+        following: [ { type: Schema.Types.ObjectId } ],
+        followers: [ { type: Schema.Types.ObjectId } ],
+        friends: [ { type: Schema.Types.ObjectId } ],
         accountStatus: {
             type: String,
             enum: Object.values(AccountStatus),
@@ -83,7 +86,7 @@ const userSchema = new Schema<IUser>(
             type: Boolean,
             required: true,
             validate: {
-                validator: function (value: boolean) {
+                validator: function (value: boolean): boolean {
                     return value === true;
                 },
                 message: "You must agree to the terms and conditions.",

@@ -1,4 +1,4 @@
-import { RequestHandler } from "express";
+import { RequestHandler , Request, Response } from "express";
 import { promises as fsPromises } from "fs";
 import formidable, { Fields, File, Files } from "formidable";
 import asyncHandler from "express-async-handler";
@@ -12,6 +12,12 @@ import {
     UserRole,
 } from "../../interfaces/user.interface";
 import { verifyEmailMessage } from "../../utils/emailMessage.util";
+import { Relationship } from "../../models/relationship.model";
+
+interface IUserRequest extends Request {
+   // params: { userIdToFollow: string };
+    user?: IUser;
+}
 
 // Admin: Get all users
 export const getAllUsers: RequestHandler = asyncHandler(async (_, res) => {
@@ -316,5 +322,93 @@ export const deleteUserProfile: RequestHandler = asyncHandler(
         res.status(200).json({
             message: `User with username '${username}' has been successfully deleted.`,
         });
+    }
+);
+
+// Follow User
+export const userToFollow: RequestHandler = asyncHandler(
+    async (req, res): Promise<void> => {
+        const userIdToFollow: string = req.params.userIdToFollow;
+
+        if (!userIdToFollow) {
+            res.status(400).json({ message: "User Id not found." });
+            return;
+        }
+
+        if (!req.user) {
+            sendErrorResponse(
+                res,
+                HTTP_STATUS.UNAUTHORIZED,
+                USER_MESSAGES.USER_NOT_FOUND
+            );
+            return;
+        }
+
+        try {
+            const userToFollow = await User.findById(userIdToFollow);
+
+            if (!userToFollow) {
+                sendErrorResponse(
+                    res,
+                    HTTP_STATUS.NOT_FOUND,
+                    USER_MESSAGES.USER_NOT_FOUND
+                );
+                return;
+            }
+
+            // Check if the current user is already following
+            const { _id } = req.user as IUser;
+            const isAlreadyFollowing = await Relationship.findOne({
+                userId: _id,
+                relatedUserId: userIdToFollow,
+                relationshipType: "following",
+            });
+
+            if (isAlreadyFollowing) {
+                res.status(409).json({ message: "User Already Followed." });
+                return;
+            }
+
+            // Create "following" relationship
+            const followingRelationship = new Relationship({
+                userId: _id,
+                relatedUserId: userIdToFollow,
+                relationshipType: "following",
+            });
+            await followingRelationship.save();
+
+            // Create "follower" relationship
+            const followerRelationship = new Relationship({
+                userId: userIdToFollow,
+                relatedUserId: _id,
+                relationshipType: "follower",
+            });
+            await followerRelationship.save();
+
+            // Update the current user's "following" array
+            await User.findByIdAndUpdate(
+                _id,
+                { $push: { following: followingRelationship._id } },
+                { new: true }
+            );
+
+            // Update the user being followed "followers" array
+            await User.findByIdAndUpdate(
+                userIdToFollow,
+                { $push: { followers: followerRelationship._id } },
+                { new: true }
+            );
+
+            res.status(200).json({
+                message: `You successfully followed user '${userToFollow.username}'.`,
+            });
+        } catch (error) {
+            console.error('Error in userToFollow:', error);
+            sendErrorResponse(
+                res,
+                HTTP_STATUS.INTERNAL_SERVER_ERROR,
+                'An error occurred while processing your request.'
+            );
+        }
     }
 );

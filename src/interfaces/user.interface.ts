@@ -1,5 +1,6 @@
 import mongoose, { Document } from "mongoose";
 import { ISocialMedia } from "./index";
+import { IRelationship } from "../models/relationship.model";
 
 /*****
  User Interfaces
@@ -55,6 +56,9 @@ export interface IUser extends Document {
     gender?: Gender;
     languages?: string[];
     socialMedia?: ISocialMedia;
+    following: IRelationship[];
+    followers: IRelationship[];
+    friends: IRelationship[];
     accountStatus: AccountStatus;
     lastLogin?: Date;
     preferences: IPreferences;
