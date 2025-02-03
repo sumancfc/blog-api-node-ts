@@ -31,8 +31,8 @@ router.delete(
     authorizeRoles(UserRole.ADMIN),
     deleteBlog
 );
-router.get("/blog/photo/:slug", getBlogPhoto);
-router.post("/blogs/related", getRelatedBlogs);
-router.get("/blogs/search", searchBlogs);
+router.get("/photo/:slug", getBlogPhoto);
+router.post("/related-blog", getRelatedBlogs);
+router.get("/search", searchBlogs);
 
 export default router;
