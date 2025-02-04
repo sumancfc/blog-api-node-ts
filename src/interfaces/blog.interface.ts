@@ -18,6 +18,7 @@ export interface IBlog extends Document {
     createdAt: Date;
     updatedAt: Date;
     isPublished: boolean;
+    comments: mongoose.Types.ObjectId[];
 }
 
 export interface BlogRequest {

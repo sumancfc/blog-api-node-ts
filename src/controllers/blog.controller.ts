@@ -175,6 +175,7 @@ export const getSingleBlog: RequestHandler = asyncHandler(async (req, res) => {
         .populate("categories", "_id name slug")
         .populate("tags", "_id name slug")
         .populate("postedBy", "_id name username")
+        .populate("comments", "commentedBy content")
         .exec();
 
     if (!blog) {
