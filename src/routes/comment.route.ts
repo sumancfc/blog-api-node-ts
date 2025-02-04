@@ -1,9 +1,10 @@
-import { requireSignIn } from "./../controllers/auth.controller";
 import express, { Router } from "express";
-import { postComment } from "../controllers/comment.controller";
+import { postComment, postReply } from "../controllers/comment.controller";
+import { requireSignIn } from "./../controllers/auth.controller";
 
 const router: Router = express.Router();
 
-router.post("/:id/create", requireSignIn, postComment);
+router.post("/:blogId/create", requireSignIn, postComment);
+router.post("/:commentId/replies", requireSignIn, postReply);
 
 export default router;

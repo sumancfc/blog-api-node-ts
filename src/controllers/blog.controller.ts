@@ -1,6 +1,6 @@
 import { promises as fsPromises } from "fs";
 import { Request, RequestHandler, Response } from "express";
-import mongoose from "mongoose";
+import mongoose, { Types } from "mongoose";
 import slugify from "slugify";
 import formidable, { Fields, Files } from "formidable";
 import asyncHandler from "express-async-handler";
@@ -15,6 +15,7 @@ import {
     UpdateBlogRequest,
 } from "../interfaces/blog.interface";
 import { IUser } from "../interfaces/user.interface";
+import { CommentTreeItem, IComment } from "../interfaces/comment.interface";
 
 // Create blog
 export const createBlog = async (
@@ -171,19 +172,88 @@ export const getSingleBlog: RequestHandler = asyncHandler(async (req, res) => {
         return;
     }
 
-    const blog: IBlog | null = await Blog.findOne({ slug })
-        .populate("categories", "_id name slug")
-        .populate("tags", "_id name slug")
-        .populate("postedBy", "_id name username")
-        .populate("comments", "commentedBy content")
-        .exec();
+    try {
+        const blog = await Blog.findOne({ slug })
+            .populate("categories", "_id name slug")
+            .populate("tags", "_id name slug")
+            .populate("postedBy", "_id name username")
+            .populate({
+                path: "comments",
+                populate: [
+                    {
+                        path: "commentedBy",
+                        select: "_id name username",
+                    },
+                    {
+                        path: "parentComment",
+                        select: "_id",
+                    },
+                ],
+                select: "_id content commentedBy blog createdAt updatedAt parentComment",
+            })
+            .lean()
+            .exec();
 
-    if (!blog) {
-        res.status(404).json({ message: "Blog not found" });
-        return;
+        if (!blog) {
+            res.status(404).json({ message: "Blog not found" });
+            return;
+        }
+
+        function buildCommentTree(comments: IComment[]): CommentTreeItem[] {
+            const commentMap = new Map<string, CommentTreeItem>();
+            const rootComments: CommentTreeItem[] = [];
+
+            comments.forEach((comment) => {
+                const commentItem: CommentTreeItem = {
+                    ...comment,
+                    _id: new Types.ObjectId(comment._id?.toString() || ""),
+                    replies: [],
+                };
+                commentMap.set(commentItem._id.toString(), commentItem);
+            });
+
+            comments.forEach((comment: any) => {
+                if (comment.parentComment && comment.parentComment._id) {
+                    const parentId = comment.parentComment._id.toString();
+                    const parentComment = commentMap.get(parentId);
+                    if (parentComment) {
+                        parentComment.replies.push(
+                            commentMap.get(
+                                comment._id?.toString() || ""
+                            ) as CommentTreeItem
+                        );
+                    } else {
+                        rootComments.push(
+                            commentMap.get(
+                                comment._id?.toString() || ""
+                            ) as CommentTreeItem
+                        );
+                    }
+                } else {
+                    rootComments.push(
+                        commentMap.get(
+                            comment._id?.toString() || ""
+                        ) as CommentTreeItem
+                    );
+                }
+            });
+
+            return rootComments;
+        }
+
+        const commentTree = buildCommentTree(
+            blog.comments as unknown as IComment[]
+        );
+
+        const blogWithComments = {
+            ...blog,
+            comments: commentTree,
+        };
+
+        res.status(200).json(blogWithComments);
+    } catch (error) {
+        res.status(500).json({ message: "Error retrieving blog" });
     }
-
-    res.status(200).json(blog);
 });
 
 // Update Blog
