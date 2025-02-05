@@ -117,3 +117,55 @@ export const getCommentsForBlog = async (
         throw new Error("Failed to retrieve comments for the blog");
     }
 };
+
+interface DeleteCommentResult {
+    deletedCount: number;
+    message: string;
+}
+
+export const deleteComment = async (
+    commentId: Types.ObjectId,
+    userId: Types.ObjectId,
+    userRole: string
+): Promise<DeleteCommentResult> => {
+    try {
+        const comment = await Comment.findById(commentId);
+        if (!comment) {
+            throw new Error("Comment not found");
+        }
+
+        const isAdmin = userRole === "admin";
+        const isAuthor = comment.commentedBy.toString() === userId.toString();
+
+        if (!isAdmin && !isAuthor) {
+            throw new Error("Unauthorized to delete this comment");
+        }
+
+        let deletedCount = 0;
+        let message = "";
+
+        // If it's a root comment or user is admin, delete all replies
+        if (!comment.parentComment || isAdmin) {
+            const result = await Comment.deleteMany({
+                $or: [{ _id: commentId }, { parentComment: commentId }],
+            });
+            deletedCount = result.deletedCount;
+            message = "Comment and all replies deleted successfully";
+        } else {
+            // If it's a reply and user is not admin, only delete the specific reply
+            const result = await Comment.deleteOne({ _id: commentId });
+            deletedCount = result.deletedCount;
+            message = "Reply deleted successfully";
+        }
+
+        // Update the blog's total comments count
+        await Blog.findByIdAndUpdate(comment.blog, {
+            $inc: { totalComments: -deletedCount },
+        });
+
+        return { deletedCount, message };
+    } catch (error) {
+        console.error("Error in deleteComment service:", error);
+        throw error;
+    }
+};

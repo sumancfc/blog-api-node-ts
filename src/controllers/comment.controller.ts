@@ -110,3 +110,33 @@ export const getCommentsForBlog = async (req: Request, res: Response) => {
         });
     }
 };
+
+export const deleteComment = async (req: Request, res: Response) => {
+    try {
+        const commentId = new Types.ObjectId(req.params.commentId);
+        const userId = new Types.ObjectId(req.user._id);
+        const userRole = req.user.role;
+
+        const result = await commentService.deleteComment(
+            commentId,
+            userId,
+            userRole
+        );
+
+        res.status(200).json({
+            message: result.message,
+            deletedCount: result.deletedCount,
+        });
+    } catch (error) {
+        console.error("Error in deleteComment controller:", error);
+        if (error instanceof Error && error.message === "Comment not found") {
+            res.status(404).json({ message: "Comment not found" });
+        } else if (error instanceof Error && error.message === "Unauthorized to delete this comment") {
+            res.status(403).json({
+                message: "Unauthorized to delete this comment",
+            });
+        } else {
+            res.status(500).json({ message: "Error deleting comment" });
+        }
+    }
+};

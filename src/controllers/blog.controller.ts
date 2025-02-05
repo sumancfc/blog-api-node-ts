@@ -17,6 +17,7 @@ import {
 import { IUser } from "../interfaces/user.interface";
 import { buildCommentTree } from "../utils/commentTree.util";
 import { IComment } from "../interfaces/comment.interface";
+import { Comment } from "../models/comment.model";
 
 // Create blog
 export const createBlog = async (
@@ -383,16 +384,25 @@ export const deleteBlog: RequestHandler = asyncHandler(async (req, res) => {
         return;
     }
 
-    const blog = await Blog.findOneAndDelete({ slug });
+    const blog = await Blog.findOne({ slug });
 
     if (!blog) {
         res.status(404).json({
-            message: "Blog not found or already been deleted",
+            message: "Blog not found",
         });
         return;
     }
 
-    res.status(200).json({ message: "Blog deleted successful" });
+    // Delete all comments associated with the blog
+    const deleteCommentsResult = await Comment.deleteMany({ blog: blog._id });
+
+    // Delete the blog
+    await Blog.findByIdAndDelete(blog._id);
+
+    res.status(200).json({
+        message: "Blog and associated comments deleted successfully",
+        deletedCommentsCount: deleteCommentsResult.deletedCount,
+    });
 });
 
 // Get Blog Image
