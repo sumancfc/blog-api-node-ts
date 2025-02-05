@@ -1,6 +1,6 @@
 import { promises as fsPromises } from "fs";
 import { Request, RequestHandler, Response } from "express";
-import mongoose, { Types } from "mongoose";
+import mongoose from "mongoose";
 import slugify from "slugify";
 import formidable, { Fields, Files } from "formidable";
 import asyncHandler from "express-async-handler";
@@ -15,7 +15,9 @@ import {
     UpdateBlogRequest,
 } from "../interfaces/blog.interface";
 import { IUser } from "../interfaces/user.interface";
-import { CommentTreeItem, IComment } from "../interfaces/comment.interface";
+import { buildCommentTree } from "../utils/commentTree.util";
+import { IComment } from "../interfaces/comment.interface";
+import { Comment } from "../models/comment.model";
 
 // Create blog
 export const createBlog = async (
@@ -197,48 +199,6 @@ export const getSingleBlog: RequestHandler = asyncHandler(async (req, res) => {
         if (!blog) {
             res.status(404).json({ message: "Blog not found" });
             return;
-        }
-
-        function buildCommentTree(comments: IComment[]): CommentTreeItem[] {
-            const commentMap = new Map<string, CommentTreeItem>();
-            const rootComments: CommentTreeItem[] = [];
-
-            comments.forEach((comment) => {
-                const commentItem: CommentTreeItem = {
-                    ...comment,
-                    _id: new Types.ObjectId(comment._id?.toString() || ""),
-                    replies: [],
-                };
-                commentMap.set(commentItem._id.toString(), commentItem);
-            });
-
-            comments.forEach((comment: any) => {
-                if (comment.parentComment && comment.parentComment._id) {
-                    const parentId = comment.parentComment._id.toString();
-                    const parentComment = commentMap.get(parentId);
-                    if (parentComment) {
-                        parentComment.replies.push(
-                            commentMap.get(
-                                comment._id?.toString() || ""
-                            ) as CommentTreeItem
-                        );
-                    } else {
-                        rootComments.push(
-                            commentMap.get(
-                                comment._id?.toString() || ""
-                            ) as CommentTreeItem
-                        );
-                    }
-                } else {
-                    rootComments.push(
-                        commentMap.get(
-                            comment._id?.toString() || ""
-                        ) as CommentTreeItem
-                    );
-                }
-            });
-
-            return rootComments;
         }
 
         const commentTree = buildCommentTree(
@@ -424,16 +384,25 @@ export const deleteBlog: RequestHandler = asyncHandler(async (req, res) => {
         return;
     }
 
-    const blog = await Blog.findOneAndDelete({ slug });
+    const blog = await Blog.findOne({ slug });
 
     if (!blog) {
         res.status(404).json({
-            message: "Blog not found or already been deleted",
+            message: "Blog not found",
         });
         return;
     }
 
-    res.status(200).json({ message: "Blog deleted successful" });
+    // Delete all comments associated with the blog
+    const deleteCommentsResult = await Comment.deleteMany({ blog: blog._id });
+
+    // Delete the blog
+    await Blog.findByIdAndDelete(blog._id);
+
+    res.status(200).json({
+        message: "Blog and associated comments deleted successfully",
+        deletedCommentsCount: deleteCommentsResult.deletedCount,
+    });
 });
 
 // Get Blog Image
