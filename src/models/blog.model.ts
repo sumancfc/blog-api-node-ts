@@ -45,6 +45,7 @@ const blogSchema = new Schema<IBlog>(
             default: true,
         },
         comments: [{ type: Schema.Types.ObjectId, ref: "Comment" }],
+        totalComments: { type: Number, default: 0 },
     },
     { timestamps: true }
 );

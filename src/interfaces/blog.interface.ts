@@ -19,6 +19,7 @@ export interface IBlog extends Document {
     updatedAt: Date;
     isPublished: boolean;
     comments: mongoose.Types.ObjectId[];
+    totalComments: number;
 }
 
 export interface BlogRequest {
