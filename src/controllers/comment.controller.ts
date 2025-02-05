@@ -114,8 +114,9 @@ export const getCommentsForBlog = async (req: Request, res: Response) => {
 export const deleteComment = async (req: Request, res: Response) => {
     try {
         const commentId = new Types.ObjectId(req.params.commentId);
-        const userId = new Types.ObjectId(req.user._id);
-        const userRole = req.user.role;
+        const { _id, role } = req.user as IUser;
+        const userId = _id;
+        const userRole = role;
 
         const result = await commentService.deleteComment(
             commentId,
@@ -131,7 +132,10 @@ export const deleteComment = async (req: Request, res: Response) => {
         console.error("Error in deleteComment controller:", error);
         if (error instanceof Error && error.message === "Comment not found") {
             res.status(404).json({ message: "Comment not found" });
-        } else if (error instanceof Error && error.message === "Unauthorized to delete this comment") {
+        } else if (
+            error instanceof Error &&
+            error.message === "Unauthorized to delete this comment"
+        ) {
             res.status(403).json({
                 message: "Unauthorized to delete this comment",
             });
