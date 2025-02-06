@@ -8,6 +8,8 @@ import {
     getBlogPhoto,
     getRelatedBlogs,
     searchBlogs,
+    likeBlogs,
+    dislikeBlogs,
 } from "../controllers/blog.controller";
 import { requireSignIn, authorizeRoles } from "../controllers/auth.controller";
 import { UserRole } from "../interfaces/user.interface";
@@ -34,5 +36,8 @@ router.delete(
 router.get("/photo/:slug", getBlogPhoto);
 router.post("/related-blog", getRelatedBlogs);
 router.get("/search", searchBlogs);
+
+router.put("/:blogId/like", requireSignIn, likeBlogs);
+router.put("/:blogId/dislike", requireSignIn, dislikeBlogs);
 
 export default router;

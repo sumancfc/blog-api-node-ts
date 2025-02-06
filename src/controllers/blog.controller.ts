@@ -5,7 +5,7 @@ import slugify from "slugify";
 import formidable, { Fields, Files } from "formidable";
 import asyncHandler from "express-async-handler";
 import { smartTrim, stripHtmlTags } from "../utils/blog.util";
-import { Blog } from "../models/blog.model";
+import { Blog, UserLike } from "../models/blog.model";
 import { Category } from "../models/category.model";
 import { Tag } from "../models/tag.model";
 import { ICategory, ITag } from "../interfaces";
@@ -510,3 +510,94 @@ export const searchBlogs: RequestHandler = asyncHandler(async (req, res) => {
 
     res.status(200).json(blogs);
 });
+
+// Like Blogs
+export const likeBlogs = async (req: Request, res: Response) => {
+    try {
+        const { blogId } = req.params;
+
+        const { _id } = req.user as IUser;
+        const userId = _id;
+
+        if (!blogId) {
+            res.status(400).json({ message: "Blog not found" });
+            return;
+        }
+
+        if (!userId) {
+            res.status(401).json({ message: "Unauthorized" });
+            return;
+        }
+
+        const existingLike = await UserLike.findOne({ userId, blogId });
+
+        if (!existingLike) {
+            // Create a new like
+            await UserLike.create({ userId, blogId, like: true });
+            await Blog.findByIdAndUpdate(blogId, { $inc: { likes: 1 } });
+        } else {
+            if (existingLike.like) {
+                // User already liked, do nothing
+            } else {
+                // Switch from dislike to like
+                await UserLike.findByIdAndUpdate(existingLike._id, {
+                    like: true,
+                });
+                await Blog.findByIdAndUpdate(blogId, {
+                    $inc: { likes: 1, dislikes: -1 },
+                });
+            }
+        }
+
+        const blog = await Blog.findById(blogId);
+        res.status(200).json(blog);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error liking blog" });
+    }
+};
+
+export const dislikeBlogs = async (req: Request, res: Response) => {
+    try {
+        const { blogId } = req.params;
+
+        const { _id } = req.user as IUser;
+        const userId = _id;
+
+        if (!blogId) {
+            res.status(400).json({ message: "Blog not found" });
+            return;
+        }
+
+        if (!userId) {
+            res.status(401).json({ message: "Unauthorized" });
+            return;
+        }
+
+        const existingLike = await UserLike.findOne({ userId, blogId });
+
+        if (!existingLike) {
+            // Create a new dislike
+            await UserLike.create({ userId, blogId, like: false });
+            await Blog.findByIdAndUpdate(blogId, { $inc: { dislikes: 1 } });
+        } else {
+            if (!existingLike.like) {
+                // User already disliked, do nothing
+            } else {
+                // Switch from like to dislike
+                await UserLike.findByIdAndUpdate(existingLike._id, {
+                    like: false,
+                });
+                await Blog.findByIdAndUpdate(blogId, {
+                    $inc: { dislikes: 1, likes: -1 },
+                });
+            }
+        }
+
+        const blog = await Blog.findById(blogId);
+        res.status(200).json(blog);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Error disliking blog" });
+    }
+};

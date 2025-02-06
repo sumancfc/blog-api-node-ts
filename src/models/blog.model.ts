@@ -1,5 +1,16 @@
 import mongoose, { Schema, Model } from "mongoose";
-import { IBlog } from "../interfaces/blog.interface";
+import { IBlog, IUserLike } from "../interfaces/blog.interface";
+
+const userLikeSchema = new Schema<IUserLike>({
+    userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    blogId: { type: Schema.Types.ObjectId, ref: "Blog", required: true },
+    like: { type: Boolean, required: true, default: true }, // Initially true for like
+});
+
+export const UserLike: Model<IUserLike> = mongoose.model<IUserLike>(
+    "UserLike",
+    userLikeSchema
+);
 
 const blogSchema = new Schema<IBlog>(
     {
@@ -46,6 +57,8 @@ const blogSchema = new Schema<IBlog>(
         },
         comments: [{ type: Schema.Types.ObjectId, ref: "Comment" }],
         totalComments: { type: Number, default: 0 },
+        likes: { type: Number, default: 0 },
+        dislikes: { type: Number, default: 0 },
     },
     { timestamps: true }
 );

@@ -20,6 +20,14 @@ export interface IBlog extends Document {
     isPublished: boolean;
     comments: mongoose.Types.ObjectId[];
     totalComments: number;
+    likes: number;
+    dislikes: number;
+}
+
+export interface IUserLike extends Document {
+    userId: mongoose.Types.ObjectId;
+    blogId: mongoose.Types.ObjectId;
+    like: boolean;
 }
 
 export interface BlogRequest {
