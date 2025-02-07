@@ -144,3 +144,37 @@ export const passwordResetConfirmMessage = (name: string): string => {
 </center>
 </body>`;
 };
+
+export const subscribedToNewsletter = (name: string): string => {
+    return `<body width="100%" style="margin: 0; padding: 0 !important; mso-line-height-rule: exactly; background-color: #f5f6fa;">
+     <center style="width: 100%; background-color: #f5f6fa;">
+           <table width="100%" border="0" cellpadding="0" cellspacing="0" bgcolor="#f5f6fa">
+               <tr>
+                  <td style="padding: 40px 0;">
+                       <table style="width:100%;max-width:620px;margin:0 auto;background-color:#ffffff;">
+                           <tbody>
+                               <tr>
+                                   <td style="padding: 30px 30px 15px 30px;">
+                                       <h2 style="font-size: 18px; color: #6576ff; font-weight: 600; margin: 0;">User Management Platform</h2>
+                                   </td>
+                               </tr>
+                               <tr>
+                                 <td style="padding: 0 30px 20px">
+                                    <p style="margin-bottom: 10px;">Hi ${name},</p>
+                                    <p style="margin-bottom: 10px;">Thank you for subscribing to our newsletter!</p>
+                                    <p style="margin-bottom: 10px;">You're now part of our community, and you'll receive the latest updates, exclusive content, and special offers straight to your inbox.</p>
+                                    <p style="margin-bottom: 15px;">Stay tuned for exciting news and insights!</p>
+
+                                    <p style="margin-bottom: 15px;">If you ever have any questions or feedback, feel free to reach out at <a style="color: #6576ff; text-decoration:none;" href="mailto:admin@gmail.com">admin@gmail.com</a>.</p>
+
+                                    <p style="margin-bottom: 15px;">Welcome aboard!</p>
+                                </td>
+                               </tr>
+                           </tbody>
+                       </table>
+                   </td>
+               </tr>
+           </table>
+       </center>
+     </body>`;
+};

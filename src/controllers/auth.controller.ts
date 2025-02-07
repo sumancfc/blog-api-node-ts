@@ -84,6 +84,8 @@ export const signIn: RequestHandler = asyncHandler(async (req, res) => {
         .select("+hashed_password +salt")
         .exec();
 
+    console.log("User from database :", user);
+
     if (!user) {
         logger.warn(`User not found with email: ${email}`);
         return sendErrorResponse(

@@ -50,9 +50,9 @@ const userSchema = new Schema<IUser>(
                 username: { type: String, required: true },
             },
         ],
-        following: [ { type: Schema.Types.ObjectId } ],
-        followers: [ { type: Schema.Types.ObjectId } ],
-        friends: [ { type: Schema.Types.ObjectId } ],
+        following: [{ type: Schema.Types.ObjectId }],
+        followers: [{ type: Schema.Types.ObjectId }],
+        friends: [{ type: Schema.Types.ObjectId }],
         accountStatus: {
             type: String,
             enum: Object.values(AccountStatus),
@@ -91,6 +91,10 @@ const userSchema = new Schema<IUser>(
                 },
                 message: "You must agree to the terms and conditions.",
             },
+        },
+        newsletter_subscribed: {
+            type: Boolean,
+            default: false,
         },
     },
     { timestamps: true }

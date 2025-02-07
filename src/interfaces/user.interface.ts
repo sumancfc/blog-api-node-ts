@@ -72,6 +72,7 @@ export interface IUser extends Document {
     resetPasswordExpires: Date;
     agreedToTerms: boolean;
     _password?: string;
+    newsletter_subscribed?: boolean;
     authenticate: (plainText: string) => boolean;
     encryptPassword: (password: string) => string;
     makeSalt: () => string;
