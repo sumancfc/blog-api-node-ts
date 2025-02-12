@@ -105,3 +105,16 @@ package-lock.json # Lockfile for npm dependencies
 README.md       # Project documentation
 tsconfig.json   # TypeScript configuration
 ```
+
+## API Documentation
+
+The API is documented using Swagger. Visit `/api-docs` after running the project to explore the available endpoints and their details.
+
+## Contribution
+
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository.
+2. Create a new branch for your feature or bug fix.
+3. Commit your changes with a clear message.
+4. Submit a pull request.
